@@ -1,0 +1,203 @@
+[
+  {
+    "id": "prod-1",
+    "name": "Oat milk cleanser",
+    "fullName": "Oat milk gentle cleanser",
+    "brand": "Briar and Bramble",
+    "type": "cleanser",
+    "typeName": "Cleanser",
+    "slot": "both",
+    "stepOrder": 1,
+    "badge": null,
+    "whatItDoes": "Gently lifts away dirt, sweat, and overnight oils without stripping the skin barrier.",
+    "openedDate": "2026-06-10",
+    "bestWithinMonths": 12,
+    "useByDate": "2027-06-10",
+    "warning": null,
+    "ingredients": [
+      { "name": "Colloidal oatmeal", "note": "Calms redness, locks in hydration" },
+      { "name": "Glycerin", "note": "Draws moisture deep into surface skin" },
+      { "name": "Lauryl glucoside", "note": "Mild, plant-derived non-stripping cleanser" }
+    ]
+  },
+  {
+    "id": "prod-2",
+    "name": "Rose water toner",
+    "fullName": "Rose water balancing toner",
+    "brand": "Fallow Field",
+    "type": "toner",
+    "typeName": "Toner",
+    "slot": "am",
+    "stepOrder": 2,
+    "badge": null,
+    "whatItDoes": "Rehydrates skin after washing and sets a damp base for serums.",
+    "openedDate": "2026-07-01",
+    "bestWithinMonths": 12,
+    "useByDate": "2027-07-01",
+    "warning": null,
+    "ingredients": [
+      { "name": "Damask rose distillate", "note": "Mild antioxidant botanical mist" },
+      { "name": "Sodium PCA", "note": "Natural humectant that holds water" }
+    ]
+  },
+  {
+    "id": "prod-3",
+    "name": "Glycolic toner",
+    "fullName": "Glycolic resurfacing toner",
+    "brand": "Meadow Vale",
+    "type": "toner",
+    "typeName": "Toner",
+    "slot": "pm",
+    "stepOrder": 2,
+    "badge": null,
+    "whatItDoes": "Gently dissolves dull surface skin cells to reveal smoother texture.",
+    "openedDate": "2026-08-15",
+    "bestWithinMonths": 9,
+    "useByDate": "2027-05-15",
+    "warning": "Do not use on the same night as Retinol serum.",
+    "ingredients": [
+      { "name": "Glycolic acid (7%)", "note": "AHA chemical exfoliant" },
+      { "name": "Aloe leaf juice", "note": "Cushions the acid and prevents sting" }
+    ]
+  },
+  {
+    "id": "prod-4",
+    "name": "Vitamin C serum",
+    "fullName": "15% Vitamin C brightening serum",
+    "brand": "Old Mill Botanics",
+    "type": "serum",
+    "typeName": "Serum",
+    "slot": "am",
+    "stepOrder": 3,
+    "badge": { "text": "Past its prime", "type": "past-prime" },
+    "whatItDoes": "Fights daytime free radicals and fades post-blemish dark spots.",
+    "openedDate": "2026-03-01",
+    "bestWithinMonths": 6,
+    "useByDate": "2026-09-01",
+    "warning": "Past its 6-month shelf life. If it smells like hot dog water or turned deep amber, toss it.",
+    "ingredients": [
+      { "name": "L-Ascorbic acid", "note": "Potent, pure Vitamin C antioxidant" },
+      { "name": "Ferulic acid", "note": "Stabilizes the Vitamin C and doubles potency" }
+    ]
+  },
+  {
+    "id": "prod-5",
+    "name": "Niacinamide serum",
+    "fullName": "10% Niacinamide + Zinc serum",
+    "brand": "Briar and Bramble",
+    "type": "serum",
+    "typeName": "Serum",
+    "slot": "both",
+    "stepOrder": 3,
+    "badge": null,
+    "whatItDoes": "Regulates excess daytime shine and supports skin lipid synthesis.",
+    "openedDate": "2026-06-20",
+    "bestWithinMonths": 12,
+    "useByDate": "2027-06-20",
+    "warning": null,
+    "ingredients": [
+      { "name": "Niacinamide (Vitamin B3)", "note": "Strengthens barrier and balances sebum" },
+      { "name": "Zinc PCA", "note": "Minimizes pore congestive buildup" }
+    ]
+  },
+  {
+    "id": "prod-6",
+    "name": "Retinol serum",
+    "fullName": "0.3% Retinol night serum",
+    "brand": "Sister Cellar",
+    "type": "serum",
+    "typeName": "Serum",
+    "slot": "pm",
+    "stepOrder": 3,
+    "badge": { "text": "Use soon", "type": "use-soon" },
+    "whatItDoes": "Speeds cell turnover overnight to smooth fine lines and unclog stubborn pores.",
+    "openedDate": "2026-04-11",
+    "bestWithinMonths": 6,
+    "useByDate": "2026-10-11",
+    "warning": "Expiring in 9 days. Keep away from Glycolic toner on the same evening.",
+    "ingredients": [
+      { "name": "Encapsulated retinol", "note": "Time-release Vitamin A for minimal irritation" },
+      { "name": "Squalane", "note": "Plant lipid cushion to mitigate dryness" }
+    ]
+  },
+  {
+    "id": "prod-7",
+    "name": "Caffeine eye cream",
+    "fullName": "Caffeine depuffing eye cream",
+    "brand": "Fallow Field",
+    "type": "eye_cream",
+    "typeName": "Eye cream",
+    "slot": "am",
+    "stepOrder": 4,
+    "badge": null,
+    "whatItDoes": "Constricts morning under-eye capillary puffiness and hydrates fine lines.",
+    "openedDate": "2026-05-12",
+    "bestWithinMonths": 12,
+    "useByDate": "2027-05-12",
+    "warning": null,
+    "ingredients": [
+      { "name": "Green tea caffeine extract", "note": "Temporarily reduces puffiness" },
+      { "name": "Centella asiatica", "note": "Soothes delicate under-eye skin" }
+    ]
+  },
+  {
+    "id": "prod-8",
+    "name": "Peptide eye balm",
+    "fullName": "Peptide firming eye balm",
+    "brand": "Sister Cellar",
+    "type": "eye_cream",
+    "typeName": "Eye cream",
+    "slot": "pm",
+    "stepOrder": 4,
+    "badge": null,
+    "whatItDoes": "Nourishes dry under-eye skin overnight with rebuilding amino peptides.",
+    "openedDate": "2026-05-12",
+    "bestWithinMonths": 12,
+    "useByDate": "2027-05-12",
+    "warning": null,
+    "ingredients": [
+      { "name": "Copper tripeptide-1", "note": "Supports collagen repair while you sleep" },
+      { "name": "Shea butter unsaponifiables", "note": "Rich conditioning lipid base" }
+    ]
+  },
+  {
+    "id": "prod-9",
+    "name": "Ceramide cushion",
+    "fullName": "Ceramide barrier cushion cream",
+    "brand": "Briar and Bramble",
+    "type": "moisturizer",
+    "typeName": "Moisturizer",
+    "slot": "both",
+    "stepOrder": 5,
+    "badge": null,
+    "whatItDoes": "Seals in all underneath hydration and locks the moisture barrier shut.",
+    "openedDate": "2026-04-10",
+    "bestWithinMonths": 12,
+    "useByDate": "2027-04-10",
+    "warning": null,
+    "ingredients": [
+      { "name": "Ceramides NP, AP, EOP", "note": "The essential building blocks of healthy skin" },
+      { "name": "Cholesterol and fatty acids", "note": "Mimics natural human skin barrier ratio" }
+    ]
+  },
+  {
+    "id": "prod-10",
+    "name": "Mineral SPF 50",
+    "fullName": "Sheer mineral sunscreen SPF 50",
+    "brand": "Meadow Vale",
+    "type": "sunscreen",
+    "typeName": "Sunscreen",
+    "slot": "am",
+    "stepOrder": 6,
+    "badge": null,
+    "whatItDoes": "Broad-spectrum physical protection against UV damage. Always your final step.",
+    "openedDate": "2026-08-01",
+    "bestWithinMonths": 12,
+    "useByDate": "2027-08-01",
+    "warning": null,
+    "ingredients": [
+      { "name": "Zinc oxide (18%)", "note": "Reflects UVA and UVB rays without stinging eyes" },
+      { "name": "Bisabolol", "note": "Chamomile-derived redness soother" }
+    ]
+  }
+]

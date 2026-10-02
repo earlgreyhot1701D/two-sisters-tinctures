@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Two Sisters Tinctures</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=IM+Fell+DW+Pica&amp;family=Libre+Caslon+Text:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="phone-container">
+<!-- Full bleed ambient hero background with scrim fading to bottle green -->
+<div class="hero-fixed-background">
+<div class="hero-scrim"></div>
+</div>
+<!-- Fallback error box -->
+<div id="render-error-box" role="alert"></div>
+<!-- Dynamic Main Root -->
+<div id="main-content">
+<!-- Built strictly via JS createElement & textContent -->
+</div>
+<!-- Persistent Bottom Navigation -->
+<nav aria-label="Main Navigation" class="bottom-nav">
+<button aria-label="Shelf tab" class="nav-btn active" id="tab-shelf">
+<span class="nav-icon">&#x1F9F4;</span>
+<span>Shelf</span>
+</button>
+<button aria-label="Routine tab" class="nav-btn" id="tab-routine">
+<span class="nav-icon">&#x2728;</span>
+<span>Routine</span>
+</button>
+<button aria-label="Add product tab" class="nav-btn" id="tab-add">
+<span class="nav-icon">&#x2795;</span>
+<span>Add</span>
+</button>
+<button aria-label="About app tab" class="nav-btn" id="tab-about">
+<span class="nav-icon">&#x1F33F;</span>
+<span>About</span>
+</button>
+</nav>
+</div>
+<!-- Product Detail Paper Label Modal Sheet -->
+<div aria-hidden="true" aria-modal="true" class="sheet-backdrop" id="detail-sheet-backdrop" role="dialog">
+<div class="paper-label-card" id="detail-sheet-content">
+<!-- Injected dynamically on product tap -->
+</div>
+</div>
+<!-- Toast for Backup Notifications: Hidden by default -->
+<div aria-live="polite" id="app-toast" role="status">Backup saved to device.</div>
+
+<script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,42 @@
+# render.yaml: Two Sisters Tinctures
+# Render Blueprint. Validate with: render blueprints validate render.yaml
+# Field names checked against the Blueprint spec on Oct 2 2026.
+services:
+  - type: web
+    name: two-sisters-tinctures
+    runtime: node
+    # Starter. Not the free plan: free services sleep after 15 minutes idle,
+    # and a judge's first tap would hit a cold start.
+    plan: 0.5c-512mb
+    region: oregon            # cannot change after creation
+    buildCommand: npm ci      # needs package-lock.json committed
+    startCommand: node server/index.js
+    healthCheckPath: /healthz
+    # commit = every push to the linked branch deploys.
+    # Flip to "off" at submission so the judged version stays frozen.
+    autoDeployTrigger: commit
+    envVars:
+      # Non-secret config. Safe to keep in the repo.
+      - key: NODE_ENV
+        value: production
+      - key: MODEL_PROVIDER
+        value: gemini
+      - key: GEMINI_MODEL
+        value: gemma-4-26b-a4b-it
+      - key: DAILY_CAP
+        value: "300"
+      - key: RATE_LIMIT_PER_MINUTE
+        value: "10"
+      - key: REQUEST_TIMEOUT_MS
+        value: "20000"
+      - key: MAX_IMAGE_BYTES
+        value: "1500000"
+      - key: MAX_TEXT_CHARS
+        value: "4000"
+      # Secrets. Render asks for these ONLY when the Blueprint is first created,
+      # and ignores sync:false vars on later syncs. Enter "unset" at creation,
+      # then set the real values by hand in Dashboard > Environment (Block 3).
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: DEMO_CODE
+        sync: false

@@ -1,0 +1,1959 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Two Sisters Tinctures</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=IM+Fell+DW+Pica&amp;family=Libre+Caslon+Text:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<style>
+    /* Strict Brand Color Palette & Typography */
+    :root {
+      --bg-bottle-green: #1E3A32;
+      --drawer-face: #24453B;
+      --drawer-edge: #173029;
+      --page-outside: #13261F;
+      --label-paper: #E9ECE3;
+      --prescription-ink: #22304A;
+      --amber: #9C6515;
+      --amber-glow: #C9902F;
+      --brass: #A88B4A;
+      --wordmark-brass: #CDB27A;
+      --pharmacy-red: #A1272F;
+      
+      --font-display: 'IM Fell DW Pica', serif;
+      --font-text: 'Libre Caslon Text', serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-style: normal !important;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--page-outside);
+      font-family: var(--font-text);
+      font-size: 17px;
+      line-height: 1.5;
+      color: var(--label-paper);
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Centered Mobile Phone Frame */
+    #phone-container {
+      width: 100%;
+      max-width: 430px;
+      min-height: 100vh;
+      background-color: var(--bg-bottle-green);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 0 60px rgba(0, 0, 0, 0.95);
+      overflow-x: hidden;
+      border-left: 1px solid var(--brass);
+      border-right: 1px solid var(--brass);
+    }
+
+    /* Ambient Hero Background with overlay fading to bottle green */
+    .hero-fixed-background {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 380px;
+      background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBZn2zXGjx-uDYdajgYgQkmweP47pgTraPJ85BgyrJ3Hogi4aluDV_wNHPdmB9NqEjCArgZOsECxAGU4iYhDrkBfuf06KXEl_Oqjw0z6MQUZfJkXqH5GgqmXwvtyu-4_WZvyYLIiVopTQCPLsl4pWITiPczo2gf1FZCZDLDvJEmSgGDaAycdezx7vGXRIIHu9BqtyJC9NZuAPu78S9KXUGf160Q0Dqs7911ujbkuP46nntagU8bjiCuXLSpd2mAA-PHaA');
+      background-size: cover;
+      background-position: center top;
+      background-repeat: no-repeat;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.65;
+    }
+
+    .hero-scrim {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        180deg, 
+        rgba(19, 38, 31, 0.92) 0%, 
+        rgba(30, 58, 50, 0.7) 45%, 
+        rgba(30, 58, 50, 0.96) 88%,
+        var(--bg-bottle-green) 100%
+      );
+    }
+
+    /* Main Scrollable View */
+    #main-content {
+      position: relative;
+      z-index: 1;
+      flex: 1;
+      padding-bottom: 96px;
+      overflow-y: auto;
+      scroll-behavior: smooth;
+    }
+
+    /* Header & Wordmark */
+    header.app-header {
+      padding: 36px 20px 10px;
+      text-align: center;
+      position: relative;
+    }
+
+    .wordmark-subtitle {
+      font-family: var(--font-text);
+      font-size: 17px;
+      letter-spacing: 0.14em;
+      color: var(--brass);
+      font-weight: 400;
+      margin-bottom: 2px;
+    }
+
+    .wordmark-title {
+      font-family: var(--font-display);
+      font-size: 56px;
+      font-weight: 400;
+      letter-spacing: 0.04em;
+      color: var(--wordmark-brass);
+      text-shadow: 0 2px 16px rgba(0, 0, 0, 0.85);
+      line-height: 1.05;
+    }
+
+    /* Sister Greeting Speech Bubble */
+    .greeting-bubble {
+      margin: 12px 16px 14px;
+      background: var(--label-paper);
+      border: 1px solid var(--brass);
+      border-radius: 12px;
+      padding: 14px 16px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+      position: relative;
+      color: var(--prescription-ink);
+    }
+
+    .greeting-bubble::after {
+      content: '';
+      position: absolute;
+      top: -8px;
+      left: 32px;
+      border-width: 0 8px 8px 8px;
+      border-style: solid;
+      border-color: transparent transparent var(--label-paper) transparent;
+    }
+
+    .greeting-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+
+    .sister-avatar {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--drawer-edge);
+      color: var(--label-paper);
+      border: 1px solid var(--brass);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .sister-tag {
+      font-family: var(--font-text);
+      font-size: 13px;
+      color: var(--prescription-ink);
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    .greeting-text {
+      font-family: var(--font-text);
+      font-size: 15px;
+      line-height: 1.45;
+      color: var(--prescription-ink);
+      font-weight: 400;
+    }
+
+    /* Tagline Marquee Strip */
+    .marquee-container {
+      overflow: hidden;
+      white-space: nowrap;
+      border-top: 1px solid var(--brass);
+      border-bottom: 1px solid var(--brass);
+      background: var(--drawer-edge);
+      padding: 7px 0;
+      margin-bottom: 18px;
+    }
+
+    .marquee-track {
+      display: inline-block;
+      white-space: nowrap;
+      animation: marquee 34s linear infinite;
+      font-family: var(--font-text);
+      font-size: 13px;
+      letter-spacing: 0.04em;
+      color: var(--label-paper);
+    }
+
+    .marquee-item {
+      display: inline-block;
+      margin: 0 16px;
+    }
+
+    @keyframes marquee {
+      0% { transform: translateX(0%); }
+      100% { transform: translateX(-50%); }
+    }
+
+    /* Shelf Section */
+    .shelf-section {
+      padding: 0 16px;
+    }
+
+    .shelf-meta-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 12px;
+      padding: 0 2px;
+    }
+
+    .shelf-count {
+      font-family: var(--font-display);
+      font-size: 20px;
+      color: var(--label-paper);
+      font-weight: 400;
+    }
+
+    .demo-shelf-note {
+      font-family: var(--font-text);
+      font-size: 13px;
+      color: var(--label-paper);
+      opacity: 0.75;
+      text-align: right;
+    }
+
+    /* APOTHECARY CHEST */
+    .apothecary-chest {
+      background: var(--drawer-edge);
+      border: 2px solid var(--brass);
+      border-radius: 14px;
+      padding: 12px;
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.6);
+      position: relative;
+      margin-bottom: 24px;
+    }
+
+    .apothecary-drawers-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    /* Drawer Card */
+    .drawer-card {
+      position: relative;
+      background: var(--drawer-face);
+      border: 1px solid var(--brass);
+      border-radius: 10px;
+      padding: 12px 10px 10px;
+      cursor: pointer;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 160px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
+      transition: transform 0.16s ease, border-color 0.16s ease;
+      font-family: var(--font-text);
+      outline: none;
+    }
+
+    .drawer-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--amber-glow);
+    }
+
+    .drawer-card:focus-visible {
+      outline: 2px solid var(--amber-glow);
+      outline-offset: 2px;
+    }
+
+    /* Drawer Inset Frame (Paper Label) */
+    .drawer-inset-frame {
+      position: relative;
+      width: 100%;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: var(--label-paper);
+      border: 1px solid var(--brass);
+      border-radius: 6px;
+      padding: 10px 6px 8px;
+    }
+
+    .drawer-rivet {
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--brass);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+    }
+
+    .drawer-rivet.left {
+      left: -4px;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+
+    .drawer-rivet.right {
+      right: -4px;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+
+    /* Drawer Typography */
+    .drawer-title {
+      font-family: var(--font-display);
+      font-size: 20px;
+      line-height: 1.15;
+      font-weight: 400;
+      color: var(--prescription-ink);
+      margin-bottom: 4px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      word-break: break-word;
+    }
+
+    .drawer-category {
+      font-family: var(--font-text);
+      font-size: 13px;
+      font-weight: 400;
+      color: var(--prescription-ink);
+      opacity: 0.85;
+    }
+
+    /* Drawer Knob */
+    .drawer-knob {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      margin-top: 10px;
+      background: var(--brass);
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.7);
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    .drawer-knob::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #D9C38B;
+      opacity: 0.6;
+    }
+
+    /* Drawer Badges */
+    .drawer-badge {
+      position: absolute;
+      top: -8px;
+      right: 8px;
+      font-family: var(--font-text);
+      font-size: 13px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 10px;
+      white-space: nowrap;
+      z-index: 2;
+    }
+
+    .drawer-badge.past-prime {
+      background: var(--drawer-edge);
+      color: var(--pharmacy-red);
+      border: 1px solid var(--pharmacy-red);
+    }
+
+    .drawer-badge.use-soon {
+      background: var(--drawer-edge);
+      color: var(--amber-glow);
+      border: 1px solid var(--amber);
+    }
+
+    /* Memos Section Below Cabinet */
+    .alerts-container {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+
+    .alerts-header {
+      font-family: var(--font-display);
+      font-size: 20px;
+      color: var(--label-paper);
+      font-weight: 400;
+      margin-bottom: 2px;
+    }
+
+    .alert-card {
+      background: var(--drawer-face);
+      border-radius: 10px;
+      padding: 13px 15px;
+      border: 1px solid var(--brass);
+      border-left: 4px solid var(--amber);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+    }
+
+    .alert-card.warning {
+      border-left: 4px solid var(--pharmacy-red);
+    }
+
+    .alert-title-row {
+      font-family: var(--font-text);
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--label-paper);
+      margin-bottom: 4px;
+    }
+
+    .alert-desc {
+      font-family: var(--font-text);
+      font-size: 15px;
+      line-height: 1.45;
+      color: var(--label-paper);
+      opacity: 0.9;
+    }
+
+    /* Screen Titles */
+    .screen-header-title {
+      font-family: var(--font-display);
+      font-size: 28px;
+      color: var(--label-paper);
+      text-align: center;
+      margin: 10px 0 14px;
+    }
+
+    /* Routine View Styles */
+    .routine-toggle-bar {
+      display: flex;
+      background: var(--drawer-edge);
+      border: 1px solid var(--brass);
+      border-radius: 10px;
+      padding: 4px;
+      margin: 14px 16px 18px;
+    }
+
+    .routine-toggle-btn {
+      flex: 1;
+      background: none;
+      border: none;
+      color: var(--label-paper);
+      font-family: var(--font-text);
+      font-size: 15px;
+      font-weight: 400;
+      padding: 9px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.15s ease, color 0.15s ease;
+    }
+
+    .routine-toggle-btn.active {
+      background: var(--drawer-face);
+      color: var(--amber-glow);
+      font-weight: 700;
+      border: 1px solid var(--brass);
+    }
+
+    .routine-steps-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 0 16px;
+    }
+
+    .routine-step-card {
+      background: var(--drawer-face);
+      border: 1px solid var(--brass);
+      border-radius: 12px;
+      padding: 14px;
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      cursor: pointer;
+    }
+
+    .routine-step-number {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--amber);
+      color: var(--label-paper);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-text);
+      font-size: 15px;
+      font-weight: 700;
+      flex-shrink: 0;
+      border: 1px solid var(--brass);
+    }
+
+    .routine-step-content {
+      flex: 1;
+    }
+
+    .routine-step-type {
+      font-family: var(--font-text);
+      font-size: 13px;
+      color: var(--brass);
+      margin-bottom: 2px;
+    }
+
+    .routine-step-name {
+      font-family: var(--font-display);
+      font-size: 20px;
+      color: var(--label-paper);
+      margin-bottom: 4px;
+      line-height: 1.2;
+    }
+
+    .routine-step-reason {
+      font-family: var(--font-text);
+      font-size: 15px;
+      color: var(--label-paper);
+      opacity: 0.9;
+      line-height: 1.4;
+    }
+
+    /* Add Flow Elements */
+    .add-flow-container {
+      padding: 10px 16px 20px;
+    }
+
+    .add-choice-card {
+      background: var(--drawer-face);
+      border: 1px solid var(--brass);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      text-align: left;
+      width: 100%;
+      color: inherit;
+      font-family: inherit;
+    }
+
+    .add-choice-card:hover {
+      border-color: var(--amber-glow);
+    }
+
+    .add-choice-icon {
+      font-size: 20px;
+      width: 44px;
+      height: 44px;
+      background: var(--drawer-edge);
+      border: 1px solid var(--brass);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      color: var(--label-paper);
+    }
+
+    .add-choice-title {
+      font-family: var(--font-text);
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--label-paper);
+      margin-bottom: 2px;
+    }
+
+    .add-choice-sub {
+      font-family: var(--font-text);
+      font-size: 13px;
+      color: var(--label-paper);
+      opacity: 0.8;
+    }
+
+    .reading-state-box {
+      text-align: center;
+      padding: 36px 20px;
+    }
+
+    .reading-spinner {
+      width: 42px;
+      height: 42px;
+      border: 3px solid var(--drawer-edge);
+      border-top-color: var(--amber-glow);
+      border-radius: 50%;
+      margin: 0 auto 16px;
+      animation: spin 1s infinite linear;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+      text-align: left;
+    }
+
+    .form-label {
+      display: block;
+      font-family: var(--font-text);
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--brass);
+      margin-bottom: 6px;
+    }
+
+    .form-input, .form-select {
+      width: 100%;
+      background: var(--drawer-edge);
+      border: 1px solid var(--brass);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-family: var(--font-text);
+      font-size: 15px;
+      color: var(--label-paper);
+    }
+
+    .form-input:focus, .form-select:focus {
+      outline: 2px solid var(--amber-glow);
+      border-color: var(--amber-glow);
+    }
+
+    /* Buttons strictly Amber #9C6515 for primary */
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background-color: var(--amber);
+      color: var(--label-paper);
+      font-family: var(--font-text);
+      font-size: 17px;
+      font-weight: 700;
+      border: 1px solid var(--brass);
+      border-radius: 10px;
+      padding: 12px 18px;
+      width: 100%;
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+
+    .btn-primary:hover {
+      background-color: var(--amber-glow);
+    }
+
+    .btn-primary:focus-visible {
+      outline: 2px solid var(--amber-glow);
+      outline-offset: 2px;
+    }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background-color: var(--drawer-face);
+      color: var(--label-paper);
+      font-family: var(--font-text);
+      font-size: 15px;
+      font-weight: 400;
+      border: 1px solid var(--brass);
+      border-radius: 10px;
+      padding: 11px 16px;
+      width: 100%;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--amber-glow);
+    }
+
+    /* About Screen Cards */
+    .about-story-card {
+      background: var(--drawer-face);
+      border: 1px solid var(--brass);
+      border-radius: 12px;
+      padding: 18px;
+      margin-bottom: 14px;
+    }
+
+    .story-quote {
+      font-family: var(--font-display);
+      font-size: 20px;
+      color: var(--label-paper);
+      margin-bottom: 12px;
+      line-height: 1.3;
+    }
+
+    .story-paragraph {
+      font-family: var(--font-text);
+      font-size: 15px;
+      line-height: 1.5;
+      color: var(--label-paper);
+      margin-bottom: 12px;
+    }
+
+    .disclaimer-card {
+      background: var(--drawer-edge);
+      border: 1px solid var(--pharmacy-red);
+      border-left: 4px solid var(--pharmacy-red);
+      border-radius: 10px;
+      padding: 14px;
+      margin-bottom: 20px;
+      font-family: var(--font-text);
+      font-size: 13px;
+      line-height: 1.45;
+      color: var(--label-paper);
+    }
+
+    /* Fixed Bottom Navigation */
+    nav.bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 430px;
+      height: 72px;
+      background: var(--drawer-edge);
+      border-top: 1px solid var(--brass);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 6px 10px 10px;
+      z-index: 10;
+    }
+
+    .nav-btn {
+      background: none;
+      border: none;
+      color: var(--label-paper);
+      opacity: 0.7;
+      font-family: var(--font-text);
+      font-size: 13px;
+      font-weight: 400;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      cursor: pointer;
+      padding: 6px 12px;
+      border-radius: 6px;
+      transition: opacity 0.15s ease, color 0.15s ease;
+    }
+
+    .nav-btn:hover {
+      opacity: 1;
+    }
+
+    .nav-btn.active {
+      opacity: 1;
+      color: var(--amber-glow);
+    }
+
+    .nav-btn:focus-visible {
+      outline: 2px solid var(--amber-glow);
+    }
+
+    .nav-icon {
+      font-size: 17px;
+    }
+
+    /* Modal Sheet: Paper label in #E9ECE3 with ink #22304A */
+    .sheet-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(19, 38, 31, 0.85);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      z-index: 50;
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.22s ease;
+    }
+
+    .sheet-backdrop.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .paper-label-card {
+      width: 100%;
+      max-width: 430px;
+      max-height: 86vh;
+      background-color: var(--label-paper);
+      color: var(--prescription-ink);
+      border-radius: 16px 16px 0 0;
+      border-top: 3px solid var(--brass);
+      border-left: 1px solid var(--brass);
+      border-right: 1px solid var(--brass);
+      box-shadow: 0 -10px 36px rgba(0, 0, 0, 0.85);
+      overflow-y: auto;
+      padding: 22px 20px 38px;
+      transform: translateY(100%);
+      transition: transform 0.26s ease;
+      position: relative;
+    }
+
+    .sheet-backdrop.open .paper-label-card {
+      transform: translateY(0);
+    }
+
+    .paper-header-ornament {
+      text-align: center;
+      padding-bottom: 12px;
+      margin-bottom: 14px;
+      border-bottom: 1px dashed var(--brass);
+      position: relative;
+    }
+
+    .apothecary-seal {
+      font-family: var(--font-text);
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--brass);
+      margin-bottom: 4px;
+    }
+
+    .sheet-close-btn {
+      position: absolute;
+      top: 0;
+      right: 0;
+      background: none;
+      border: 1px solid var(--prescription-ink);
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      color: var(--prescription-ink);
+      font-size: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .label-brand-name {
+      font-family: var(--font-text);
+      font-size: 13px;
+      color: var(--prescription-ink);
+      opacity: 0.8;
+      margin-bottom: 2px;
+    }
+
+    .label-product-title {
+      font-family: var(--font-display);
+      font-size: 28px;
+      line-height: 1.15;
+      font-weight: 400;
+      color: var(--prescription-ink);
+      margin-bottom: 12px;
+    }
+
+    .label-section {
+      margin-bottom: 16px;
+    }
+
+    .label-heading {
+      font-family: var(--font-text);
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--prescription-ink);
+      opacity: 0.85;
+      margin-bottom: 6px;
+    }
+
+    .label-body-text {
+      font-family: var(--font-text);
+      font-size: 15px;
+      line-height: 1.45;
+      color: var(--prescription-ink);
+    }
+
+    .ingredient-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .ingredient-item {
+      padding: 8px 10px;
+      background: rgba(34, 48, 74, 0.06);
+      border-left: 3px solid var(--brass);
+      border-radius: 0 4px 4px 0;
+      font-family: var(--font-text);
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    .ingredient-name {
+      font-weight: 700;
+      color: var(--prescription-ink);
+    }
+
+    .ingredient-desc {
+      color: var(--prescription-ink);
+    }
+
+    .label-meta-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      background: rgba(34, 48, 74, 0.05);
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid var(--brass);
+    }
+
+    .label-meta-cell-label {
+      font-size: 13px;
+      color: var(--prescription-ink);
+      opacity: 0.75;
+      margin-bottom: 2px;
+    }
+
+    .label-meta-cell-value {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--prescription-ink);
+    }
+
+    .label-warning-box {
+      margin-top: 14px;
+      padding: 10px 12px;
+      background: var(--label-paper);
+      border: 1px solid var(--pharmacy-red);
+      border-left: 4px solid var(--pharmacy-red);
+      border-radius: 6px;
+      color: var(--pharmacy-red);
+      font-size: 13px;
+      line-height: 1.4;
+      display: flex;
+      gap: 8px;
+    }
+
+    /* Toast Notification (Hidden by default) */
+    #app-toast {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-100px);
+      background: var(--drawer-edge);
+      color: var(--label-paper);
+      padding: 10px 20px;
+      border-radius: 24px;
+      border: 1px solid var(--brass);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+      font-family: var(--font-text);
+      font-size: 15px;
+      font-weight: 400;
+      z-index: 100;
+      transition: transform 0.22s ease;
+      pointer-events: none;
+    }
+
+    #app-toast.visible {
+      transform: translateX(-50%) translateY(0);
+    }
+
+    #render-error-box {
+      display: none;
+      padding: 20px;
+      margin: 20px;
+      background: var(--drawer-edge);
+      border: 1px solid var(--pharmacy-red);
+      border-radius: 8px;
+      color: var(--label-paper);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .marquee-track {
+        animation: none;
+      }
+      .reading-spinner {
+        animation: none;
+      }
+      .sheet-backdrop, .paper-label-card, .drawer-card {
+        transition: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+<div id="phone-container">
+<!-- Full bleed ambient hero background with scrim fading to bottle green -->
+<div class="hero-fixed-background">
+<div class="hero-scrim"></div>
+</div>
+<!-- Fallback error box -->
+<div id="render-error-box" role="alert"></div>
+<!-- Dynamic Main Root -->
+<div id="main-content">
+<!-- Built strictly via JS createElement & textContent -->
+</div>
+<!-- Persistent Bottom Navigation -->
+<nav aria-label="Main Navigation" class="bottom-nav">
+<button aria-label="Shelf tab" class="nav-btn active" id="tab-shelf">
+<span class="nav-icon">🧴</span>
+<span>Shelf</span>
+</button>
+<button aria-label="Routine tab" class="nav-btn" id="tab-routine">
+<span class="nav-icon">✨</span>
+<span>Routine</span>
+</button>
+<button aria-label="Add product tab" class="nav-btn" id="tab-add">
+<span class="nav-icon">➕</span>
+<span>Add</span>
+</button>
+<button aria-label="About app tab" class="nav-btn" id="tab-about">
+<span class="nav-icon">🌿</span>
+<span>About</span>
+</button>
+</nav>
+</div>
+<!-- Product Detail Paper Label Modal Sheet -->
+<div aria-hidden="true" aria-modal="true" class="sheet-backdrop" id="detail-sheet-backdrop" role="dialog">
+<div class="paper-label-card" id="detail-sheet-content">
+<!-- Injected dynamically on product tap -->
+</div>
+</div>
+<!-- Toast for Backup Notifications: Hidden by default -->
+<div aria-live="polite" id="app-toast" role="status">Backup saved to device.</div>
+<script>
+    /**
+     * Two Sisters Tinctures - Skincare Shelf Tracker
+     * Strict adherence to fonts: 'IM Fell DW Pica' and 'Libre Caslon Text'.
+     * DOM construction strictly with createElement and textContent (no innerHTML, no eval).
+     */
+    (function () {
+      'use strict';
+
+      // Current Date
+      const TODAY = new Date(2026, 9, 2); // Oct 2, 2026
+
+      // Products Dataset (Updated Retinol serum: opened Apr 11, 2026, best within 6 months, expires Oct 11, 2026: 9 days left)
+      const PRODUCTS_DATA = [
+        {
+          id: 'prod-1',
+          name: 'Oat milk cleanser',
+          fullName: 'Oat milk gentle cleanser',
+          brand: 'Briar and Bramble',
+          type: 'cleanser',
+          typeName: 'Cleanser',
+          slot: 'both',
+          stepOrder: 1,
+          badge: null,
+          whatItDoes: 'Gently lifts away dirt, sweat, and overnight oils without stripping the skin barrier.',
+          openedDate: '2026-06-10',
+          bestWithinMonths: 12,
+          useByDate: '2027-06-10',
+          warning: null,
+          ingredients: [
+            { name: 'Colloidal oatmeal', note: 'Calms redness, locks in hydration' },
+            { name: 'Glycerin', note: 'Draws moisture deep into surface skin' },
+            { name: 'Lauryl glucoside', note: 'Mild, plant-derived non-stripping cleanser' }
+          ]
+        },
+        {
+          id: 'prod-2',
+          name: 'Rose water toner',
+          fullName: 'Rose water balancing toner',
+          brand: 'Fallow Field',
+          type: 'toner',
+          typeName: 'Toner',
+          slot: 'am',
+          stepOrder: 2,
+          badge: null,
+          whatItDoes: 'Rehydrates skin after washing and sets a damp base for serums.',
+          openedDate: '2026-07-01',
+          bestWithinMonths: 12,
+          useByDate: '2027-07-01',
+          warning: null,
+          ingredients: [
+            { name: 'Damask rose distillate', note: 'Mild antioxidant botanical mist' },
+            { name: 'Sodium PCA', note: 'Natural humectant that holds water' }
+          ]
+        },
+        {
+          id: 'prod-3',
+          name: 'Glycolic toner',
+          fullName: 'Glycolic resurfacing toner',
+          brand: 'Meadow Vale',
+          type: 'toner',
+          typeName: 'Toner',
+          slot: 'pm',
+          stepOrder: 2,
+          badge: null,
+          whatItDoes: 'Gently dissolves dull surface skin cells to reveal smoother texture.',
+          openedDate: '2026-08-15',
+          bestWithinMonths: 9,
+          useByDate: '2027-05-15',
+          warning: 'Do not use on the same night as Retinol serum.',
+          ingredients: [
+            { name: 'Glycolic acid (7%)', note: 'AHA chemical exfoliant' },
+            { name: 'Aloe leaf juice', note: 'Cushions the acid and prevents sting' }
+          ]
+        },
+        {
+          id: 'prod-4',
+          name: 'Vitamin C serum',
+          fullName: '15% Vitamin C brightening serum',
+          brand: 'Old Mill Botanics',
+          type: 'serum',
+          typeName: 'Serum',
+          slot: 'am',
+          stepOrder: 3,
+          badge: { text: 'Past its prime', type: 'past-prime' },
+          whatItDoes: 'Fights daytime free radicals and fades post-blemish dark spots.',
+          openedDate: '2026-03-01',
+          bestWithinMonths: 6,
+          useByDate: '2026-09-01',
+          warning: 'Past its 6-month shelf life. If it smells like hot dog water or turned deep amber, toss it.',
+          ingredients: [
+            { name: 'L-Ascorbic acid', note: 'Potent, pure Vitamin C antioxidant' },
+            { name: 'Ferulic acid', note: 'Stabilizes the Vitamin C and doubles potency' }
+          ]
+        },
+        {
+          id: 'prod-5',
+          name: 'Niacinamide serum',
+          fullName: '10% Niacinamide + Zinc serum',
+          brand: 'Briar and Bramble',
+          type: 'serum',
+          typeName: 'Serum',
+          slot: 'both',
+          stepOrder: 3,
+          badge: null,
+          whatItDoes: 'Regulates excess daytime shine and supports skin lipid synthesis.',
+          openedDate: '2026-06-20',
+          bestWithinMonths: 12,
+          useByDate: '2027-06-20',
+          warning: null,
+          ingredients: [
+            { name: 'Niacinamide (Vitamin B3)', note: 'Strengthens barrier and balances sebum' },
+            { name: 'Zinc PCA', note: 'Minimizes pore congestive buildup' }
+          ]
+        },
+        {
+          id: 'prod-6',
+          name: 'Retinol serum',
+          fullName: '0.3% Retinol night serum',
+          brand: 'Sister Cellar',
+          type: 'serum',
+          typeName: 'Serum',
+          slot: 'pm',
+          stepOrder: 3,
+          badge: { text: 'Use soon', type: 'use-soon' },
+          whatItDoes: 'Speeds cell turnover overnight to smooth fine lines and unclog stubborn pores.',
+          openedDate: '2026-04-11',
+          bestWithinMonths: 6,
+          useByDate: '2026-10-11',
+          warning: 'Expiring in 9 days. Keep away from Glycolic toner on the same evening.',
+          ingredients: [
+            { name: 'Encapsulated retinol', note: 'Time-release Vitamin A for minimal irritation' },
+            { name: 'Squalane', note: 'Plant lipid cushion to mitigate dryness' }
+          ]
+        },
+        {
+          id: 'prod-7',
+          name: 'Caffeine eye cream',
+          fullName: 'Caffeine depuffing eye cream',
+          brand: 'Fallow Field',
+          type: 'eye_cream',
+          typeName: 'Eye cream',
+          slot: 'am',
+          stepOrder: 4,
+          badge: null,
+          whatItDoes: 'Constricts morning under-eye capillary puffiness and hydrates fine lines.',
+          openedDate: '2026-05-12',
+          bestWithinMonths: 12,
+          useByDate: '2027-05-12',
+          warning: null,
+          ingredients: [
+            { name: 'Green tea caffeine extract', note: 'Temporarily reduces puffiness' },
+            { name: 'Centella asiatica', note: 'Soothes delicate under-eye skin' }
+          ]
+        },
+        {
+          id: 'prod-8',
+          name: 'Peptide eye balm',
+          fullName: 'Peptide firming eye balm',
+          brand: 'Sister Cellar',
+          type: 'eye_cream',
+          typeName: 'Eye cream',
+          slot: 'pm',
+          stepOrder: 4,
+          badge: null,
+          whatItDoes: 'Nourishes dry under-eye skin overnight with rebuilding amino peptides.',
+          openedDate: '2026-05-12',
+          bestWithinMonths: 12,
+          useByDate: '2027-05-12',
+          warning: null,
+          ingredients: [
+            { name: 'Copper tripeptide-1', note: 'Supports collagen repair while you sleep' },
+            { name: 'Shea butter unsaponifiables', note: 'Rich conditioning lipid base' }
+          ]
+        },
+        {
+          id: 'prod-9',
+          name: 'Ceramide cushion',
+          fullName: 'Ceramide barrier cushion cream',
+          brand: 'Briar and Bramble',
+          type: 'moisturizer',
+          typeName: 'Moisturizer',
+          slot: 'both',
+          stepOrder: 5,
+          badge: null,
+          whatItDoes: 'Seals in all underneath hydration and locks the moisture barrier shut.',
+          openedDate: '2026-04-10',
+          bestWithinMonths: 12,
+          useByDate: '2027-04-10',
+          warning: null,
+          ingredients: [
+            { name: 'Ceramides NP, AP, EOP', note: 'The essential building blocks of healthy skin' },
+            { name: 'Cholesterol and fatty acids', note: 'Mimics natural human skin barrier ratio' }
+          ]
+        },
+        {
+          id: 'prod-10',
+          name: 'Mineral SPF 50',
+          fullName: 'Sheer mineral sunscreen SPF 50',
+          brand: 'Meadow Vale',
+          type: 'sunscreen',
+          typeName: 'Sunscreen',
+          slot: 'am',
+          stepOrder: 6,
+          badge: null,
+          whatItDoes: 'Broad-spectrum physical protection against UV damage. Always your final step.',
+          openedDate: '2026-08-01',
+          bestWithinMonths: 12,
+          useByDate: '2027-08-01',
+          warning: null,
+          ingredients: [
+            { name: 'Zinc oxide (18%)', note: 'Reflects UVA and UVB rays without stinging eyes' },
+            { name: 'Bisabolol', note: 'Chamomile-derived redness soother' }
+          ]
+        }
+      ];
+
+      // Application State
+      let currentTab = 'shelf';
+      let routineTime = 'pm';
+      let addFlowStep = 'select';
+      let addMethod = '';
+      let products = [...PRODUCTS_DATA];
+
+      const mainContent = document.getElementById('main-content');
+      const detailBackdrop = document.getElementById('detail-sheet-backdrop');
+      const detailContent = document.getElementById('detail-sheet-content');
+      const toastEl = document.getElementById('app-toast');
+
+      function showToast(msg) {
+        toastEl.textContent = msg;
+        toastEl.classList.add('visible');
+        setTimeout(() => {
+          toastEl.classList.remove('visible');
+        }, 3000);
+      }
+
+      // Safe Element Helper
+      function el(tag, attrs = {}, children = []) {
+        const element = document.createElement(tag);
+        for (const [key, val] of Object.entries(attrs)) {
+          if (key === 'className') {
+            element.className = val;
+          } else if (key === 'onclick') {
+            element.addEventListener('click', val);
+          } else if (key.startsWith('aria-')) {
+            element.setAttribute(key, val);
+          } else {
+            element.setAttribute(key, val);
+          }
+        }
+        for (const child of children) {
+          if (typeof child === 'string' || typeof child === 'number') {
+            element.appendChild(document.createTextNode(child));
+          } else if (child instanceof Node) {
+            element.appendChild(child);
+          }
+        }
+        return element;
+      }
+
+      // Wordmark Header
+      function createHeader() {
+        const header = el('header', { className: 'app-header' }, [
+          el('div', { className: 'wordmark-subtitle' }, ['Two Sisters']),
+          el('h1', { className: 'wordmark-title' }, ['Tinctures'])
+        ]);
+        return header;
+      }
+
+      // Sister Speech Bubble
+      function createGreetingBubble(voiceText) {
+        return el('div', { className: 'greeting-bubble' }, [
+          el('div', { className: 'greeting-header' }, [
+            el('div', { className: 'sister-avatar' }, ['S']),
+            el('span', { className: 'sister-tag' }, ['Little sister says:'])
+          ]),
+          el('p', { className: 'greeting-text' }, [voiceText])
+        ]);
+      }
+
+      // Tagline Strip
+      function createMarquee() {
+        const lines = [
+          'Thinnest to thickest.',
+          'Sunscreen is always last.',
+          'Don’t mix your retinol and your acids.',
+          'Pat, don’t rub.',
+          'Your neck counts as your face.'
+        ];
+        const repeated = [...lines, ...lines];
+        
+        const track = el('div', { className: 'marquee-track' });
+        repeated.forEach(text => {
+          track.appendChild(el('span', { className: 'marquee-item' }, [`* ${text}`]));
+        });
+
+        return el('div', { className: 'marquee-container' }, [track]);
+      }
+
+      // Product Detail Card
+      function openProductDetail(product) {
+        detailContent.replaceChildren();
+
+        const headerOrnament = el('div', { className: 'paper-header-ornament' }, [
+          el('div', { className: 'apothecary-seal' }, ['Two Sisters Tinctures : Specimen card']),
+          el('div', { className: 'label-brand-name' }, [product.brand]),
+          el('h2', { className: 'label-product-title' }, [product.fullName || product.name]),
+          el('button', {
+            className: 'sheet-close-btn',
+            'aria-label': 'Close detail label',
+            onclick: closeProductDetail
+          }, ['X'])
+        ]);
+
+        const doesSection = el('div', { className: 'label-section' }, [
+          el('div', { className: 'label-heading' }, ['What it does']),
+          el('p', { className: 'label-body-text' }, [product.whatItDoes])
+        ]);
+
+        const ingHeading = el('div', { className: 'label-heading' }, ['Ingredients in plain language']);
+        const ingList = el('ul', { className: 'ingredient-list' });
+        product.ingredients.forEach(ing => {
+          ingList.appendChild(
+            el('li', { className: 'ingredient-item' }, [
+              el('span', { className: 'ingredient-name' }, [`${ing.name}: `]),
+              el('span', { className: 'ingredient-desc' }, [ing.note])
+            ])
+          );
+        });
+
+        const metaGrid = el('div', { className: 'label-meta-grid' }, [
+          el('div', {}, [
+            el('div', { className: 'label-meta-cell-label' }, ['Routine slot']),
+            el('div', { className: 'label-meta-cell-value' }, [
+              product.slot === 'both' ? 'Morning and Night' : product.slot === 'am' ? 'Morning only' : 'Night only'
+            ])
+          ]),
+          el('div', {}, [
+            el('div', { className: 'label-meta-cell-label' }, ['Product type']),
+            el('div', { className: 'label-meta-cell-value' }, [product.typeName])
+          ]),
+          el('div', {}, [
+            el('div', { className: 'label-meta-cell-label' }, ['Opened date']),
+            el('div', { className: 'label-meta-cell-value' }, [product.openedDate])
+          ]),
+          el('div', {}, [
+            el('div', { className: 'label-meta-cell-label' }, ['Best within / Use by']),
+            el('div', { className: 'label-meta-cell-value' }, [`${product.bestWithinMonths} mo (${product.useByDate})`])
+          ])
+        ]);
+
+        detailContent.appendChild(headerOrnament);
+        detailContent.appendChild(doesSection);
+        detailContent.appendChild(el('div', { className: 'label-section' }, [ingHeading, ingList]));
+        detailContent.appendChild(el('div', { className: 'label-section' }, [metaGrid]));
+
+        if (product.warning) {
+          const warnBox = el('div', { className: 'label-warning-box' }, [
+            el('span', {}, ['!']),
+            el('div', {}, [
+              el('strong', {}, ['Sister alert: ']),
+              product.warning
+            ])
+          ]);
+          detailContent.appendChild(warnBox);
+        }
+
+        const closeBtn = el('button', {
+          className: 'btn-secondary',
+          style: 'color: var(--prescription-ink); background: rgba(34,48,74,0.08); margin-top: 16px;',
+          onclick: closeProductDetail
+        }, ['Tuck back into cabinet']);
+        detailContent.appendChild(closeBtn);
+
+        detailBackdrop.classList.add('open');
+        detailBackdrop.setAttribute('aria-hidden', 'false');
+      }
+
+      function closeProductDetail() {
+        detailBackdrop.classList.remove('open');
+        detailBackdrop.setAttribute('aria-hidden', 'true');
+      }
+
+      detailBackdrop.addEventListener('click', (e) => {
+        if (e.target === detailBackdrop) {
+          closeProductDetail();
+        }
+      });
+
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && detailBackdrop.classList.contains('open')) {
+          closeProductDetail();
+        }
+      });
+
+      // 1. SHELF SCREEN
+      function renderShelfScreen() {
+        const container = el('div');
+        container.appendChild(createHeader());
+        container.appendChild(createGreetingBubble(
+          "Look at that shelf! Wash off the day first, then let's see what we're layering tonight."
+        ));
+        container.appendChild(createMarquee());
+
+        const shelfSection = el('div', { className: 'shelf-section' });
+
+        const metaBar = el('div', { className: 'shelf-meta-bar' }, [
+          el('div', { className: 'shelf-count' }, [`Cabinet (${products.length} bottles)`]),
+          el('div', { className: 'demo-shelf-note' }, ['Demo shelf. Nothing you add here is saved.'])
+        ]);
+        shelfSection.appendChild(metaBar);
+
+        // Apothecary Chest with brass frame (no eyebrow text)
+        const chest = el('div', { className: 'apothecary-chest' });
+        const drawersGrid = el('div', { className: 'apothecary-drawers-grid' });
+
+        products.forEach(prod => {
+          const innerFrame = el('div', { className: 'drawer-inset-frame' }, [
+            el('div', { className: 'drawer-rivet left' }),
+            el('div', { className: 'drawer-rivet right' }),
+            el('div', { className: 'drawer-title' }, [prod.name]),
+            el('div', { className: 'drawer-category' }, [prod.typeName])
+          ]);
+
+          const knob = el('div', { className: 'drawer-knob' });
+          const drawerCardChildren = [innerFrame, knob];
+
+          if (prod.badge) {
+            const badgeEl = el('span', {
+              className: `drawer-badge ${prod.badge.type}`
+            }, [prod.badge.text]);
+            drawerCardChildren.unshift(badgeEl);
+          }
+
+          const drawerButton = el('button', {
+            className: 'drawer-card',
+            'aria-label': `Open drawer for ${prod.name}`,
+            onclick: () => openProductDetail(prod)
+          }, drawerCardChildren);
+
+          drawersGrid.appendChild(drawerButton);
+        });
+
+        chest.appendChild(drawersGrid);
+        shelfSection.appendChild(chest);
+
+        // Memos and Alerts Section (no decorative sparkles/diamonds)
+        const alertsContainer = el('div', { className: 'alerts-container' });
+
+        const alertsTitle = el('div', { className: 'alerts-header' }, ['Shelf memos']);
+        alertsContainer.appendChild(alertsTitle);
+
+        // Memo 1: Don't mix
+        const mixAlert = el('div', { className: 'alert-card warning' }, [
+          el('div', { className: 'alert-title-row' }, ['Don’t mix tonight: Glycolic acid and Retinol']),
+          el('p', { className: 'alert-desc' }, [
+            "Hold on, love. You’ve got both glycolic acid and retinol queued up tonight. Pick one, or your moisture barrier will send me angry texts."
+          ])
+        ]);
+
+        // Memo 2: Past shelf life
+        const expiredAlert = el('div', { className: 'alert-card warning' }, [
+          el('div', { className: 'alert-title-row' }, ['Past its shelf life: Vitamin C serum (7 mo)']),
+          el('p', { className: 'alert-desc' }, [
+            "Your Vitamin C has been open for 7 months. It was best within 6. If it smells like hot dog water or turned deep orange, let it retire."
+          ])
+        ]);
+
+        // Memo 3: Expiring soon (amber left border)
+        const expiringAlert = el('div', { className: 'alert-card' }, [
+          el('div', { className: 'alert-title-row' }, ['Use up soon: 0.3% Retinol night serum']),
+          el('p', { className: 'alert-desc' }, [
+            "Expires in 9 days (Oct 11, 2026). Give it a good spot on the shelf so you don't forget it."
+          ])
+        ]);
+
+        alertsContainer.appendChild(mixAlert);
+        alertsContainer.appendChild(expiredAlert);
+        alertsContainer.appendChild(expiringAlert);
+        shelfSection.appendChild(alertsContainer);
+
+        container.appendChild(shelfSection);
+        return container;
+      }
+
+      // 2. ROUTINE SCREEN
+      function renderRoutineScreen() {
+        const container = el('div');
+        container.appendChild(createHeader());
+
+        const voiceMsg = routineTime === 'am' 
+          ? "Morning is about armor: antioxidants, barrier moisture, and sunscreen always last. Don't skip the SPF, mom's watching!"
+          : "Night is for repair: wash the city away, layer your treatments, and tuck your skin into bed with a cozy cream.";
+
+        container.appendChild(createGreetingBubble(voiceMsg));
+
+        const toggleBar = el('div', { className: 'routine-toggle-bar' });
+        const amBtn = el('button', {
+          className: `routine-toggle-btn ${routineTime === 'am' ? 'active' : ''}`,
+          onclick: () => {
+            routineTime = 'am';
+            renderApp();
+          }
+        }, ['Morning routine']);
+
+        const pmBtn = el('button', {
+          className: `routine-toggle-btn ${routineTime === 'pm' ? 'active' : ''}`,
+          onclick: () => {
+            routineTime = 'pm';
+            renderApp();
+          }
+        }, ['Night routine']);
+
+        toggleBar.appendChild(amBtn);
+        toggleBar.appendChild(pmBtn);
+        container.appendChild(toggleBar);
+
+        const routineItems = products.filter(p => p.slot === 'both' || p.slot === routineTime);
+        routineItems.sort((a, b) => a.stepOrder - b.stepOrder);
+
+        const stepsList = el('div', { className: 'routine-steps-list' });
+
+        let stepIndex = 1;
+        routineItems.forEach(prod => {
+          let stepReason = '';
+          if (prod.type === 'cleanser') {
+            stepReason = routineTime === 'am' ? 'Wakes skin up and cleans off overnight oils.' : 'Removes pollution and sunscreen before skincare goes on.';
+          } else if (prod.type === 'toner') {
+            stepReason = 'Preps damp skin so your serums absorb twice as well.';
+          } else if (prod.type === 'serum') {
+            stepReason = prod.name.toLowerCase().includes('retinol') ? 'Cell turnover active. Use on alternate nights from glycolic acid.' : 'Targeted actives soak in while the formula is thin.';
+          } else if (prod.type === 'eye_cream') {
+            stepReason = 'Thinner skin around the eyes absorbs gently before heavier creams.';
+          } else if (prod.type === 'moisturizer') {
+            stepReason = 'Locks all underlying moisture down so water doesn’t evaporate overnight.';
+          } else if (prod.type === 'sunscreen') {
+            stepReason = 'Sunscreen is always last. Never put moisturizer on top of sunscreen.';
+          }
+
+          const stepCard = el('div', {
+            className: 'routine-step-card',
+            onclick: () => openProductDetail(prod)
+          }, [
+            el('div', { className: 'routine-step-number' }, [stepIndex++]),
+            el('div', { className: 'routine-step-content' }, [
+              el('div', { className: 'routine-step-type' }, [prod.typeName]),
+              el('div', { className: 'routine-step-name' }, [prod.fullName || prod.name]),
+              el('div', { className: 'routine-step-reason' }, [stepReason])
+            ])
+          ]);
+          stepsList.appendChild(stepCard);
+        });
+
+        container.appendChild(stepsList);
+        return container;
+      }
+
+      // 3. ADD SCREEN
+      function renderAddScreen() {
+        const container = el('div');
+        container.appendChild(createHeader());
+
+        if (addFlowStep === 'select') {
+          container.appendChild(createGreetingBubble("Ooh, what'd you get? Show me the goods."));
+
+          const addContainer = el('div', { className: 'add-flow-container' });
+
+          const snapCard = el('button', {
+            className: 'add-choice-card',
+            onclick: () => {
+              addMethod = 'snap';
+              addFlowStep = 'reading';
+              renderApp();
+              setTimeout(() => {
+                addFlowStep = 'confirm';
+                renderApp();
+              }, 1100);
+            }
+          }, [
+            el('div', { className: 'add-choice-icon' }, ['📷']),
+            el('div', {}, [
+              el('div', { className: 'add-choice-title' }, ['Snap the label']),
+              el('div', { className: 'add-choice-sub' }, ['Take a photo of the back of the bottle'])
+            ])
+          ]);
+
+          const pasteCard = el('button', {
+            className: 'add-choice-card',
+            onclick: () => {
+              addMethod = 'paste';
+              addFlowStep = 'reading';
+              renderApp();
+              setTimeout(() => {
+                addFlowStep = 'confirm';
+                renderApp();
+              }, 950);
+            }
+          }, [
+            el('div', { className: 'add-choice-icon' }, ['📋']),
+            el('div', {}, [
+              el('div', { className: 'add-choice-title' }, ['Paste the ingredients']),
+              el('div', { className: 'add-choice-sub' }, ['Copy from a product page or email'])
+            ])
+          ]);
+
+          const typeCard = el('button', {
+            className: 'add-choice-card',
+            onclick: () => {
+              addMethod = 'type';
+              addFlowStep = 'type_input';
+              renderApp();
+            }
+          }, [
+            el('div', { className: 'add-choice-icon' }, ['✍']),
+            el('div', {}, [
+              el('div', { className: 'add-choice-title' }, ['Type the name']),
+              el('div', { className: 'add-choice-sub' }, ['Tell me what bottle you have'])
+            ])
+          ]);
+
+          addContainer.appendChild(snapCard);
+          addContainer.appendChild(pasteCard);
+          addContainer.appendChild(typeCard);
+          container.appendChild(addContainer);
+
+        } else if (addFlowStep === 'reading') {
+          container.appendChild(createGreetingBubble("Let me squint at this tiny label, hang on a second..."));
+
+          const readingBox = el('div', { className: 'reading-state-box' }, [
+            el('div', { className: 'reading-spinner' }),
+            el('p', { style: 'font-family: var(--font-display); font-size: 20px; color: var(--label-paper);' }, [
+              addMethod === 'snap' ? 'Analyzing bottle camera capture...' : 'Reading ingredient deck...'
+            ]),
+            el('p', { style: 'font-family: var(--font-text); font-size: 13px; color: var(--label-paper); opacity: 0.8; margin-top: 6px;' }, [
+              'Sorting actives, humectants, and preservatives'
+            ])
+          ]);
+          container.appendChild(readingBox);
+
+        } else if (addFlowStep === 'confirm') {
+          container.appendChild(createGreetingBubble(
+            "Here's what I could make out. Check my homework before we tuck it into the cabinet."
+          ));
+
+          const formBox = el('div', { className: 'add-flow-container' });
+
+          const nameGroup = el('div', { className: 'form-group' }, [
+            el('label', { className: 'form-label' }, ['Product name']),
+            el('input', { className: 'form-input', value: 'Elderberry and Zinc calming elixir', id: 'new-prod-name' })
+          ]);
+
+          const brandGroup = el('div', { className: 'form-group' }, [
+            el('label', { className: 'form-label' }, ['Brand']),
+            el('input', { className: 'form-input', value: "Couldn't read this", id: 'new-prod-brand' })
+          ]);
+
+          const typeGroup = el('div', { className: 'form-group' }, [
+            el('label', { className: 'form-label' }, ['Product type']),
+            el('select', { className: 'form-select', id: 'new-prod-type' }, [
+              el('option', { value: 'serum' }, ['Serum']),
+              el('option', { value: 'cleanser' }, ['Cleanser']),
+              el('option', { value: 'toner' }, ['Toner']),
+              el('option', { value: 'moisturizer' }, ['Moisturizer']),
+              el('option', { value: 'sunscreen' }, ['Sunscreen'])
+            ])
+          ]);
+
+          const saveBtn = el('button', {
+            className: 'btn-primary',
+            onclick: () => {
+              const nameVal = document.getElementById('new-prod-name').value || 'Elderberry and Zinc elixir';
+              const brandVal = document.getElementById('new-prod-brand').value || 'Sister Cellar';
+              const typeVal = document.getElementById('new-prod-type').value;
+
+              products.unshift({
+                id: 'prod-' + Date.now(),
+                name: 'Zinc elixir',
+                fullName: nameVal,
+                brand: brandVal === "Couldn't read this" ? 'Sister Cellar' : brandVal,
+                type: typeVal,
+                typeName: typeVal.charAt(0).toUpperCase() + typeVal.slice(1),
+                slot: 'both',
+                stepOrder: 3,
+                badge: null,
+                whatItDoes: 'Comforts sensitive flare-ups and locks moisture into place.',
+                openedDate: '2026-10-02',
+                bestWithinMonths: 12,
+                useByDate: '2027-10-02',
+                warning: null,
+                ingredients: [
+                  { name: 'Elderberry fruit extract', note: 'Rich in protective polyphenols' },
+                  { name: 'Zinc PCA', note: 'Calms redness' }
+                ]
+              });
+
+              showToast(`Added ${nameVal} to your apothecary shelf!`);
+              addFlowStep = 'select';
+              currentTab = 'shelf';
+              updateNavState();
+              renderApp();
+            }
+          }, ['Save to my shelf']);
+
+          const cancelBtn = el('button', {
+            className: 'btn-secondary',
+            onclick: () => {
+              addFlowStep = 'select';
+              renderApp();
+            }
+          }, ['Start over']);
+
+          formBox.appendChild(nameGroup);
+          formBox.appendChild(brandGroup);
+          formBox.appendChild(typeGroup);
+          formBox.appendChild(saveBtn);
+          formBox.appendChild(cancelBtn);
+          container.appendChild(formBox);
+
+        } else if (addFlowStep === 'type_input') {
+          container.appendChild(createGreetingBubble(
+            "Just type the name. I can tell you where it fits, but I won't guess the ingredients without seeing them."
+          ));
+
+          const formBox = el('div', { className: 'add-flow-container' });
+
+          const nameGroup = el('div', { className: 'form-group' }, [
+            el('label', { className: 'form-label' }, ['What is it called?']),
+            el('input', {
+              className: 'form-input',
+              placeholder: 'e.g. Ceramide barrier balm',
+              id: 'type-name-input'
+            })
+          ]);
+
+          const lookUpBtn = el('button', {
+            className: 'btn-primary',
+            onclick: () => {
+              const val = document.getElementById('type-name-input').value.trim() || 'Custom facial tincture';
+              products.unshift({
+                id: 'prod-' + Date.now(),
+                name: val.length > 18 ? val.substring(0, 16) + '...' : val,
+                fullName: val,
+                brand: 'Unspecified Brand',
+                type: 'moisturizer',
+                typeName: 'Moisturizer',
+                slot: 'both',
+                stepOrder: 5,
+                badge: null,
+                whatItDoes: 'General skin barrier replenishment and conditioning.',
+                openedDate: '2026-10-02',
+                bestWithinMonths: 12,
+                useByDate: '2027-10-02',
+                warning: 'Ingredients not logged. Snap or paste label to check conflicts.',
+                ingredients: [
+                  { name: 'Unknown ingredients', note: 'Not logged yet. Snap bottle label to populate.' }
+                ]
+              });
+              showToast(`Added ${val} to shelf!`);
+              addFlowStep = 'select';
+              currentTab = 'shelf';
+              updateNavState();
+              renderApp();
+            }
+          }, ['Add to shelf anyway']);
+
+          const backBtn = el('button', {
+            className: 'btn-secondary',
+            onclick: () => {
+              addFlowStep = 'select';
+              renderApp();
+            }
+          }, ['Back']);
+
+          formBox.appendChild(nameGroup);
+          formBox.appendChild(lookUpBtn);
+          formBox.appendChild(backBtn);
+          container.appendChild(formBox);
+        }
+
+        return container;
+      }
+
+      // 4. ABOUT SCREEN
+      function renderAboutScreen() {
+        const container = el('div');
+        container.appendChild(createHeader());
+        container.appendChild(createGreetingBubble(
+          "Built for our group chat, because buying three exfoliators you can't use together is an expensive hobby."
+        ));
+
+        const aboutWrapper = el('div', { className: 'shelf-section' });
+
+        const storyCard = el('div', { className: 'about-story-card' }, [
+          el('div', { className: 'story-quote' }, ['"What order do these go in again?"']),
+          el('p', { className: 'story-paragraph' }, [
+            "Two Sisters Tinctures was built by one sister for the other. Every time one of us would go to a beauty counter or drugstore, our family group chat would get a flurry of blurry label photos asking if it clashed with the retinol we already owned."
+          ]),
+          el('p', { className: 'story-paragraph' }, [
+            "This app keeps an inventory of what you already have at home in your apothecary cabinet so you don't buy duplicate serums, forget when a cream was opened, or burn your face by mixing potent acids."
+          ])
+        ]);
+
+        const backupActions = el('div', { style: 'margin-bottom: 20px; display: flex; flex-direction: column; gap: 8px;' }, [
+          el('button', {
+            className: 'btn-primary',
+            onclick: () => showToast('Backup saved to device.')
+          }, ['Back up my shelf']),
+          el('button', {
+            className: 'btn-secondary',
+            onclick: () => showToast('Restored 10 bottles from backup.')
+          }, ['Restore from a backup'])
+        ]);
+
+        const disclaimerCard = el('div', { className: 'disclaimer-card' }, [
+          el('strong', { style: 'display: block; margin-bottom: 4px; color: var(--label-paper);' }, ['A note on medicine:']),
+          "I know skincare, not medicine. If something's irritated, red, or peeling, please go see a real dermatologist. Two Sisters Tinctures explains products and routine orders. It does not diagnose or treat skin conditions."
+        ]);
+
+        aboutWrapper.appendChild(storyCard);
+        aboutWrapper.appendChild(backupActions);
+        aboutWrapper.appendChild(disclaimerCard);
+        container.appendChild(aboutWrapper);
+
+        return container;
+      }
+
+      // Tab Management
+      function updateNavState() {
+        ['shelf', 'routine', 'add', 'about'].forEach(tab => {
+          const btn = document.getElementById(`tab-${tab}`);
+          if (btn) {
+            if (tab === currentTab) {
+              btn.classList.add('active');
+            } else {
+              btn.classList.remove('active');
+            }
+          }
+        });
+      }
+
+      document.getElementById('tab-shelf').addEventListener('click', () => {
+        currentTab = 'shelf';
+        updateNavState();
+        renderApp();
+      });
+
+      document.getElementById('tab-routine').addEventListener('click', () => {
+        currentTab = 'routine';
+        updateNavState();
+        renderApp();
+      });
+
+      document.getElementById('tab-add').addEventListener('click', () => {
+        currentTab = 'add';
+        addFlowStep = 'select';
+        updateNavState();
+        renderApp();
+      });
+
+      document.getElementById('tab-about').addEventListener('click', () => {
+        currentTab = 'about';
+        updateNavState();
+        renderApp();
+      });
+
+      // Master Render Loop
+      function renderApp() {
+        try {
+          mainContent.replaceChildren();
+          let screenNode;
+
+          if (currentTab === 'shelf') {
+            screenNode = renderShelfScreen();
+          } else if (currentTab === 'routine') {
+            screenNode = renderRoutineScreen();
+          } else if (currentTab === 'add') {
+            screenNode = renderAddScreen();
+          } else if (currentTab === 'about') {
+            screenNode = renderAboutScreen();
+          }
+
+          if (screenNode) {
+            mainContent.appendChild(screenNode);
+          }
+          mainContent.scrollTop = 0;
+        } catch (err) {
+          console.error('Render error:', err);
+          const errBox = document.getElementById('render-error-box');
+          if (errBox) {
+            errBox.style.display = 'block';
+            errBox.replaceChildren();
+            errBox.appendChild(el('h3', {}, ['Unable to render shelf view']));
+            errBox.appendChild(el('p', {}, [String(err.message || err)]));
+          }
+        }
+      }
+
+      // Initial Mount
+      renderApp();
+
+    })();
+  </script>
+</body></html>

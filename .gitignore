@@ -1,0 +1,7 @@
+.env
+node_modules/
+.DS_Store
+spike/output/
+*.log
+stitch_two_sisters_tinctures_mockup.zip
+Claude outputs/

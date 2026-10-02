@@ -1,0 +1,17 @@
+{
+  "name": "two-sisters-tinctures",
+  "version": "0.2.0",
+  "description": "A skincare shelf tracker for my little sister.",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js"
+  },
+  "keywords": [
+    "gemma",
+    "skincare",
+    "antigravity",
+    "devrelay"
+  ],
+  "author": "Shara",
+  "license": "MIT"
+}
