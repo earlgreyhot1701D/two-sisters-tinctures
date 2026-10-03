@@ -9,6 +9,23 @@ Built for the **DEV Hacktoberfest Weekend Challenge: Build for a Friend** (Octob
 
 > AI assisted. Human approved. Powered by NLP.
 
+## Screenshots
+
+Phone-sized views of the demo shelf (`?demo=1`). The products in the demo are invented.
+
+<table>
+  <tr>
+    <td align="center"><img src="docs/screenshots/shelf.png" width="200" alt="The shelf: product cards in a green cabinet"><br><sub>The shelf</sub></td>
+    <td align="center"><img src="docs/screenshots/routine.png" width="200" alt="Night routine with each step and its reason"><br><sub>Night routine, with a reason for each step</sub></td>
+    <td align="center"><img src="docs/screenshots/add.png" width="200" alt="Add screen with the photo card greyed out as coming soon"><br><sub>Add a product (photo is coming soon)</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="docs/screenshots/paste-tip.png" width="200" alt="Paste screen with the How to get the best read tip open"><br><sub>Paste screen with the best-read tip</sub></td>
+    <td align="center"><img src="docs/screenshots/gap-hint.png" width="200" alt="Shelf with a hint that there is no sunscreen yet"><br><sub>A gap hint on a small shelf</sub></td>
+    <td></td>
+  </tr>
+</table>
+
 ## What it does
 
 - **Add a product** by typing its name, or pasting the ingredient list from the back of the bottle. Photo of the label is coming later (the card is greyed out).
