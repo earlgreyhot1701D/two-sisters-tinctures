@@ -13,6 +13,7 @@ Every line the app says, in one place. The app speaks as **my little sister**, w
 |---|---|---|---|
 | `greet` | Hero bubble | Your whole skincare shelf, in one place, sis. I'll tell you what goes where, what not to mix, and when to toss it. | [ ] |
 | `empty` | Empty shelf | Your shelf's empty, sis. Let's fix that. | [ ] |
+| `empty.add` | Empty shelf button | Add your first product | [ ] |
 | `demo.button` | Empty shelf | Try the demo shelf | [ ] |
 | `demo.banner` | Demo mode | This is a demo shelf. Nothing you add here is saved. | [ ] |
 | `demo.exit` | Demo mode | Leave the demo | [ ] |

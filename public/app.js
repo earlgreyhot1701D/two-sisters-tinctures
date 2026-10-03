@@ -86,6 +86,25 @@
     return note || (rules && rules.defaultIngredientNote) || 'No note for this one yet.';
   }
 
+  // Opens the Add screen from anywhere (used by the empty-shelf buttons).
+  function goToAdd() {
+    cancelRead();
+    readError = '';
+    currentTab = 'add';
+    addFlowStep = 'select';
+    updateNavState();
+    renderApp();
+  }
+
+  // Empty shelf: adding a product is the main action, the demo shelf is the side door.
+  function createEmptyShelfBox() {
+    return el('div', { className: 'empty-shelf-box' }, [
+      el('p', { className: 'empty-shelf-text' }, ["Your shelf's empty, sis. Let's fix that."]),
+      el('button', { className: 'demo-shelf-btn', onclick: goToAdd }, ['Add your first product']), // empty.add
+      el('button', { className: 'empty-demo-btn', onclick: loadDemoShelf }, ['Try the demo shelf'])
+    ]);
+  }
+
   function computeProductWarning(prod, allProds) {
     if (!rules || !rules.conflicts) return null;
     const ingList = (prod.ingredients || []).map(i => i.toLowerCase());
@@ -491,13 +510,7 @@
     const finishedProducts = products.filter(p => p.status === 'finished');
 
     if (activeProducts.length === 0 && finishedProducts.length === 0) {
-      const emptyBox = el('div', { className: 'empty-shelf-box' }, [
-        el('p', { className: 'empty-shelf-text' }, ["Your shelf's empty, sis. Let's fix that."]),
-        el('button', {
-          className: 'demo-shelf-btn',
-          onclick: loadDemoShelf
-        }, ['Try the demo shelf'])
-      ]);
+      const emptyBox = createEmptyShelfBox();
       shelfSection.appendChild(emptyBox);
       container.appendChild(shelfSection);
       return container;
@@ -729,13 +742,7 @@
 
     if (products.filter(p => p.status !== 'finished').length === 0) {
       const emptyBox = el('div', { className: 'shelf-section' }, [
-        el('div', { className: 'empty-shelf-box' }, [
-          el('p', { className: 'empty-shelf-text' }, ["Your shelf's empty, sis. Let's fix that."]),
-          el('button', {
-            className: 'demo-shelf-btn',
-            onclick: loadDemoShelf
-          }, ['Try the demo shelf'])
-        ])
+        createEmptyShelfBox()
       ]);
       container.appendChild(emptyBox);
       return container;
