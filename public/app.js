@@ -19,6 +19,7 @@
   let isDemo = false;
   let rules = null; // Loaded from rules.json
   let manualFormState = {};
+  let pendingUndo = null; // { product, index, timerId }
 
   // Date and Calculation Helpers
   function parseDateString(str) {
@@ -142,6 +143,26 @@
     setTimeout(() => {
       toastEl.classList.remove('visible');
     }, 2800);
+  }
+
+  function showToastWithUndo(msg, undoLabel, onUndo) {
+    // Clear existing content safely
+    while (toastEl.firstChild) { toastEl.removeChild(toastEl.firstChild); }
+    toastEl.appendChild(document.createTextNode(msg + ' '));
+    const undoBtn = document.createElement('button');
+    undoBtn.className = 'toast-undo-btn';
+    undoBtn.type = 'button';
+    undoBtn.appendChild(document.createTextNode(undoLabel));
+    undoBtn.addEventListener('click', () => {
+      toastEl.classList.remove('visible');
+      onUndo();
+    });
+    toastEl.appendChild(undoBtn);
+    toastEl.classList.add('visible');
+    return setTimeout(() => {
+      toastEl.classList.remove('visible');
+      while (toastEl.firstChild) { toastEl.removeChild(toastEl.firstChild); }
+    }, 5000);
   }
 
   // Safe Element Helper
@@ -360,9 +381,35 @@
       el('button', {
         className: 'detail-btn-danger',
         onclick: () => {
-          // Layout only for Block 1 (wiring in Block 2)
-          showToast('Gone.');
+          // Finalise any pending undo before starting a new one
+          if (pendingUndo) {
+            clearTimeout(pendingUndo.timerId);
+            pendingUndo = null;
+          }
+          const idx = products.findIndex(p => p.id === product.id);
+          const removed = products[idx];
+          if (isDemo) {
+            products.splice(idx, 1);
+          } else {
+            try { window.ShelfStore && window.ShelfStore.removeProduct(removed.id); } catch(e) {}
+            products = (window.ShelfStore && window.ShelfStore.getShelf) ? window.ShelfStore.getShelf() : products.filter(p => p.id !== removed.id);
+          }
           closeProductDetail();
+          renderApp();
+          const timerId = showToastWithUndo('Gone.', 'Undo', () => {
+            if (!pendingUndo) return;
+            clearTimeout(pendingUndo.timerId);
+            if (isDemo) {
+              products.splice(pendingUndo.index, 0, pendingUndo.product);
+            } else {
+              try { window.ShelfStore && window.ShelfStore.addProduct(pendingUndo.product); } catch(e) {}
+              products = (window.ShelfStore && window.ShelfStore.getShelf) ? window.ShelfStore.getShelf() : products;
+            }
+            pendingUndo = null;
+            showToast('Back on the shelf.');
+            renderApp();
+          });
+          pendingUndo = { product: removed, index: idx, timerId };
         }
       }, ['Remove from shelf']),
       el('button', {

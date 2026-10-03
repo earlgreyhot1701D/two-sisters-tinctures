@@ -7,15 +7,15 @@ Cut order if behind: photo input, then archive, then edit.
 ---
 
 ## Setup (Shara, before Block 0)
-- [ ] New public repo `two-sisters-tinctures`, first commit after Thu Oct 1, 7:00 PM PDT
-- [ ] MIT license added
-- [ ] DevRelay: read `install.sh`, install, restart Antigravity, sign in with MLH, DEV account linked in MLH profile
+- [x] New public repo `two-sisters-tinctures`, first commit after Thu Oct 1, 7:00 PM PDT (first commit Oct 2, 4:52 PM PDT)
+- [x] MIT license added
+- [x] DevRelay installed (after Block 1; the embedded session starts at the install)
 - [ ] Gemini API key created, **billing enabled** (paid tier), key restricted to the Gemini API
 - [ ] Google Cloud budget alert at $5
 - [ ] Rate limits on the key noted in FINDINGS.md
-- [ ] Render: Hobby workspace, $10 credit claimed and applied (note amount and expiry in FINDINGS.md)
+- [x] Render: Hobby workspace, promo credit redeemed to My Workspace: $50, valid until Sep 30 2027 (logged in FINDINGS.md)
 - [ ] Render: authorized for the `two-sisters-tinctures` repo only
-- [ ] Run `node --version` and put the number (no `v`) in `.node-version`
+- [x] Run `node --version` and put the number (no `v`) in `.node-version`
 - [ ] Optional: `render blueprints validate render.yaml` (Render CLI v2.7.0 or later)
 - [ ] Text her: iOS version (Settings, General, About)
 - [ ] Send her `VOICE.md` lines for an OK
@@ -60,14 +60,16 @@ Do this right after Block 1, before building more. Read `DEPLOY.md` first.
 **PASS:** the mock-data app loads at the live URL on both phones. `/healthz` returns 200. Headers present. One rollback worked. No key anywhere.
 
 ## Block 2. Rules and shelf storage
-**Tier:** Working. **Disposition:** promote. **Status:** [ ]
-- [ ] `public/rules.json`: order, default when, ingredient overrides, conflicts, doubles, notes
-- [ ] `public/shelf-store.js`: storage key `tst:shelf:v1`, try/catch everywhere
-- [ ] Manual add
-- [ ] Edit (cut third if behind)
-- [ ] Used it up, Finished list, restore (cut second if behind)
+**Tier:** Working. **Disposition:** promote. **Status:** [~]
+- [x] `public/rules.json`: order, default when, ingredient overrides, conflicts, doubles, notes
+- [x] `public/shelf-store.js`: storage key `tst:shelf:v1`, try/catch everywhere, sanitize on read, validated restore
+- [x] One product record shape for demo and real shelf (PRD Gate D); use-by, flags, memos, routine computed from rules.json
+- [x] 11 types (Cleanser, Toner, Essence, Treatment, Serum, Eye cream, Moisturizer, Facial oil, Sunscreen, plus Mask and Other with no routine step); change category from the detail card
+- [x] Manual add (tested on the live site Oct 3: validation, XSS-safe, persists, memos fire)
 - [ ] Remove with 5-second Undo
-- [ ] Back up (dated JSON download), Restore with validation, Clear with confirm
+- [ ] Back up (dated JSON download), Restore with validation, Clear with confirm (About buttons exist, wiring not yet verified)
+- [ ] Used it up, Finished list, restore (cut second if behind)
+- [ ] Edit details beyond category (cut third if behind)
 
 **PASS:** real state passes: add 2, refresh, back up, clear, restore. Bad restore file rejected.
 
@@ -81,6 +83,19 @@ Do this right after Block 1, before building more. Read `DEPLOY.md` first.
 - [ ] Gold set of 5 real products saved as fixtures
 
 **PASS:** gold set 4 of 5. Injection label stays clean. Model-off test: manual add still works.
+
+## Block 3b. Tests, lint, and CI (added Oct 3, after Block 3)
+**Tier:** Working. **Disposition:** promote. **Status:** [ ]
+Small and safe. Claude writes this directly in the repo to save Antigravity credits (credit it that way in the post). Do after Block 3 so the server logic can be tested too.
+- [ ] Tests with Node's built-in runner (`node --test`), no new packages: `shelf-store.js` (validateBackup rejects bad date, unknown type, over-long strings, too many items; drops unknown keys; dedupes ids; getShelf drops corrupt items) and the Block 3 server logic (`limits.js`, `validate.js`, using the gold-set fixtures)
+- [ ] ESLint flat config, dev dependency only: no-eval, no-new-func, no-unsanitized (blocks innerHTML). Tool longevity check first: confirm each package is current, not deprecated
+- [ ] `npm run lint` and `npm test` scripts in `package.json`; confirm Render's `npm ci` build still passes
+- [ ] `.github/workflows/ci.yml`: Node from `.node-version`, `npm ci`, lint, test, `npm audit --audit-level=high`. Check current action versions in their docs before pinning
+- [ ] Prove lint works: a throwaway branch with an `innerHTML` line must fail CI
+- [ ] Decision for later: `autoDeployTrigger: checksPass` in `render.yaml` only after CI is green on several pushes (a flaky check near the deadline could block a fix)
+- [ ] STUB: `public/shelf-logic.js` extraction so routine, memo, and expiry logic in `app.js` can be tested. Not now; only if time is left
+
+**PASS:** CI is green on `main`. A deliberate `innerHTML` line fails lint. Tests cover restore validation and the server limits and validation. Render still builds.
 
 ## Block 4. Harden the live deploy
 **Tier:** Full. **Disposition:** promote. **Status:** [ ]
@@ -110,3 +125,12 @@ The service already exists from Block 1b. Do not push the key through git.
 - [ ] DevRelay session saved, mock data only
 - [ ] Prize categories listed: Gemma, Render
 - [ ] Submitted by 6:00 PM PDT
+
+---
+
+## Open decisions (Shara)
+- [ ] Bottom nav and chest icons: keep the Stitch emoji, or replace
+- [ ] Tagline strip asterisk before each line: keep or remove
+- [ ] Her OK on every `VOICE.md` line (all boxes unchecked), and OK to be named in the post
+- [ ] Facial oil order: PRD puts it after moisturizer; some sources put it before. Keeping the PRD order unless you say otherwise
+- [ ] Gemini API key, billing, budget alert, key restriction (needed for Block 3 and 4)

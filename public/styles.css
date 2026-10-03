@@ -1192,6 +1192,19 @@ nav.bottom-nav {
 
 #app-toast.visible {
   transform: translateX(-50%) translateY(0);
+  pointer-events: auto;
+}
+
+.toast-undo-btn {
+  background: none;
+  border: none;
+  color: var(--brass);
+  font-family: var(--font-text);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0 0 0 8px;
+  text-decoration: underline;
 }
 
 #render-error-box {
