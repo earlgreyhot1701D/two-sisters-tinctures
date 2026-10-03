@@ -162,6 +162,7 @@
     return setTimeout(() => {
       toastEl.classList.remove('visible');
       while (toastEl.firstChild) { toastEl.removeChild(toastEl.firstChild); }
+      pendingUndo = null; // Fix B: removal is final once timer expires
     }, 5000);
   }
 
@@ -402,8 +403,13 @@
             if (isDemo) {
               products.splice(pendingUndo.index, 0, pendingUndo.product);
             } else {
-              try { window.ShelfStore && window.ShelfStore.addProduct(pendingUndo.product); } catch(e) {}
-              products = (window.ShelfStore && window.ShelfStore.getShelf) ? window.ShelfStore.getShelf() : products;
+              // Fix A: restore at original index, not appended at end
+              try {
+                const list = window.ShelfStore.getShelf();
+                list.splice(pendingUndo.index, 0, pendingUndo.product);
+                window.ShelfStore.saveShelf(list);
+              } catch(e) {}
+              products = window.ShelfStore.getShelf();
             }
             pendingUndo = null;
             showToast('Back on the shelf.');
@@ -1211,16 +1217,69 @@
     ]);
 
     // Backup Actions
-    const backupActions = el('div', { className: 'backup-actions-group' }, [
-      el('button', {
-        className: 'btn-primary',
-        onclick: () => showToast('Backup saved. Keep it somewhere safe.')
-      }, ['Save a backup file']),
-      el('button', {
-        className: 'btn-secondary',
-        onclick: () => showToast('Your shelf is back.')
-      }, ['Restore from a backup'])
-    ]);
+    const saveBackupBtn = document.createElement('button');
+    saveBackupBtn.className = 'btn-primary';
+    saveBackupBtn.type = 'button';
+    saveBackupBtn.appendChild(document.createTextNode('Save a backup file'));
+    saveBackupBtn.addEventListener('click', () => {
+      if (isDemo) { showToast('This is a demo shelf. Nothing you add here is saved.'); return; }
+      if (!products.length) { showToast('Nothing on your shelf to back up yet.'); return; }
+      try {
+        window.ShelfStore.exportBackup();
+        showToast('Backup saved. Keep it somewhere safe.');
+      } catch(e) { showToast('Something went sideways on my end. You can still add it by hand.'); }
+    });
+
+    // Hidden file input for restore
+    const restoreInput = document.createElement('input');
+    restoreInput.type = 'file';
+    restoreInput.accept = '.json';
+    restoreInput.style.display = 'none';
+    restoreInput.addEventListener('change', () => {
+      const file = restoreInput.files && restoreInput.files[0];
+      if (!file) return;
+      if (file.size > 1048576) { showToast('That file isn\'t a Two Sisters backup. Nothing changed.'); restoreInput.value = ''; return; }
+      const reader = new FileReader();
+      reader.addEventListener('load', () => {
+        try {
+          const result = window.ShelfStore.validateBackup(reader.result);
+          if (!result.valid) { showToast('That file isn\'t a Two Sisters backup. Nothing changed.'); return; }
+          const doRestore = () => {
+            try {
+              window.ShelfStore.saveShelf(result.items);
+              products = window.ShelfStore.getShelf();
+              showToast('Your shelf is back.');
+              currentTab = 'shelf';
+              updateNavState();
+              renderApp();
+            } catch(e) { showToast('Something went sideways on my end. You can still add it by hand.'); }
+          };
+          if (products.length > 0) {
+            const ok = window.confirm('This replaces what\'s on your shelf now. Restore the backup?');
+            if (ok) doRestore();
+          } else {
+            doRestore();
+          }
+        } catch(e) { showToast('That file isn\'t a Two Sisters backup. Nothing changed.'); }
+        restoreInput.value = '';
+      });
+      reader.readAsText(file);
+    });
+
+    const restoreBtn = document.createElement('button');
+    restoreBtn.className = 'btn-secondary';
+    restoreBtn.type = 'button';
+    restoreBtn.appendChild(document.createTextNode('Restore from a backup'));
+    restoreBtn.addEventListener('click', () => {
+      if (isDemo) { showToast('This is a demo shelf. Nothing you add here is saved.'); return; }
+      restoreInput.click();
+    });
+
+    const backupActions = document.createElement('div');
+    backupActions.className = 'backup-actions-group';
+    backupActions.appendChild(saveBackupBtn);
+    backupActions.appendChild(restoreInput);
+    backupActions.appendChild(restoreBtn);
 
     // Maker & Credits
     const creditsCard = el('div', { className: 'credits-card' }, [
@@ -1231,26 +1290,29 @@
     // Full Medical Note
     const disclaimerCard = el('div', { className: 'disclaimer-card' }, [
       el('strong', { className: 'disclaimer-heading' }, ['A note on medicine:']),
-      "I know skincare, not medicine. If something's irritated, see a dermatologist. Two Sisters Tinctures explains products. It doesn't diagnose skin conditions, and it doesn't check for allergies."
+      document.createTextNode("I know skincare, not medicine. If something's irritated, see a dermatologist. Two Sisters Tinctures explains products. It doesn't diagnose skin conditions, and it doesn't check for allergies.")
     ]);
 
     // Clear my shelf (PRD Gate C MUST)
-    const clearSection = el('div', { className: 'clear-shelf-section' }, [
-      el('button', {
-        className: 'btn-danger',
-        onclick: () => {
-          const ok = window.confirm("This removes everything on this phone. Back up first if you want to keep it. Clear it?");
-          if (ok) {
-            products = [];
-            isDemo = false;
-            showToast('Clean slate.');
-            currentTab = 'shelf';
-            updateNavState();
-            renderApp();
-          }
-        }
-      }, ['Clear my shelf'])
-    ]);
+    const clearBtn = document.createElement('button');
+    clearBtn.className = 'btn-danger';
+    clearBtn.type = 'button';
+    clearBtn.appendChild(document.createTextNode('Clear my shelf'));
+    clearBtn.addEventListener('click', () => {
+      if (isDemo) { showToast('This is a demo shelf. Nothing you add here is saved.'); return; }
+      const ok = window.confirm("This removes everything on this phone. Back up first if you want to keep it. Clear it?");
+      if (ok) {
+        try { window.ShelfStore.clearShelf(); } catch(e) {}
+        products = [];
+        showToast('Clean slate.');
+        currentTab = 'shelf';
+        updateNavState();
+        renderApp();
+      }
+    });
+    const clearSection = document.createElement('div');
+    clearSection.className = 'clear-shelf-section';
+    clearSection.appendChild(clearBtn);
 
     aboutWrapper.appendChild(storyCard);
     aboutWrapper.appendChild(deviceNote);

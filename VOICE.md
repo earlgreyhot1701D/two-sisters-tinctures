@@ -147,6 +147,8 @@ Every line the app says, in one place. The app speaks as **my little sister**, w
 | `toast.restore` | Restore done | Your shelf is back. | [ ] |
 | `toast.restore.bad` | Bad file | That file isn't a Two Sisters backup. Nothing changed. | [ ] |
 | `toast.cleared` | Shelf cleared | Clean slate. | [ ] |
+| `toast.backup.empty` | Backup with empty shelf | Nothing on your shelf to back up yet. | [ ] |
+| `restore.confirm` | Restore confirm dialog | This replaces what's on your shelf now. Restore the backup? | [ ] |
 
 ## Detail sheet
 | ID | Line | Her OK |
