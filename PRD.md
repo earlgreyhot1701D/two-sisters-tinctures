@@ -124,6 +124,11 @@ When the done line is met, the build stops.
 - Accounts and cross-device sync.
 - On-device model (WebGPU).
 - Search and filter for big shelves.
+- Lookup, three ways in (all STUB, tested only by hand in a dashboard on Oct 3, nothing built):
+  - Web search by product name (Tavily search). Fed into the paste path so the verbatim guard and the confirm screen still apply. Needs a second server-side key, a cost cap, and a plan for the trial account ending Oct 19.
+  - Product page URL (Tavily extract fetches the page, so our server never visits a user-supplied address). Page text must be cut down to the ingredient paragraph before it reaches the 4000 character paste limit.
+  - Barcode: browser barcode reader (iPhone Safari support unverified) or typed digits, then Open Beauty Facts barcode lookup (API confirmed, skincare coverage not checked, data is open under ODbL).
+  - Results are untrusted text. Old formulas, other sizes, and junk pages show up beside the right one.
 
 ### NEVER
 - Medical claims, diagnosis, allergy checks, or pregnancy guidance.
@@ -133,6 +138,7 @@ When the done line is met, the build stops.
 - API keys in the frontend, the repo, or any agent chat transcript.
 - `innerHTML` or `eval()` anywhere.
 - Real brand names in demo data.
+- Our server fetching a user-supplied URL itself (server-side request forgery risk). A fetch service does it, or nothing does.
 
 ---
 

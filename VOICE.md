@@ -172,7 +172,7 @@ Every line the app says, in one place. The app speaks as **my little sister**, w
 | `confirm.title` | Confirm | Here's what I see | [ ] |
 | `confirm.info` | Confirm | Gemma read this from your {source}. Fix anything I got wrong before you save. | [ ] |
 | `confirm.missing` | Missing field | Couldn't read this | [ ] |
-| `typed.noguess` | Typed result | I can't see the ingredients, so I won't guess them. Paste them or snap the label and I'll tell you more. | [ ] |
+| `typed.noguess` | Typed result | I can't see the ingredients, so I won't guess them. Paste them and I'll tell you more. | [ ] |
 | `notskincare` | Wrong photo | That doesn't look like a skincare product. Try another one? | [ ] |
 | `timeout` | Too slow | That label's being shy. Try again or type it in. | [ ] |
 | `photo.bad` | Unreadable photo | That photo's being difficult. Try another one, or paste the ingredients instead. | [ ] |
@@ -276,7 +276,16 @@ Every line the app says, in one place. The app speaks as **my little sister**, w
 | `typed.button` | Look it up | [ ] |
 | `add.paste.name` | Product name (optional) | [ ] |
 | `add.choose.tip` | Pasting takes a minute longer, but it unlocks ingredient notes and conflict warnings. Typing is the quick way. | [ ] |
-| `add.paste.help` | Look on the box, or search the product name plus 'ingredients'. Copy the whole list and paste it here. Adding the name helps me get the type right. | [ ] |
+| `add.paste.help` | Replaced by `add.paste.best.*` rows below | [x] |
 | `add.typed.help` | This is the quick way. You'll get the type and a spot in your routine, but no ingredient notes or conflict warnings. Paste the ingredients instead if you want those. | [ ] |
 | `reading.cancel` | Cancel | [ ] |
+| `add.snap.soon` | Snap card badge | Coming soon | [ ] |
+| `add.paste.best.title` | Paste tip summary | How to get the best read | [ ] |
+| `add.paste.best.name` | Paste tip line 1 | Type the product name in the box below so I can place it in the right routine step. | [ ] |
+| `add.paste.best.copy` | Paste tip line 2 | Copy the full ingredients list from the brand's or store's product page. | [ ] |
+| `add.paste.best.search` | Paste tip line 3 | No list on the box? Search the product name plus 'ingredients'. | [ ] |
+| `gap.sunscreen` | Gap hint | No sunscreen in your morning routine yet. | [ ] |
+| `gap.cleanser` | Gap hint | No cleanser on your shelf yet to wash the day off. | [ ] |
+| `gap.moisturizer` | Gap hint | No moisturizer on your shelf yet to seal in hydration. | [ ] |
+| `gap.dismiss` | Gap hint dismiss button | Got it | [ ] |
 

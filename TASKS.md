@@ -114,12 +114,26 @@ The service already exists from Block 1b. Do not push the key through git.
 **PASS:** all Gate G4 proofs on the live URL, cold browser, phone and laptop.
 
 ## Block 5. Photo input (built last, cut first)
-**Tier:** Full. **Disposition:** promote or cut. **Status:** [ ]
+**Tier:** Full. **Disposition:** STUBBED Oct 3 (decision: two of three input paths work, photo is the riskiest). Card to be greyed with a coming-soon line. Spike not run. **Status:** [ ]
 - [ ] `public/photo.js`: canvas re-draw, about 1600 px long side, location stripped, one lower-quality retry
 - [ ] File picker with camera option, small preview
 - [ ] HEIC and unreadable-file message from `VOICE.md`
 
 **PASS:** a real bottle photo returns the right type in under 10 s, and the upload carries no location data.
+
+## After the contest. Lookup (STUB, see PRD Gate C)
+- [ ] Spike each way in with pass/fail criteria before any build (name search, page URL, barcode)
+- [ ] Check Open Beauty Facts skincare coverage and the iPhone Safari barcode reader
+- [ ] Decide the search provider after Oct 19, when the Tavily trial ends
+- [ ] Every path feeds the existing paste guard and confirm screen
+
+## Block 7. Polish add-ons (built Oct 3)
+**Tier:** Working. **Disposition:** promote. **Status:** [x]
+- [x] Step 7.1: Grey out photo card on Add screen with Coming soon badge
+- [ ] Step 7.2: Dropped Oct 3: reasons already visible on each routine step
+- [x] Step 7.3: Best-result tip on Paste screen using native details and summary
+- [ ] Step 7.4: Dropped Oct 3: nice to have, would need iPhone testing
+- [x] Step 7.5: Gap hints on shelf (pure function in shelf-gaps.js with unit tests, between Cabinet and Memos, demo dismissals in memory only)
 
 ## Block 6. Her test, video, post
 **Status:** [ ]

@@ -26,6 +26,42 @@
   let readError = ''; // message shown on the input screens after a failed read
   let readToken = 0; // guards against stale responses
   let readAbort = null;
+  const demoDismissedGaps = new Set();
+
+  function isGapDismissed(gapType) {
+    if (isDemo) return demoDismissedGaps.has(gapType);
+    try {
+      return window.localStorage.getItem('tst:gap_dismissed:' + gapType) === '1';
+    } catch {
+      // storage unavailable, ignore
+      return false;
+    }
+  }
+
+  function dismissGap(gapType) {
+    if (isDemo) {
+      demoDismissedGaps.add(gapType);
+    } else {
+      try {
+        window.localStorage.setItem('tst:gap_dismissed:' + gapType, '1');
+      } catch {
+        // storage unavailable, ignore
+      }
+    }
+    renderApp();
+  }
+
+  function clearAllGapDismissals() {
+    demoDismissedGaps.clear();
+    const gapTypes = ['Sunscreen', 'Cleanser', 'Moisturizer'];
+    for (let i = 0; i < gapTypes.length; i++) {
+      try {
+        window.localStorage.removeItem('tst:gap_dismissed:' + gapTypes[i]);
+      } catch {
+        // storage unavailable, ignore
+      }
+    }
+  }
 
   // Voice lines for read failures (IDs in VOICE.md)
   const READ_ERRORS = {
@@ -584,6 +620,25 @@
     chest.appendChild(drawersGrid);
     shelfSection.appendChild(chest);
 
+    // Gap hint between Cabinet and Memos
+    if (window.ShelfGaps && typeof window.ShelfGaps.computeShelfGap === 'function') {
+      const gap = window.ShelfGaps.computeShelfGap(activeProducts, isGapDismissed);
+      if (gap) {
+        const gapBanner = el('div', { className: 'shelf-gap-banner' }, [
+          el('div', { className: 'shelf-gap-content' }, [
+            el('span', { className: 'shelf-gap-icon', 'aria-hidden': 'true' }, ['💡']),
+            el('span', { className: 'shelf-gap-text' }, [gap.text])
+          ]),
+          el('button', {
+            className: 'shelf-gap-dismiss',
+            'aria-label': 'Dismiss hint',
+            onclick: () => dismissGap(gap.type)
+          }, ['Got it'])
+        ]);
+        shelfSection.appendChild(gapBanner);
+      }
+    }
+
     // Memos and Alerts Section below the chest (Computed dynamically from rules)
     const alertsContainer = el('div', { className: 'alerts-container' });
     const alertsTitle = el('div', { className: 'alerts-header' }, ['Shelf memos']);
@@ -846,15 +901,21 @@
       const addContainer = el('div', { className: 'add-flow-container' });
 
       const snapCard = el('button', {
-        className: 'add-choice-card',
-        onclick: () => {
-          // STUB: photo reading is Block 5.
-          showToast("Photo reading isn't ready yet. Paste the ingredients or type it in.");
-        }
+        className: 'add-choice-card add-choice-disabled',
+        disabled: true,
+        'aria-disabled': 'true'
       }, [
+        // STUB: photo reading is Block 5 (stubbed Oct 3, see TASKS.md).
+        // STUB: lookup, three ways in, none built (PRD Gate C, FINDINGS Oct 3 Lookup):
+        //   1. web search by product name, 2. product page URL, 3. barcode.
+        //   Each must feed the existing paste path so the verbatim guard and confirm screen apply.
+        //   Never fetch a user-supplied URL from our own server.
         el('div', { className: 'add-choice-icon' }, ['📷']),
         el('div', {}, [
-          el('div', { className: 'add-choice-title' }, ['Snap the label']),
+          el('div', { className: 'add-choice-title' }, [
+            'Snap the label',
+            el('span', { className: 'add-choice-badge' }, ['Coming soon'])
+          ]),
           el('div', { className: 'add-choice-sub' }, ['A photo of the back of the bottle works best.'])
         ])
       ]);
@@ -964,9 +1025,15 @@
         }
       }, ['Back']);
 
-      formBox.appendChild(el('p', { className: 'form-hint' }, [
-        "Look on the box, or search the product name plus 'ingredients'. Copy the whole list and paste it here. Adding the name helps me get the type right." // add.paste.help
-      ]));
+      const tipDetails = el('details', { className: 'paste-tip-details' }, [
+        el('summary', { className: 'paste-tip-summary' }, ['How to get the best read']),
+        el('div', { className: 'paste-tip-body' }, [
+          el('p', { className: 'paste-tip-line' }, ['Type the product name in the box below so I can place it in the right routine step.']),
+          el('p', { className: 'paste-tip-line' }, ["Copy the full ingredients list from the brand's or store's product page."]),
+          el('p', { className: 'paste-tip-line' }, ["No list on the box? Search the product name plus 'ingredients'."])
+        ])
+      ]);
+      formBox.appendChild(tipDetails);
       formBox.appendChild(pasteNameGroup);
       formBox.appendChild(pasteGroup);
       formBox.appendChild(errBox);
@@ -1300,7 +1367,7 @@
 
     } else if (addFlowStep === 'type_input') {
       container.appendChild(createGreetingBubble(
-        "I can't see the ingredients, so I won't guess them. Paste them or snap the label and I'll tell you more."
+        "I can't see the ingredients, so I won't guess them. Paste them and I'll tell you more."
       ));
 
       const formBox = el('div', { className: 'add-flow-container' });
@@ -1470,6 +1537,7 @@
           const cleared = window.ShelfStore.clearShelf();
           if (!cleared) { showToast('Your phone couldn\'t save that. Check if storage is full.'); return; }
         } catch { showToast('Your phone couldn\'t save that. Check if storage is full.'); return; }
+        clearAllGapDismissals();
         products = [];
         showToast('Clean slate.');
         currentTab = 'shelf';
