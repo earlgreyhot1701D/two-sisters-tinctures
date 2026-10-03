@@ -350,7 +350,7 @@
     detailContent.appendChild(el('div', { className: 'label-section' }, [metaGrid]));
 
     // Computed warning
-    const warning = computeProductWarning(product, products);
+    const warning = computeProductWarning(product, products.filter(p => p.status !== 'finished'));
     if (warning) {
       const warnBox = el('div', { className: 'label-warning-box' }, [
         el('span', {}, ['!']),
@@ -564,11 +564,18 @@
 
     // Memo 1: Don't mix (Retinoids vs AHAs/BHAs)
     let mixAlert = null;
-    const hasRetinoid = activeProds.find(p => (p.ingredients || []).some(i => i.toLowerCase().includes('retinol') || i.toLowerCase().includes('retinal')));
-    const hasAcid = activeProds.find(p => (p.ingredients || []).some(i => i.toLowerCase().includes('glycolic acid') || i.toLowerCase().includes('lactic acid') || i.toLowerCase().includes('salicylic acid')));
+    const retinoidKeywords = ['retinol', 'retinal'];
+    const acidKeywords = ['glycolic acid', 'lactic acid', 'salicylic acid'];
+    const hasRetinoid = activeProds.find(p => (p.ingredients || []).some(i => retinoidKeywords.some(k => i.toLowerCase().includes(k))));
+    const hasAcid = activeProds.find(p => (p.ingredients || []).some(i => acidKeywords.some(k => i.toLowerCase().includes(k))));
     if (hasRetinoid && hasAcid) {
+      // Find the actual matched ingredient names for the title
+      const retinoidName = (hasRetinoid.ingredients || []).find(i => retinoidKeywords.some(k => i.toLowerCase().includes(k))) || 'Retinol';
+      const acidName = (hasAcid.ingredients || []).find(i => acidKeywords.some(k => i.toLowerCase().includes(k))) || 'Glycolic acid';
+      // Capitalise first letter for display
+      const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
       mixAlert = el('div', { className: 'alert-card warning' }, [
-        el('div', { className: 'alert-title-row' }, ["Don't mix tonight: Glycolic acid and Retinol"]),
+        el('div', { className: 'alert-title-row' }, [`Don't mix tonight: ${cap(acidName)} and ${cap(retinoidName)}`]),
         el('p', { className: 'alert-desc' }, [
           "Pick one, or your moisture barrier will send me angry texts."
         ])
@@ -705,7 +712,7 @@
     toggleBar.appendChild(pmBtn);
     container.appendChild(toggleBar);
 
-    if (products.length === 0) {
+    if (products.filter(p => p.status !== 'finished').length === 0) {
       const emptyBox = el('div', { className: 'shelf-section' }, [
         el('div', { className: 'empty-shelf-box' }, [
           el('p', { className: 'empty-shelf-text' }, ["Your shelf's empty, sis. Let's fix that."]),
