@@ -50,7 +50,18 @@
     "Eye cream": "Thinner skin around the eyes absorbs gently before heavier creams.",
     "Moisturizer": "Locks in hydration and cushions your skin barrier.",
     "Facial oil": "Nourishing plant oils seal your night routine.",
-    "Sunscreen": "Sunscreen is always last. Never put moisturizer on top of sunscreen."
+    "Sunscreen": "Sunscreen is always last. Never put moisturizer on top of sunscreen.",
+    "Serum.alt": "Cell turnover active. Take turns on alternate nights."
+  },
+  "positionLimited": {
+    "limit": 10,
+    "names": [
+      "glycolic acid",
+      "lactic acid",
+      "salicylic acid",
+      "ascorbic acid",
+      "l-ascorbic acid"
+    ]
   },
   "ingredientOverrides": [
     {

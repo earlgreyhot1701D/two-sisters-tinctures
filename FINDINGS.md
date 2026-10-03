@@ -81,3 +81,14 @@ Disposition: shelve as a known limit. Using the last entry did not stop the bypa
 Question: Could the app find ingredients from a product name or a product page, so she does not have to type them?
 Finding: Tavily search for two gold products (BYOMA Hydrating Serum, Supergoop Unseen Sunscreen SPF 50) returned the right list from a trustworthy page (Ulta, supergoop.com) in about 1 s on basic and about 6 s on advanced. The same results also held an older SPF 40 formula, a page that listed another product's ingredients, and one page that named niacinamide in a serum that has none. Tavily extract on the Ulta BYOMA page returned the full list intact (the 0.02 s time looks cached). The page text is about 3000 characters, near our 4000 limit. Open Beauty Facts: free barcode lookup API confirmed, data under ODbL, name search and skincare coverage not verified.
 Disposition: stub. Two products and one retail page is not enough to trust. Web text is untrusted. It needs a second key and the Tavily trial ends Oct 19. Barcode and URL paths are stubs in PRD Gate C. Our server must never fetch a user-supplied URL itself.
+
+### Oct 3 | Logic | Classification, conflict, and ingredient match fixes
+Question: Why were daytime SPF products and hydrating serums falsely classified as Night only with phantom conflict warnings?
+Finding: Loose substring matching on ingredient names matched benign ingredients (e.g. Capryloyl Salicylic Acid matching salicylic acid; Lactic Acid appearing at position 20 as a pH adjuster in BYOMA Serum). Furthermore, comma splitting broke compound names like 1,2-Hexanediol, and daytime products triggered nighttime conflict memos. Centralized ingredient normalization and matching in `public/ingredient-match.js` with rules in `public/rules.json`:
+1. Acids are position-limited using an explicit rule-of-thumb cutoff (top 10 ingredients per `rules.positionLimited.limit`). Retinoids are checked at any position.
+2. Cleansers wash off and bypass acid night overrides.
+3. SPF backstop: Sunscreen type or name containing SPF + number is strictly morning (`['am']`).
+4. Normalized matching strips percentages/strengths (e.g. `2%`, `0.3%`), removes parentheticals, and normalizes dashes. Comma splitter uses negative lookahead (`/\s*,\s*(?!\d)/`) to protect numbers like `1,2-Hexanediol`.
+5. Conflicts and shelf mix alerts only trigger between products that can both be used at night.
+Disposition: promote. Rules centralized in `rules.json`.
+

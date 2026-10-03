@@ -122,7 +122,7 @@ Never commit `.env`. The key stays server-side.
 | Command | What it does |
 |---|---|
 | `npm start` | Run the server |
-| `npm test` | 30 unit tests (limits, validation, shelf logic, gap hints) |
+| `npm test` | 40 unit tests (limits, validation, shelf logic, gap hints, ingredient matching) |
 | `npm run lint` | ESLint, including a rule that flags unsafe DOM writes |
 | `npm run gold` | Run the gold set (5 real products) against the live model, name plus ingredients |
 | `npm run gold:bare` | Same, ingredients only |

@@ -68,10 +68,15 @@ function validateModelOutput(raw, request, rules) {
   // Guard: typed path never gets ingredients.
   if (request.mode === 'typed') ingredients = [];
 
-  // Guard: paste path keeps only ingredients that appear verbatim (case-insensitive) in the pasted text.
+  // Guard: paste path keeps only ingredients that appear in the pasted text.
+  // Normalize Unicode dashes, repeated spaces, and case on both sides so punctuation quirks don't drop real ingredients.
   if (request.mode === 'paste') {
-    const source = String(request.text || '').toLowerCase();
-    ingredients = ingredients.filter(i => source.includes(i.toLowerCase()));
+    const normalizePasted = s => String(s || '')
+      .toLowerCase()
+      .replace(/[\u2010-\u2015\u2212\uFE58\uFE63\uFF0D]/g, '-')
+      .replace(/\s+/g, ' ');
+    const source = normalizePasted(request.text);
+    ingredients = ingredients.filter(i => source.includes(normalizePasted(i)));
   }
 
   // De-dupe, keep order.

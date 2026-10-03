@@ -12,7 +12,7 @@
 
   // Application State
   let currentTab = 'shelf';
-  let routineTime = 'pm';
+  let routineTime = new Date().getHours() < 15 ? 'am' : 'pm';
   let addFlowStep = 'select';
   let addMethod = '';
   let products = []; // Starts empty by default
@@ -142,29 +142,12 @@
   }
 
   function computeProductWarning(prod, allProds) {
-    if (!rules || !rules.conflicts) return null;
-    const ingList = (prod.ingredients || []).map(i => i.toLowerCase());
-    const hasA = rules.conflicts.some(c => c.groupA.some(g => ingList.some(i => i.includes(g))));
-    const hasB = rules.conflicts.some(c => c.groupB.some(g => ingList.some(i => i.includes(g))));
-
-    // Check if other products on shelf conflict
-    if (hasA) {
-      const conflictB = allProds.find(other => 
-        other.id !== prod.id && 
-        (other.ingredients || []).some(i => rules.conflicts.some(c => c.groupB.some(g => i.toLowerCase().includes(g))))
-      );
-      if (conflictB) {
-        return `Do not use on the same night as ${conflictB.name}.`;
+    if (window.IngredientMatch && typeof window.IngredientMatch.findConflictPartner === 'function') {
+      const partner = window.IngredientMatch.findConflictPartner(prod, allProds, rules);
+      if (partner) {
+        return `Do not use on the same night as ${partner.name}.`;
       }
-    }
-    if (hasB) {
-      const conflictA = allProds.find(other => 
-        other.id !== prod.id && 
-        (other.ingredients || []).some(i => rules.conflicts.some(c => c.groupA.some(g => i.toLowerCase().includes(g))))
-      );
-      if (conflictA) {
-        return `Do not use on the same night as ${conflictA.name}.`;
-      }
+      return null;
     }
     return null;
   }
@@ -185,21 +168,13 @@
   // Mask and Other keep when as she set it.
   // Other types use default for the type plus ingredient overrides from rules.json.
   function recomputeWhenForType(product, newType) {
+    if (window.IngredientMatch && typeof window.IngredientMatch.computeWhen === 'function') {
+      return window.IngredientMatch.computeWhen(product, newType, rules);
+    }
     if (newType === 'Mask' || newType === 'Other') {
       return Array.isArray(product.when) && product.when.length > 0 ? product.when : ['both'];
     }
-    let defaultSlot = (rules && rules.defaultWhen && rules.defaultWhen[newType]) || 'both';
-    
-    // Check ingredient overrides
-    if (rules && rules.ingredientOverrides && Array.isArray(product.ingredients)) {
-      const ings = product.ingredients.map(i => i.toLowerCase());
-      for (const override of rules.ingredientOverrides) {
-        if (override.match.some(m => ings.some(i => i.includes(m)))) {
-          defaultSlot = override.when;
-          break;
-        }
-      }
-    }
+    const defaultSlot = (rules && rules.defaultWhen && rules.defaultWhen[newType]) || 'both';
     return [defaultSlot];
   }
 
@@ -647,22 +622,17 @@
     const activeProds = products.filter(p => p.status !== 'finished');
 
     // Memo 1: Don't mix (Retinoids vs AHAs/BHAs)
-    const retinoidKeywords = ['retinol', 'retinal'];
-    const acidKeywords = ['glycolic acid', 'lactic acid', 'salicylic acid'];
-    const hasRetinoid = activeProds.find(p => (p.ingredients || []).some(i => retinoidKeywords.some(k => i.toLowerCase().includes(k))));
-    const hasAcid = activeProds.find(p => (p.ingredients || []).some(i => acidKeywords.some(k => i.toLowerCase().includes(k))));
-    if (hasRetinoid && hasAcid) {
-      // Use the matched keyword as the display name, not the full ingredient string
-      const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
-      const retinoidKey = retinoidKeywords.find(k => (hasRetinoid.ingredients || []).some(i => i.toLowerCase().includes(k))) || 'retinol';
-      const acidKey = acidKeywords.find(k => (hasAcid.ingredients || []).some(i => i.toLowerCase().includes(k))) || 'glycolic acid';
-      const mixAlert = el('div', { className: 'alert-card warning' }, [
-        el('div', { className: 'alert-title-row' }, [`Don't mix tonight: ${cap(acidKey)} and ${cap(retinoidKey)}`]),
-        el('p', { className: 'alert-desc' }, [
-          "Pick one, or your moisture barrier will send me angry texts."
-        ])
-      ]);
-      alertsContainer.appendChild(mixAlert);
+    if (window.IngredientMatch && typeof window.IngredientMatch.findShelfMixAlert === 'function') {
+      const mix = window.IngredientMatch.findShelfMixAlert(activeProds, rules);
+      if (mix) {
+        const mixAlert = el('div', { className: 'alert-card warning' }, [
+          el('div', { className: 'alert-title-row' }, [`Don't mix tonight: ${mix.a} and ${mix.b}`]),
+          el('p', { className: 'alert-desc' }, [
+            "Pick one, or your moisture barrier will send me angry texts."
+          ])
+        ]);
+        alertsContainer.appendChild(mixAlert);
+      }
     }
 
     // Memo 2: Past shelf life
@@ -822,8 +792,11 @@
     let stepIndex = 1;
     routineItems.forEach(prod => {
       let stepReason = computeStepReason(prod, routineTime);
-      if (prod.type === 'Serum' && prod.name.toLowerCase().includes('retinol')) {
-        stepReason = 'Cell turnover active. Use on alternate nights from glycolic acid.';
+      if (prod.type === 'Serum' && window.IngredientMatch && typeof window.IngredientMatch.findConflictPartner === 'function') {
+        const partner = window.IngredientMatch.findConflictPartner(prod, routineItems, rules);
+        if (partner && rules && rules.reasons && rules.reasons['Serum.alt']) {
+          stepReason = rules.reasons['Serum.alt'];
+        }
       }
 
       const stepCard = el('div', {
@@ -877,7 +850,7 @@
         ingredients: ings.join(', '),
         does: typeof d.does === 'string' ? d.does : '',
         addedVia: mode,
-        when: recomputeWhenForType({ type: type, ingredients: ings }, type)[0] || 'both'
+        when: recomputeWhenForType({ type: type, ingredients: ings, name: d.name || '' }, type)[0] || 'both'
       };
       addMethod = mode;
       addFlowStep = 'confirm';
@@ -1118,7 +1091,9 @@
           const whenSelect = document.getElementById('new-prod-when');
           if (whenSelect) {
             const ingVal = (document.getElementById('new-prod-ingredients') || {}).value || '';
-            const dummyProd = { type: chosen, ingredients: ingVal.split(',').map(s => s.trim()).filter(Boolean) };
+            const nameVal = (document.getElementById('new-prod-name') || {}).value || manualFormState.name || '';
+            const splitFn = (window.IngredientMatch && window.IngredientMatch.splitIngredients) || (s => s.split(',').map(x => x.trim()).filter(Boolean));
+            const dummyProd = { name: nameVal, type: chosen, ingredients: splitFn(ingVal) };
             const recomputed = recomputeWhenForType(dummyProd, chosen);
             whenSelect.value = recomputed[0] || 'both';
             manualFormState.when = whenSelect.value;
@@ -1132,7 +1107,7 @@
       ]);
 
       // When group (am, pm, both)
-      const initialWhen = manualFormState.when || recomputeWhenForType({ type: initialType, ingredients: [] }, initialType)[0] || 'both';
+      const initialWhen = manualFormState.when || recomputeWhenForType({ name: manualFormState.name || '', type: initialType, ingredients: [] }, initialType)[0] || 'both';
       const whenSelect = el('select', {
         className: 'form-select',
         id: 'new-prod-when',
@@ -1190,7 +1165,9 @@
             const currentType = (document.getElementById('new-prod-type') || {}).value || 'Cleanser';
             const whenSelect = document.getElementById('new-prod-when');
             if (whenSelect && !manualFormState.whenCustomized) {
-              const dummyProd = { type: currentType, ingredients: ingVal.split(',').map(s => s.trim()).filter(Boolean) };
+              const nameVal = (document.getElementById('new-prod-name') || {}).value || manualFormState.name || '';
+              const splitFn = (window.IngredientMatch && window.IngredientMatch.splitIngredients) || (s => s.split(',').map(x => x.trim()).filter(Boolean));
+              const dummyProd = { name: nameVal, type: currentType, ingredients: splitFn(ingVal) };
               const recomputed = recomputeWhenForType(dummyProd, currentType);
               whenSelect.value = recomputed[0] || 'both';
               manualFormState.when = whenSelect.value;
@@ -1274,7 +1251,8 @@
           // 4. Ingredients validation
           let parsedIngs = [];
           if (ingRaw) {
-            const rawParts = ingRaw.split(',').map(s => s.trim()).filter(Boolean);
+            const splitFn = (window.IngredientMatch && window.IngredientMatch.splitIngredients) || (s => s.split(',').map(x => x.trim()).filter(Boolean));
+            const rawParts = splitFn(ingRaw);
             if (rawParts.length > 50) {
               if (errIngEl) errIngEl.textContent = "That's a lot of ingredients! Keep it under 50 items.";
               hasError = true;

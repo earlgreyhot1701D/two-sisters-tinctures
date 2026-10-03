@@ -11,6 +11,11 @@ test('paste drops ingredients not in the pasted text', () => {
   const r = validateModelOutput(good, { mode: 'paste', text: 'Water, Glycerin, Fragrance' }, rules);
   assert.deepStrictEqual(r.value.ingredients, ['Glycerin']);
 });
+test('paste guard normalizes Unicode dashes in ingredient names and source', () => {
+  const dashProd = Object.assign({}, good, { ingredients: ['L\u2010Ascorbic Acid', 'Ceramide NP'] });
+  const r = validateModelOutput(dashProd, { mode: 'paste', text: 'Water, L-Ascorbic Acid, Ceramide NP' }, rules);
+  assert.deepStrictEqual(r.value.ingredients, ['L\u2010Ascorbic Acid', 'Ceramide NP']);
+});
 test('typed forces ingredients empty', () => {
   const r = validateModelOutput(good, { mode: 'typed', text: 'retinol serum' }, rules);
   assert.deepStrictEqual(r.value.ingredients, []);
