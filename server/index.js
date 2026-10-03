@@ -92,7 +92,10 @@ async function handleRead(req, res) {
       return sendJson(res, 502, { error: 'unreadable' });
     }
     const result = validateModelOutput(raw, request, rules);
-    if (!result.ok) return sendJson(res, 502, { error: 'unreadable' });
+    if (!result.ok) {
+      console.error('model output rejected:', result.why); // reason code only, never the content
+      return sendJson(res, 502, { error: 'unreadable' });
+    }
     return sendJson(res, 200, result.value);
   } catch (err) {
     console.error('read handler error:', err && err.message);

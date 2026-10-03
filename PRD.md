@@ -209,7 +209,7 @@ Response (validated server-side before it's returned):
   "name": "string or null, max 60",
   "brand": "string or null, max 40",
   "type": "one of the seven types, or null",
-  "ingredients": ["max 40 items, each max 60 chars"],
+  "ingredients": ["max 50 items, each max 100 chars"],
   "does": "string, max 240"
 }
 ```
@@ -221,7 +221,7 @@ Response (validated server-side before it's returned):
 | Paste | Every returned ingredient must appear verbatim (case-insensitive) in the text she pasted | Drop the extra ingredients, keep the rest |
 | Typed | `ingredients` must be empty | Server empties it |
 | All | Every ingredient mentioned in `does` must be in `ingredients`, checked against the rules.json ingredient list | Replace `does` with the general line for that product type |
-| All | Schema, enum, and length checks | Return "Couldn't read this," not a partial guess |
+| All | Schema and enum checks (wrong shape, unknown type) | Return "Couldn't read this," not a partial guess. Over-long name, brand, `does` or extra ingredients are trimmed or replaced instead (changed Oct 3 after the gold set) |
 | Photo | No source text to check, so the confirm screen is the check | She fixes or confirms before saving |
 
 ### Voice

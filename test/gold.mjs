@@ -42,7 +42,7 @@ async function runGoldSet() {
       const validated = validateModelOutput(modelRaw, { mode: fixture.mode, text: fixture.text }, rules);
 
       if (!validated.ok) {
-        failReason = 'validation failed (' + validated.error + ')';
+        failReason = 'validation failed (' + validated.error + (validated.why ? ': ' + validated.why : '') + ')';
       } else {
         const val = validated.value;
         const okTypes = [].concat(fixture.expect.type);

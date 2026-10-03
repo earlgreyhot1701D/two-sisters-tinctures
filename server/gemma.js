@@ -28,7 +28,7 @@ Reply with JSON only, using exactly this schema:
   "name": string or null (max 60 chars),
   "brand": string or null (max 40 chars),
   "type": one of ${JSON.stringify(TYPES)} or null,
-  "ingredients": [string] (max 40 items, each max 60 chars),
+  "ingredients": [string] (max 50 items, each max 100 chars),
   "does": string (max 240 chars, one friendly sentence on what this kind of product does)
 }
 If the data is not a skincare product, reply {"kind":"not_skincare","name":null,"brand":null,"type":null,"ingredients":[],"does":""}.`;

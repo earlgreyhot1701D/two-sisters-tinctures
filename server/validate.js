@@ -2,13 +2,18 @@
 // validate.js: deterministic checks on what the model returns. The model can't talk its way past these.
 // Pure functions. No network. Takes rules.json as an argument.
 
-const LIMITS = { name: 60, brand: 40, ingredients: 40, ingredient: 60, does: 240 };
+// Limits. Real labels run longer than the first PRD numbers (gold set, Oct 3): one 70-character ingredient
+// name made a whole read fail. Ingredients now allow 50 items of 100 characters, which matches shelf-store.js.
+// Too-long name, brand, does or extra ingredients are trimmed or replaced, never fatal. Wrong shape or type still fails.
+const LIMITS = { name: 60, brand: 40, ingredients: 50, ingredient: 100, does: 240 };
 
-function cleanString(v, max) {
+// Returns a clean string, or null if it isn't a usable string. With trim=true, over-long text is cut to max.
+function cleanString(v, max, trim) {
   if (typeof v !== 'string') return null;
   const s = v.replace(/[\u0000-\u001F\u007F]/g, ' ').replace(/\s+/g, ' ').trim();
   if (s.length === 0) return null;
-  return s.length > max ? null : s;
+  if (s.length > max) return trim ? s.slice(0, max).trim() : null;
+  return s;
 }
 
 // Known ingredient names from rules.json (lowercase).
@@ -32,32 +37,31 @@ function doesMentionsUnlistedIngredient(does, ingredients, rules) {
 // Returns { ok: true, value } or { ok: false, error: 'unreadable' }.
 // raw: parsed model JSON. request: { mode, text }. rules: parsed rules.json.
 function validateModelOutput(raw, request, rules) {
-  const fail = { ok: false, error: 'unreadable' };
-  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return fail;
+  const bad = (why) => ({ ok: false, error: 'unreadable', why });
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return bad('not_object');
 
   if (raw.kind === 'not_skincare') {
     return { ok: true, value: { kind: 'not_skincare', name: null, brand: null, type: null, ingredients: [], does: '' } };
   }
-  if (raw.kind !== 'skincare') return fail;
+  if (raw.kind !== 'skincare') return bad('kind');
 
   // Schema and length checks. A bad field means "Couldn't read this", not a partial guess.
   let name = null;
-  if (raw.name != null) { name = cleanString(raw.name, LIMITS.name); if (name === null) return fail; }
+  if (raw.name != null && raw.name !== '') { name = cleanString(raw.name, LIMITS.name, true); if (name === null) return bad('name'); }
   let brand = null;
-  if (raw.brand != null) { brand = cleanString(raw.brand, LIMITS.brand); if (brand === null) return fail; }
+  if (raw.brand != null && raw.brand !== '') { brand = cleanString(raw.brand, LIMITS.brand, true); if (brand === null) return bad('brand'); }
 
   let type = null;
   if (raw.type != null) {
-    if (typeof raw.type !== 'string' || !rules.types.includes(raw.type)) return fail;
+    if (typeof raw.type !== 'string' || !rules.types.includes(raw.type)) return bad('type');
     type = raw.type;
   }
 
-  if (!Array.isArray(raw.ingredients) || raw.ingredients.length > LIMITS.ingredients) return fail;
+  if (!Array.isArray(raw.ingredients)) return bad('ingredients_shape');
   let ingredients = [];
-  for (const item of raw.ingredients) {
+  for (const item of raw.ingredients.slice(0, LIMITS.ingredients)) {
     const s = cleanString(item, LIMITS.ingredient);
-    if (s === null) return fail;
-    ingredients.push(s);
+    if (s !== null) ingredients.push(s); // skip blanks and absurdly long junk
   }
 
   // Guard: typed path never gets ingredients.
@@ -78,12 +82,12 @@ function validateModelOutput(raw, request, rules) {
     return true;
   });
 
-  let does = raw.does == null ? '' : cleanString(raw.does, LIMITS.does);
-  if (does === null) return fail;
+  let does = typeof raw.does === 'string' ? cleanString(raw.does, LIMITS.does) : '';
+  if (does === null) does = ''; // too long or blank: the general line below takes over
 
   // Guard: `does` may only mention ingredients that are in the list. Else use the general line for the type.
   const general = rules.generalDoes && rules.generalDoes[type || 'Other'];
-  if (does === '' || doesMentionsUnlistedIngredient(does, ingredients, rules)) {
+  if (!does || doesMentionsUnlistedIngredient(does, ingredients, rules)) {
     does = general || '';
   }
 

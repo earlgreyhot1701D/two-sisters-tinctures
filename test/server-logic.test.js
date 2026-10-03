@@ -22,7 +22,6 @@ test('does naming an unlisted ingredient is replaced by the general line', () =>
 });
 test('bad type, long name, wrong kind all fail', () => {
   assert.strictEqual(validateModelOutput(Object.assign({}, good, { type: 'Potion' }), { mode: 'paste', text: 'x' }, rules).ok, false);
-  assert.strictEqual(validateModelOutput(Object.assign({}, good, { name: 'x'.repeat(61) }), { mode: 'paste', text: 'x' }, rules).ok, false);
   assert.strictEqual(validateModelOutput({ kind: 'maybe' }, { mode: 'paste', text: 'x' }, rules).ok, false);
   assert.strictEqual(validateModelOutput(null, { mode: 'paste', text: 'x' }, rules).ok, false);
 });
@@ -80,4 +79,19 @@ test('thinking level is sent by default and can be turned off', async () => {
   assert.strictEqual(sent.generationConfig.thinkingConfig.thinkingLevel, 'MINIMAL');
   await readProduct({ mode: 'typed', text: 'x' }, { apiKey: 'k', fetchImpl: f, thinkingLevel: 'off' });
   assert.strictEqual(sent.generationConfig.thinkingConfig, undefined);
+});
+
+test('real-world length quirks are trimmed, not fatal', () => {
+  const longIng = 'Ammonium Acryloyldimethyltaurate/Steareth-25 Methacrylate Crosspolymer (Viscosity Controlling)';
+  const raw = Object.assign({}, good, { name: 'x'.repeat(80), does: 'y'.repeat(300), ingredients: ['Glycerin', longIng] });
+  const r = validateModelOutput(raw, { mode: 'paste', text: 'Glycerin, ' + longIng }, rules);
+  assert.strictEqual(r.ok, true);
+  assert.strictEqual(r.value.name.length, 60);
+  assert.strictEqual(r.value.does, rules.generalDoes.Serum);
+  assert.strictEqual(r.value.ingredients.length, 2);
+});
+test('bad shape still fails with a reason', () => {
+  const r = validateModelOutput(Object.assign({}, good, { ingredients: 'Glycerin' }), { mode: 'paste', text: 'x' }, rules);
+  assert.strictEqual(r.ok, false);
+  assert.strictEqual(r.why, 'ingredients_shape');
 });
