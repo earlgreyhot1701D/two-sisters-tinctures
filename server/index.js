@@ -1,6 +1,10 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
+const rules = require('../public/rules.json');
+const limits = require('./limits');
+const { validateModelOutput } = require('./validate');
+const { readProduct } = require('./gemma');
 
 const PORT = parseInt(process.env.PORT || '3000', 10);
 const HOST = '0.0.0.0';
@@ -25,6 +29,78 @@ const SECURITY_HEADERS = {
   'X-Frame-Options': 'DENY'
 };
 
+const limiter = limits.createLimiter();
+
+function sendJson(res, status, obj, extra) {
+  res.writeHead(status, Object.assign({
+    'Content-Type': 'application/json; charset=utf-8',
+    'Cache-Control': 'no-store'
+  }, SECURITY_HEADERS, extra || {}));
+  res.end(JSON.stringify(obj));
+}
+
+function clientIp(req) {
+  // Render puts the real client first in X-Forwarded-For.
+  const xff = req.headers['x-forwarded-for'];
+  if (typeof xff === 'string' && xff.length) return xff.split(',')[0].trim();
+  return req.socket.remoteAddress || 'unknown';
+}
+
+function readBody(req, maxBytes) {
+  return new Promise((resolve, reject) => {
+    const chunks = [];
+    let size = 0;
+    req.on('data', chunk => {
+      size += chunk.length;
+      if (size > maxBytes) { reject(new Error('too_large')); req.destroy(); return; }
+      chunks.push(chunk);
+    });
+    req.on('end', () => resolve(Buffer.concat(chunks).toString('utf8')));
+    req.on('error', () => reject(new Error('bad_request')));
+  });
+}
+
+// POST /api/read. Order: demo code, rate limits, body checks, model, validation.
+async function handleRead(req, res) {
+  try {
+    if (!limits.checkDemoCode(req.headers['x-demo-code'], process.env.DEMO_CODE)) {
+      return sendJson(res, 401, { error: 'demo_code' });
+    }
+    const gate = limiter.check({ ip: clientIp(req), deviceId: req.headers['x-device-id'] });
+    if (!gate.ok) {
+      return sendJson(res, 429, { error: gate.reason === 'daily' ? 'daily_cap' : 'slow_down' },
+        { 'Retry-After': String(gate.retryAfterSec) });
+    }
+    let body;
+    try {
+      body = JSON.parse(await readBody(req, limits.MAX_BODY_BYTES));
+    } catch (err) {
+      return sendJson(res, err.message === 'too_large' ? 413 : 400, { error: err.message === 'too_large' ? 'too_large' : 'bad_request' });
+    }
+    const checked = limits.checkRequestBody(body);
+    if (!checked.ok) return sendJson(res, checked.error === 'too_large' ? 413 : 400, { error: checked.error });
+    const request = checked.value;
+    if (request.mode === 'photo') return sendJson(res, 501, { error: 'photo_not_ready' }); // Block 5 STUB
+
+    let raw;
+    try {
+      raw = await readProduct(request);
+    } catch (err) {
+      const code = err && err.message;
+      console.error('model call failed:', code); // code only, never the body or key
+      if (code === 'model_off') return sendJson(res, 503, { error: 'model_off' });
+      if (code === 'model_timeout') return sendJson(res, 504, { error: 'model_timeout' });
+      return sendJson(res, 502, { error: 'unreadable' });
+    }
+    const result = validateModelOutput(raw, request, rules);
+    if (!result.ok) return sendJson(res, 502, { error: 'unreadable' });
+    return sendJson(res, 200, result.value);
+  } catch (err) {
+    console.error('read handler error:', err && err.message);
+    return sendJson(res, 500, { error: 'server_error' });
+  }
+}
+
 const server = http.createServer((req, res) => {
   const parsedUrl = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
   const pathname = parsedUrl.pathname;
@@ -37,6 +113,12 @@ const server = http.createServer((req, res) => {
       ...SECURITY_HEADERS
     });
     res.end('OK');
+    return;
+  }
+
+  if (pathname === '/api/read') {
+    if (req.method !== 'POST') return sendJson(res, 405, { error: 'method' }, { Allow: 'POST' });
+    handleRead(req, res);
     return;
   }
 
