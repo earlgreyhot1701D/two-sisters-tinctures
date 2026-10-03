@@ -1,6 +1,8 @@
+<p align="center"><img src="design/brand/brand/social-card-1280x640.png" alt="Two Sisters Tinctures: a skincare shelf, built for my little sister. Built with Gemma 4 for the DEV Hacktoberfest Weekend Challenge." width="100%"></p>
+
 # Two Sisters Tinctures
 
-A skincare shelf tracker I built for my little sister. She adds a product, it becomes a card on her shelf, and the app sorts the shelf into a morning and evening order and flags things that should not be layered.
+A skincare shelf tracker built for my little sister. She adds a product, it becomes a card on her shelf, and the app sorts the shelf into a morning and evening order and flags things that should not be layered.
 
 **Live:** https://two-sisters-tinctures.onrender.com/
 **Look around first:** add `?demo=1` to the address for a pre-filled demo shelf (memory only, gone when you close the tab).
@@ -159,16 +161,29 @@ Docs worth reading: `PRD.md` (the plan), `TASKS.md` (block by block, with pass o
 - **Thinking costs time.** Reads timed out until I set the model's thinking level to minimal and raised the timeout to 30 seconds.
 - **Strict validation can reject good answers.** My first validator threw out reads over a 60 character ingredient name. I switched it to trim instead of reject.
 - **Test the idea by hand before you build it.** A web lookup found the right ingredient list for 2 of 2 products in a dashboard, along with an old formula and a junk page. I stubbed it, wrote down what I saw, and kept the app small.
+- **The bug was in the part I called deterministic.** The day before submitting, almost every product landed on Night only. The night rule matched any ingredient that contained an acid's name, so a pH adjuster at the end of a serum and a daytime SPF both went to night. The fix is one shared matcher with whole-name matching, a first-ten-ingredients rule of thumb for acids, and SPF always in the morning, each with a test built from a real product.
 - **Models wrap their answers.** Sometimes a list, sometimes JSON inside a string. The unwrap step and a logged reason code made that visible.
 - **A demo code is a bad first minute.** I built one so reviewers could skip the caps, then dropped it. The `?demo=1` shelf does the job without making anyone find and paste a code.
 - **A fix that does not fix is worth reverting.** Two attempts to close the forged-header hole did not work. I reverted and documented the limit instead of shipping a false sense of safety.
 - **A stale server wastes an hour.** An old process on port 3000 served the wrong code and looked like a bug.
 
+## After the contest
+
+These are known and written down, not forgotten. None of them change what the app does for her today.
+
+| Item | Why it waits |
+|---|---|
+| Split `public/app.js` (about 1,600 lines) into screens (shelf, routine, add, product detail) and pure logic (shelf life, routine) | It is the one file doing too many jobs. Splitting it the night before submitting would touch every screen with no screen tests to catch breakage. Two pure pieces already moved out this weekend: `shelf-gaps.js` and `ingredient-match.js` |
+| Move date math into its own file with an injectable clock, and test the edges (expiry day, month end, Feb 29) | The first piece to pull out of `app.js` |
+| Rate limits that survive a restart (shared storage) | Today the counters live in memory on one Render instance. A restart resets them. The total daily cap and a budget alert are the backstop |
+| Photo input and product lookup (web search, product page, barcode) | Stubs with notes in `PRD.md` and `FINDINGS.md` |
+| Saving the "2 to 3 nights a week" note from the ingredient rules | Comment stub in `public/ingredient-match.js` |
+
 ## Limits, plainly
 
 - Photo input and product lookup are not built. Both are stubs with notes.
 - Ingredients-only reads are right 3 times in 5 on my gold set.
-- The per-visitor cap can be dodged. The total cap is the real limit.
+- The per-visitor cap can be dodged, and all caps reset when the server restarts. The total cap and the budget alert are the real limits.
 - Only the Gemini path is tested.
 - No allergy checks. This is a shelf and a set of order notes, not medical advice.
 

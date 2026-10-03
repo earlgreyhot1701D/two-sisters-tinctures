@@ -7,7 +7,7 @@
     "start": "node server/index.js",
     "gold": "node test/gold.mjs",
     "gold:bare": "node test/gold.mjs --bare",
-    "test": "node --test test/server-logic.test.js test/shelf-store.test.js test/shelf-gaps.test.js test/ingredient-match.test.js",
+    "test": "node --test test/server-logic.test.js test/shelf-store.test.js test/shelf-gaps.test.js test/ingredient-match.test.js test/routes.test.js",
     "lint": "eslint ."
   },
   "keywords": [

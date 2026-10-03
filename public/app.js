@@ -6,8 +6,8 @@
 (function () {
   'use strict';
 
-  // Fixed demo date for demo mode so expiry states are stable for judges.
-  // Real shelves will use the real date in Block 2.
+  // Fixed date for demo mode only so expiry states are stable for judges.
+  // Real shelves use the real date.
   const TODAY = new Date(2026, 9, 2);
 
   // Application State
@@ -413,8 +413,8 @@
       el('button', {
         className: 'detail-btn-secondary',
         onclick: () => {
-          // Placeholder toast: replace in Block 2
-          showToast('Editing comes in the build');
+          // Full inline editing is deferred to post-contest; shows a stub toast for now.
+          showToast('Editing is coming soon.'); // detail.edit.soon
         }
       }, ['Edit details']),
       el('button', {

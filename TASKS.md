@@ -126,6 +126,10 @@ The service already exists from Block 1b. Do not push the key through git.
 - [ ] Check Open Beauty Facts skincare coverage and the iPhone Safari barcode reader
 - [ ] Decide the search provider after Oct 19, when the Tavily trial ends
 - [ ] Every path feeds the existing paste guard and confirm screen
+- [ ] Split `public/app.js` into screens and pure logic
+- [ ] Date math in its own file with an injectable clock and edge tests
+- [ ] Restart-proof rate limits (persistent or edge-backed storage)
+- [ ] Clean 413 if the test shows a dropped connection on oversized request body
 
 ## Block 7. Polish add-ons (built Oct 3)
 **Tier:** Working. **Disposition:** promote. **Status:** [x]

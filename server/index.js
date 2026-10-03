@@ -138,15 +138,13 @@ const server = http.createServer((req, res) => {
   }
 
   // Handle static assets
-  let safePath = path.normalize(pathname).replace(/^(\.\.[/\\])+/, '');
-  if (safePath === '/' || safePath === '\\') {
-    safePath = '/index.html';
-  }
-
-  const filePath = path.join(PUBLIC_DIR, safePath);
+  const rawPath = req.url.split('?')[0];
+  const targetRel = (rawPath === '/' || rawPath === '') ? '/index.html' : rawPath;
+  const filePath = path.resolve(PUBLIC_DIR, '.' + targetRel);
 
   // Prevent directory traversal outside public
-  if (!filePath.startsWith(PUBLIC_DIR)) {
+  const rel = path.relative(PUBLIC_DIR, filePath);
+  if (rel.startsWith('..') || path.isAbsolute(rel)) {
     res.writeHead(403, { 'Content-Type': 'text/plain; charset=utf-8', ...SECURITY_HEADERS });
     res.end('Forbidden');
     return;

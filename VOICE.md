@@ -280,6 +280,7 @@ Every line the app says, in one place. The app speaks as **my little sister**, w
 | `add.typed.help` | This is the quick way. You'll get the type and a spot in your routine, but no ingredient notes or conflict warnings. Paste the ingredients instead if you want those. | [ ] |
 | `reading.cancel` | Cancel | [ ] |
 | `add.snap.soon` | Snap card badge | Coming soon | [ ] |
+| `detail.edit.soon` | Edit details button toast | Editing is coming soon. | [ ] |
 | `add.paste.best.title` | Paste tip summary | How to get the best read | [ ] |
 | `add.paste.best.name` | Paste tip line 1 | Type the product name in the box below so I can place it in the right routine step. | [ ] |
 | `add.paste.best.copy` | Paste tip line 2 | Copy the full ingredients list from the brand's or store's product page. | [ ] |
