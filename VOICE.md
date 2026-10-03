@@ -210,3 +210,17 @@ Every line the app says, in one place. The app speaks as **my little sister**, w
 | `does.general.sunscreen` | Protects your skin from the sun. Goes on last in the morning. | [ ] |
 | `does.general.mask` | A once-in-a-while step. Follow the directions on the box. | [ ] |
 | `does.general.other` | Something on your shelf that doesn't fit the usual steps. | [ ] |
+
+## Read flow (Block 3 step 11)
+| ID | Line | Her OK |
+|---|---|---|
+| `error.daily` | I've talked a lot today, sis. Try again tomorrow, or add it by hand. | [ ] |
+| `error.paste.toolong` | That's too long. Keep it under 4,000 letters. | [ ] |
+| `error.paste.empty` | Paste something first, sis. | [ ] |
+| `error.typed.empty` | Type a name first, sis. | [ ] |
+| `photo.notready` | Photo reading isn't ready yet. Paste the ingredients or type it in. | [ ] |
+| `typed.button` | Look it up | [ ] |
+| `reading.cancel` | Cancel | [ ] |
+| `code.label` | Demo code | [ ] |
+| `code.placeholder` | From the post | [ ] |
+

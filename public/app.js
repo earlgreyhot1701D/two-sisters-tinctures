@@ -20,6 +20,23 @@
   let rules = null; // Loaded from rules.json
   let manualFormState = {};
   let pendingUndo = null; // { product, index, timerId }
+  let pasteDraft = '';
+  let typedDraft = '';
+  let readError = ''; // message shown on the input screens after a failed read
+  let readToken = 0; // guards against stale responses
+  let readAbort = null;
+
+  // Voice lines for read failures (IDs in VOICE.md)
+  const READ_ERRORS = {
+    code: "That code doesn't work. Check the post for the right one.", // error.code
+    ratelimit: 'Slow down, sis. Try again in a minute.', // error.ratelimit
+    daily: "I've talked a lot today, sis. Try again tomorrow, or add it by hand.", // error.daily
+    timeout: "That label's being shy. Try again or type it in.", // timeout
+    offline: 'No signal right now. You can still add it by hand.', // error.offline
+    toolong: "That's too long. Keep it under 4,000 letters.", // error.paste.toolong
+    generic: 'Something went sideways on my end. You can still add it by hand.' // error.generic
+  };
+  const NOT_SKINCARE_MSG = "That doesn't look like a skincare product. Try another one?"; // notskincare
 
   // Date and Calculation Helpers
   function parseDateString(str) {
@@ -767,6 +784,74 @@
     return container;
   }
 
+  // Calls the server for paste or typed mode, then fills the confirm form with the result.
+  function startRead(mode, text) {
+    const myToken = ++readToken;
+    readError = '';
+    addFlowStep = 'reading';
+    renderApp();
+    readAbort = new AbortController();
+    window.ReadClient.read({ mode, text }, readAbort.signal).then((result) => {
+      if (myToken !== readToken) return; // cancelled or replaced
+      readAbort = null;
+      const backStep = mode === 'paste' ? 'paste_input' : 'type_input';
+      if (!result.ok) {
+        if (result.reason === 'code') window.ReadClient.clearCode();
+        readError = READ_ERRORS[result.reason] || READ_ERRORS.generic;
+        addFlowStep = backStep;
+        renderApp();
+        return;
+      }
+      const d = result.data;
+      if (d.kind !== 'skincare') {
+        readError = NOT_SKINCARE_MSG;
+        addFlowStep = backStep;
+        renderApp();
+        return;
+      }
+      const type = d.type || 'Other';
+      const ings = Array.isArray(d.ingredients) ? d.ingredients : [];
+      manualFormState = {
+        name: d.name || '',
+        brand: d.brand || '',
+        type: type,
+        ingredients: ings.join(', '),
+        does: typeof d.does === 'string' ? d.does : '',
+        addedVia: mode,
+        when: recomputeWhenForType({ type: type, ingredients: ings }, type)[0] || 'both'
+      };
+      addMethod = mode;
+      addFlowStep = 'confirm';
+      renderApp();
+    });
+  }
+
+  function cancelRead() {
+    readToken++;
+    if (readAbort) { readAbort.abort(); readAbort = null; }
+  }
+
+  // Small demo code box shown on the paste and typed screens when no code is set yet.
+  function createCodeBox() {
+    if (window.ReadClient.hasCode()) return null;
+    return el('div', { className: 'form-group' }, [
+      el('label', { className: 'form-label' }, ['Demo code']),
+      el('input', {
+        className: 'form-input',
+        id: 'demo-code-input',
+        type: 'password',
+        autocomplete: 'off',
+        maxlength: '100',
+        placeholder: 'From the post'
+      })
+    ]);
+  }
+
+  function readCodeBox() {
+    const box = document.getElementById('demo-code-input');
+    if (box && box.value.trim()) window.ReadClient.setCode(box.value);
+  }
+
   // 3. ADD SCREEN
   function renderAddScreen() {
     const container = el('div');
@@ -780,13 +865,8 @@
       const snapCard = el('button', {
         className: 'add-choice-card',
         onclick: () => {
-          addMethod = 'snap';
-          addFlowStep = 'reading';
-          renderApp();
-          setTimeout(() => {
-            addFlowStep = 'confirm';
-            renderApp();
-          }, 1100);
+          // STUB: photo reading is Block 5.
+          showToast("Photo reading isn't ready yet. Paste the ingredients or type it in.");
         }
       }, [
         el('div', { className: 'add-choice-icon' }, ['📷']),
@@ -814,7 +894,7 @@
       const typeCard = el('button', {
         className: 'add-choice-card',
         onclick: () => {
-          addMethod = 'type';
+          addMethod = 'typed';
           addFlowStep = 'type_input';
           renderApp();
         }
@@ -852,31 +932,41 @@
         el('textarea', {
           className: 'form-textarea',
           id: 'paste-textarea',
-          placeholder: 'Water, Glycerin, Niacinamide, Sodium Hyaluronate...'
+          placeholder: 'Water, Glycerin, Niacinamide, Sodium Hyaluronate...',
+          oninput: (e) => { pasteDraft = e.target.value; }
         })
       ]);
+      pasteGroup.lastChild.value = pasteDraft;
+
+      const errBox = el('div', { className: 'form-error-msg', id: 'error-read' });
+      errBox.textContent = readError;
 
       const readBtn = el('button', {
         className: 'btn-primary',
         onclick: () => {
-          addFlowStep = 'reading';
-          renderApp();
-          setTimeout(() => {
-            addFlowStep = 'confirm';
-            renderApp();
-          }, 1100);
+          const text = (document.getElementById('paste-textarea').value || '').trim();
+          pasteDraft = text;
+          readCodeBox();
+          const errEl = document.getElementById('error-read');
+          if (!text) { errEl.textContent = 'Paste something first, sis.'; return; } // error.paste.empty
+          if (text.length > 4000) { errEl.textContent = READ_ERRORS.toolong; return; }
+          startRead('paste', text);
         }
       }, ['Let me read these']);
 
       const backBtn = el('button', {
         className: 'btn-secondary',
         onclick: () => {
+          readError = '';
           addFlowStep = 'select';
           renderApp();
         }
       }, ['Back']);
 
       formBox.appendChild(pasteGroup);
+      const codeBox = createCodeBox();
+      if (codeBox) formBox.appendChild(codeBox);
+      formBox.appendChild(errBox);
       formBox.appendChild(readBtn);
       formBox.appendChild(backBtn);
       container.appendChild(formBox);
@@ -891,7 +981,15 @@
         ]),
         el('p', { className: 'reading-subtitle' }, [
           'Sorting actives, humectants, and preservatives'
-        ])
+        ]),
+        el('button', {
+          className: 'btn-secondary',
+          onclick: () => {
+            cancelRead();
+            addFlowStep = addMethod === 'paste' ? 'paste_input' : 'type_input';
+            renderApp();
+          }
+        }, ['Cancel'])
       ]);
       container.appendChild(readingBox);
 
@@ -902,6 +1000,13 @@
       container.appendChild(createGreetingBubble(bubbleMsg));
 
       const formBox = el('div', { className: 'add-flow-container' });
+
+      if (addMethod === 'paste' || addMethod === 'typed') {
+        const source = addMethod === 'paste' ? 'pasted ingredients' : 'typed name';
+        formBox.appendChild(el('p', { className: 'confirm-info' }, [
+          'Gemma read this from your ' + source + '. Fix anything I got wrong before you save.' // confirm.info
+        ]));
+      }
 
       // Name group
       const nameGroup = el('div', { className: 'form-group' }, [
@@ -1062,7 +1167,9 @@
             when: whenVal,
             opened: openedVal,
             paoMonths: paoVal,
-            ingredients: ingRaw
+            ingredients: ingRaw,
+            does: manualFormState.does || '',
+            addedVia: manualFormState.addedVia || 'manual'
           };
 
           let hasError = false;
@@ -1117,11 +1224,11 @@
             when: [whenVal],
             freq: null,
             ingredients: parsedIngs,
-            does: '',
+            does: manualFormState.does || '',
             opened: openedVal,
             paoMonths: paoVal,
             status: 'active',
-            addedVia: 'manual',
+            addedVia: manualFormState.addedVia || 'manual',
             createdAt: new Date().toISOString()
           };
 
@@ -1129,6 +1236,8 @@
           if (isDemo) {
             products.unshift(newProduct);
             manualFormState = {};
+            pasteDraft = '';
+            typedDraft = '';
             showToast('On the shelf. Cute.');
             addFlowStep = 'select';
             currentTab = 'shelf';
@@ -1153,6 +1262,8 @@
           // Success
           products = window.ShelfStore.getShelf();
           manualFormState = {};
+          pasteDraft = '';
+          typedDraft = '';
           showToast('On the shelf. Cute.');
           addFlowStep = 'select';
           currentTab = 'shelf';
@@ -1194,50 +1305,41 @@
         el('input', {
           className: 'form-input',
           placeholder: 'e.g. Squalane facial oil',
-          id: 'type-name-input'
+          id: 'type-name-input',
+          maxlength: '120',
+          oninput: (e) => { typedDraft = e.target.value; }
         })
       ]);
+      nameGroup.lastChild.value = typedDraft;
+
+      const errBox = el('div', { className: 'form-error-msg', id: 'error-read' });
+      errBox.textContent = readError;
 
       const lookUpBtn = el('button', {
         className: 'btn-primary',
         onclick: () => {
-          const val = document.getElementById('type-name-input').value.trim() || 'Custom facial tincture';
-          products.unshift({
-            id: 'prod-' + Date.now(),
-            name: val.length > 18 ? val.substring(0, 16) + '...' : val,
-            fullName: val,
-            brand: 'Unspecified Brand',
-            type: 'moisturizer',
-            typeName: 'Moisturizer',
-            slot: 'both',
-            stepOrder: 5,
-            badge: null,
-            whatItDoes: 'General skin barrier replenishment and conditioning.',
-            openedDate: '2026-10-02',
-            bestWithinMonths: 12,
-            useByDate: '2027-10-02',
-            warning: 'Ingredients not logged. Snap or paste label to check conflicts.',
-            ingredients: [
-              { name: 'Unknown ingredients', note: 'Not logged yet. Snap bottle label to populate.' }
-            ]
-          });
-          showToast('On the shelf. Cute.');
-          addFlowStep = 'select';
-          currentTab = 'shelf';
-          updateNavState();
-          renderApp();
+          const text = (document.getElementById('type-name-input').value || '').trim();
+          typedDraft = text;
+          readCodeBox();
+          const errEl = document.getElementById('error-read');
+          if (!text) { errEl.textContent = 'Type a name first, sis.'; return; } // error.typed.empty
+          startRead('typed', text);
         }
-      }, ['Add to shelf anyway']);
+      }, ['Look it up']);
 
       const backBtn = el('button', {
         className: 'btn-secondary',
         onclick: () => {
+          readError = '';
           addFlowStep = 'select';
           renderApp();
         }
       }, ['Back']);
 
       formBox.appendChild(nameGroup);
+      const codeBox = createCodeBox();
+      if (codeBox) formBox.appendChild(codeBox);
+      formBox.appendChild(errBox);
       formBox.appendChild(lookUpBtn);
       formBox.appendChild(backBtn);
       container.appendChild(formBox);
@@ -1411,6 +1513,8 @@
   });
 
   document.getElementById('tab-add').addEventListener('click', () => {
+    cancelRead();
+    readError = '';
     currentTab = 'add';
     addFlowStep = 'select';
     updateNavState();
