@@ -75,4 +75,4 @@ Disposition: promote. Optional name box stays. Block 3 closed.
 ### Oct 3 | Block 4 | Live checks
 Question: Do the Gate G4 proofs hold on the live URL?
 Finding: Key not in any served file. CSP, HSTS, nosniff and frame-ancestors present. /healthz 200. A real paste read took 2.8 s. Rapid repeat requests get a friendly 429 after 4 to 6 per minute. One hole found: the per-visitor cap trusted the first X-Forwarded-For entry, which a client can write, so 8 requests with made-up addresses all got through. The total daily cap still bounded the spend.
-Disposition: promote. The server now uses the last entry, which Render's proxy adds. Re-test live after the deploy.
+Disposition: shelve as a known limit. Using the last entry did not stop the bypass on the live site (9 fake addresses still all got through), and Render's own reply says the real client is first, so I put the first entry back. A visitor who writes a fake header can dodge the 10 a day per-visitor cap. The total cap of 50 a day still bounds spend, and the budget alert is the backstop. Say so plainly in the post.

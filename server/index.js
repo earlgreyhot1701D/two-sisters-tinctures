@@ -40,12 +40,14 @@ function sendJson(res, status, obj, extra) {
 }
 
 function clientIp(req) {
-  // Render's proxy appends the real client address to the END of X-Forwarded-For. The first entries can be
-  // written by the client, so trusting them would let anyone dodge the per-visitor cap (found live, Oct 3).
+  // Render sets the first entry to the real client address (Render's own staff reply on feedback.render.com).
+  // Known limit: Render appends to a header the client already sent, so a determined visitor can write a fake
+  // first entry and dodge the per-visitor cap. Tried the last entry on Oct 3 and it did not help (see FINDINGS).
+  // The total daily cap is what really bounds spend.
   const xff = req.headers['x-forwarded-for'];
   if (typeof xff === 'string' && xff.length) {
-    const parts = xff.split(',').map(x => x.trim()).filter(Boolean);
-    if (parts.length) return parts[parts.length - 1];
+    const first = xff.split(',')[0].trim();
+    if (first) return first;
   }
   return req.socket.remoteAddress || 'unknown';
 }
