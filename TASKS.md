@@ -103,10 +103,10 @@ Small and safe. Claude writes this directly in the repo to save Antigravity cred
 ## Block 4. Harden the live deploy
 **Tier:** Full. **Disposition:** promote. **Status:** [ ]
 The service already exists from Block 1b. Do not push the key through git.
-- [ ] `GEMINI_API_KEY` set by hand in Dashboard, Environment, then redeploy
-- [ ] Google Cloud budget alert and key restriction confirmed
-- [ ] Rate limit and daily cap checked on the live URL
-- [ ] Every proof in PRD Gate G4
+- [x] `GEMINI_API_KEY` set by hand in Dashboard, Environment, then redeploy
+- [x] Google Cloud budget alert ($5) done. Key already limited to the Gemini API only (account-bound key); application restriction left at None on purpose, Render has no fixed IP
+- [x] Rate limit checked live (friendly 429). Daily cap covered by unit tests (not worth burning 50 live reads). Known limit: per-visitor cap can be dodged with a fake X-Forwarded-For header
+- [~] Gate G4: done live Oct 3: no key in served files, headers, real paste read 3 to 4 s, typed read, not-skincare message, no console errors. Still to do: look at Render Logs after real requests (status and timing only), and a cold phone check by Shara
 
 **PASS:** all Gate G4 proofs on the live URL, cold browser, phone and laptop.
 

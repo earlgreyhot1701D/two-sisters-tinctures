@@ -82,9 +82,8 @@
   }
 
   function getIngredientNote(ingName) {
-    if (!rules || !rules.ingredientNotes) return 'No note for this one yet.';
-    const key = ingName.toLowerCase().trim();
-    return rules.ingredientNotes[key] || rules.defaultIngredientNote || 'No note for this one yet.';
+    const note = window.IngredientNotes ? window.IngredientNotes.lookup(ingName, rules) : null;
+    return note || (rules && rules.defaultIngredientNote) || 'No note for this one yet.';
   }
 
   function computeProductWarning(prod, allProds) {
@@ -897,6 +896,9 @@
       addContainer.appendChild(snapCard);
       addContainer.appendChild(pasteCard);
       addContainer.appendChild(typeCard);
+      addContainer.appendChild(el('p', { className: 'form-hint' }, [
+        'Pasting takes a minute longer, but it unlocks ingredient notes and conflict warnings. Typing is the quick way.' // add.choose.tip
+      ]));
       addContainer.appendChild(manualLink);
       container.appendChild(addContainer);
 
@@ -956,6 +958,9 @@
         }
       }, ['Back']);
 
+      formBox.appendChild(el('p', { className: 'form-hint' }, [
+        "Look on the box, or search the product name plus 'ingredients'. Copy the whole list and paste it here. Adding the name helps me get the type right." // add.paste.help
+      ]));
       formBox.appendChild(pasteNameGroup);
       formBox.appendChild(pasteGroup);
       formBox.appendChild(errBox);
@@ -1329,6 +1334,9 @@
         }
       }, ['Back']);
 
+      formBox.appendChild(el('p', { className: 'form-hint' }, [
+        "This is the quick way. You'll get the type and a spot in your routine, but no ingredient notes or conflict warnings. Paste the ingredients instead if you want those." // add.typed.help
+      ]));
       formBox.appendChild(nameGroup);
       formBox.appendChild(errBox);
       formBox.appendChild(lookUpBtn);

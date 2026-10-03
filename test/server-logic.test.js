@@ -101,3 +101,14 @@ test('extractJson unwraps a list or a double-encoded answer', () => {
   assert.strictEqual(extractJson(wrap('[{"kind":"not_skincare"}]')).kind, 'not_skincare');
   assert.strictEqual(extractJson(wrap(JSON.stringify('{"kind":"not_skincare"}'))).kind, 'not_skincare');
 });
+
+const notes = require('../public/ingredient-notes');
+test('ingredient notes: aliases, role tags, spelling', () => {
+  const must = ['Aqua', 'Aqua / Water / Eau', 'Water', 'Glycerine', 'Glycerin (Humectants)', 'Ceramide NP', 'CERAMIDE AP', 'Cholesterol', 'Tocopherol', 'Alcohol Denat.', 'Parfum', 'Phenoxyethanol'];
+  for (const n of must) assert.ok(notes.lookup(n, rules), 'no note for ' + n);
+  assert.strictEqual(notes.lookup('Unobtainium extract', rules), null);
+  assert.strictEqual(notes.lookup('', rules), null);
+});
+test('every alias points at a real note', () => {
+  for (const [a, t] of Object.entries(rules.ingredientAliases)) assert.ok(rules.ingredientNotes[t], a + ' -> ' + t);
+});

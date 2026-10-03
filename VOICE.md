@@ -101,6 +101,59 @@ Every line the app says, in one place. The app speaks as **my little sister**, w
 | `ing.hyaluronic_acid` | Hyaluronic acid | Humectant that holds water on the skin surface. | [ ] |
 | `ing.jojoba_oil` | Jojoba oil | Lightweight botanical oil close to skin's own sebum. | [ ] |
 | `ing.rosehip_oil` | Rosehip seed oil | Plant oil rich in fatty acids and antioxidants. | [ ] |
+| `ing.water` | Water | The base of most formulas. It carries everything else. | [ ] |
+| `ing.butylene_glycol` | Butylene glycol | A solvent that helps other ingredients mix in and keeps the formula feeling smooth. | [ ] |
+| `ing.propanediol` | Propanediol | A plant-derived solvent that helps ingredients dissolve and adds a little moisture. | [ ] |
+| `ing.dimethicone` | Dimethicone | A silicone that gives a smooth, slippery feel and helps seal in moisture. | [ ] |
+| `ing.cetearyl_alcohol` | Cetearyl alcohol | A fatty alcohol that thickens creams. It isn't the drying kind of alcohol. | [ ] |
+| `ing.cetyl_alcohol` | Cetyl alcohol | A fatty alcohol that thickens creams. It isn't the drying kind of alcohol. | [ ] |
+| `ing.stearyl_alcohol` | Stearyl alcohol | A fatty alcohol that thickens creams. It isn't the drying kind of alcohol. | [ ] |
+| `ing.phenoxyethanol` | Phenoxyethanol | A preservative that keeps bacteria and mold out of the formula. | [ ] |
+| `ing.ethylhexylglycerin` | Ethylhexylglycerin | Softens the feel of the formula and helps the preservative work. | [ ] |
+| `ing.caprylyl_glycol` | Caprylyl glycol | Adds a little moisture and helps preserve the formula. | [ ] |
+| `ing.caprylic_capric_triglyceride` | Caprylic/capric triglyceride | A light oil from coconut that softens skin without feeling heavy. | [ ] |
+| `ing.xanthan_gum` | Xanthan gum | A thickener that keeps the formula from separating. | [ ] |
+| `ing.carbomer` | Carbomer | A thickener that gives gels and creams their body. | [ ] |
+| `ing.tocopherol` | Tocopherol | Vitamin E. An antioxidant that also helps protect the formula. | [ ] |
+| `ing.panthenol` | Panthenol | Vitamin B5. Helps skin hold moisture and feel softer. | [ ] |
+| `ing.allantoin` | Allantoin | Soothes and softens skin. | [ ] |
+| `ing.urea` | Urea | Draws in water and gently loosens dry, rough skin. | [ ] |
+| `ing.phytosphingosine` | Phytosphingosine | A fat found in skin. Works with ceramides to support the skin barrier. | [ ] |
+| `ing.stearic_acid` | Stearic acid | A fatty acid that softens skin and thickens the formula. | [ ] |
+| `ing.oleic_acid` | Oleic acid | A fatty acid that softens skin and thickens the formula. | [ ] |
+| `ing.avobenzone` | Avobenzone | A chemical sun filter that absorbs UVA rays. | [ ] |
+| `ing.homosalate` | Homosalate | A chemical sun filter that absorbs UVB rays. | [ ] |
+| `ing.octisalate` | Octisalate | A chemical sun filter that absorbs UVB rays. | [ ] |
+| `ing.octocrylene` | Octocrylene | A chemical sun filter that absorbs UVB and some UVA, and helps keep other filters steady. | [ ] |
+| `ing.titanium_dioxide` | Titanium dioxide | A mineral sun filter that sits on top of skin and reflects UV. | [ ] |
+| `ing.citric_acid` | Citric acid | Used in tiny amounts to balance the pH of the formula. | [ ] |
+| `ing.sodium_hydroxide` | Sodium hydroxide | Used in tiny amounts to balance the pH of the formula. | [ ] |
+| `ing.potassium_phosphate` | Potassium phosphate | Used in tiny amounts to balance the pH of the formula. | [ ] |
+| `ing.dipotassium_phosphate` | Dipotassium phosphate | Used in tiny amounts to balance the pH of the formula. | [ ] |
+| `ing.disodium_edta` | Disodium edta | Helps keep the formula stable so it lasts. | [ ] |
+| `ing.sodium_phytate` | Sodium phytate | Helps keep the formula stable so it lasts. | [ ] |
+| `ing.caprylhydroxamic_acid` | Caprylhydroxamic acid | Helps preserve the formula. | [ ] |
+| `ing.polysorbate_20` | Polysorbate 20 | Helps oil and water mix. | [ ] |
+| `ing.polysorbate_80` | Polysorbate 80 | Helps oil and water mix. | [ ] |
+| `ing.peg_40_stearate` | Peg-40 stearate | Helps oil and water mix. | [ ] |
+| `ing.ceteareth_20` | Ceteareth-20 | Helps oil and water mix. | [ ] |
+| `ing.glyceryl_stearate` | Glyceryl stearate | Helps oil and water mix and softens skin. | [ ] |
+| `ing.polyglyceryl_3_diisostearate` | Polyglyceryl-3 diisostearate | Helps oil and water mix. | [ ] |
+| `ing.sodium_lauroyl_lactylate` | Sodium lauroyl lactylate | Helps oil and water mix. | [ ] |
+| `ing.sodium_stearoyl_glutamate` | Sodium stearoyl glutamate | Helps oil and water mix. | [ ] |
+| `ing.cetearyl_glucoside` | Cetearyl glucoside | Helps oil and water mix. | [ ] |
+| `ing.sorbitan_oleate` | Sorbitan oleate | Helps oil and water mix. | [ ] |
+| `ing.lecithin` | Lecithin | Helps oil and water mix and softens skin. | [ ] |
+| `ing.hydrogenated_lecithin` | Hydrogenated lecithin | Helps oil and water mix and softens skin. | [ ] |
+| `ing.behentrimonium_methosulfate` | Behentrimonium methosulfate | A conditioning ingredient that makes creams feel soft and smooth. | [ ] |
+| `ing.fragrance` | Fragrance | Adds scent. Can bother sensitive skin. | [ ] |
+| `ing.alcohol_denat` | Alcohol denat. | A fast-drying alcohol. It can dry out or sting sensitive skin. | [ ] |
+| `ing.silica` | Silica | Gives a smooth, matte feel and soaks up a little oil. | [ ] |
+| `ing.dipotassium_glycyrrhizate` | Dipotassium glycyrrhizate | From licorice root. Helps calm skin. | [ ] |
+| `ing.hydroxyacetophenone` | Hydroxyacetophenone | Helps preserve the formula and calm skin. | [ ] |
+| `ing.palmitoyl_tripeptide_1` | Palmitoyl tripeptide-1 | A peptide, a short chain of amino acids, used in anti-aging products. | [ ] |
+| `ing.palmitoyl_tetrapeptide_7` | Palmitoyl tetrapeptide-7 | A peptide, a short chain of amino acids, used in anti-aging products. | [ ] |
+| `ing.retinal` | Retinal | A strong vitamin A that works faster than retinol. Start slowly. | [ ] |
 
 ## Add
 | ID | Where | Line | Her OK |
@@ -221,5 +274,8 @@ Every line the app says, in one place. The app speaks as **my little sister**, w
 | `photo.notready` | Photo reading isn't ready yet. Paste the ingredients or type it in. | [ ] |
 | `typed.button` | Look it up | [ ] |
 | `add.paste.name` | Product name (optional) | [ ] |
+| `add.choose.tip` | Pasting takes a minute longer, but it unlocks ingredient notes and conflict warnings. Typing is the quick way. | [ ] |
+| `add.paste.help` | Look on the box, or search the product name plus 'ingredients'. Copy the whole list and paste it here. Adding the name helps me get the type right. | [ ] |
+| `add.typed.help` | This is the quick way. You'll get the type and a spot in your routine, but no ingredient notes or conflict warnings. Paste the ingredients instead if you want those. | [ ] |
 | `reading.cancel` | Cancel | [ ] |
 

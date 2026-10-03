@@ -1313,3 +1313,11 @@ nav.bottom-nav {
   opacity: 0.85;
   margin: 0 0 12px;
 }
+
+.form-hint {
+  font-family: var(--font-body, 'Libre Caslon Text', serif);
+  font-size: 13px;
+  color: var(--label-paper);
+  opacity: 0.85;
+  margin: 0 0 12px;
+}
