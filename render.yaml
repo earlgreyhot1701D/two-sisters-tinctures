@@ -21,20 +21,16 @@ services:
         value: production
       - key: MODEL_PROVIDER
         value: gemini
-      - key: GEMINI_MODEL
-        value: gemma-4-26b-a4b-it
       - key: DAILY_CAP
-        value: "300"
-      - key: RATE_LIMIT_PER_MINUTE
-        value: "10"
-      - key: REQUEST_TIMEOUT_MS
-        value: "20000"
-      - key: MAX_IMAGE_BYTES
-        value: "1500000"
-      - key: MAX_TEXT_CHARS
-        value: "4000"
+        value: "50"            # total AI reads per day, all visitors
+      - key: IP_DAILY_CAP
+        value: "10"            # AI reads per day, one visitor
+      - key: MODEL_TIMEOUT_MS
+        value: "30000"
+      - key: MODEL_THINKING_LEVEL
+        value: MINIMAL
       # Secrets. Render asks for these ONLY when the Blueprint is first created,
       # and ignores sync:false vars on later syncs. Enter "unset" at creation,
-      # then set the real values by hand in Dashboard > Environment (Block 3).
+      # then set the real value by hand in Dashboard > Environment (Block 4).
       - key: GEMINI_API_KEY
         sync: false

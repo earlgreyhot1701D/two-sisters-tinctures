@@ -29,7 +29,7 @@ How this app gets onto the internet, and how to undo it. Checked against Render'
 ## Environment variables
 | Key | Where it's set | Notes |
 |---|---|---|
-| `NODE_ENV`, `MODEL_PROVIDER`, `GEMINI_MODEL`, `DAILY_CAP`, `RATE_LIMIT_PER_MINUTE`, `REQUEST_TIMEOUT_MS`, `MAX_IMAGE_BYTES`, `MAX_TEXT_CHARS` | `render.yaml` | Non-secret. Change them in the file, then push |
+| `NODE_ENV`, `MODEL_PROVIDER`, `DAILY_CAP`, `IP_DAILY_CAP`, `MODEL_TIMEOUT_MS`, `MODEL_THINKING_LEVEL` | `render.yaml` | Non-secret. Change them in the file, then push |
 | `GEMINI_API_KEY` | Dashboard, Environment, by hand | **Block 3.** Paid-tier key, restricted to the Gemini API |
 
 Render ignores `sync: false` variables after the first Blueprint creation, so secrets added later are always set by hand in the dashboard. After changing an environment variable, redeploy so the running service picks it up.

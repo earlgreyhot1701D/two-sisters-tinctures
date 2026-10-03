@@ -63,6 +63,13 @@ function readBody(req, maxBytes) {
 // POST /api/read. Order: rate limits and daily caps, body checks, model, validation.
 async function handleRead(req, res) {
   try {
+    // Same origin only. A browser on another site sends an Origin header that won't match this host.
+    const origin = req.headers.origin;
+    if (origin) {
+      let sameOrigin = false;
+      try { sameOrigin = new URL(origin).host === req.headers.host; } catch (e) { sameOrigin = false; }
+      if (!sameOrigin) return sendJson(res, 403, { error: 'origin' });
+    }
     const gate = limiter.check({ ip: clientIp(req), deviceId: req.headers['x-device-id'] });
     if (!gate.ok) {
       return sendJson(res, 429, { error: gate.reason === 'rate' ? 'slow_down' : 'daily_cap' },
