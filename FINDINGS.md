@@ -66,3 +66,8 @@ Disposition: promote. Rollback practice and iPhone check still open.
 Question: Does Gemma read real ingredient lists, inside the timeout, with valid output?
 Finding: Run 1 scored 0 of 5, all 30 s timeouts. Sending `thinkingLevel: "MINIMAL"` (forum-reported, not in official docs) cut each read to 6 to 10 s. Run 2 scored 1 of 5: three reads were rejected by my own length checks (real ingredient names run past 60 characters, one was 93 with a role tag), and one CeraVe cleanser was typed as a Moisturizer because the pasted list had no product name.
 Disposition: promote. Length limits widened to 50 items of 100 characters, over-long fields trimmed instead of failing, rejected reads now log a reason code. The cleanser miss stays honest: the confirm screen lets her fix the type.
+
+### Oct 3 | Block 3 | Gold set, final numbers
+Question: Does the paste path meet the bar of 4 of 5 on real labels?
+Finding: With a product name on the paste screen, 5 of 5 (6 to 10 s each). Ingredients only, 3 of 5 on two runs. The misses are type guesses (BYOMA serum and CeraVe cleanser both read as Moisturizer). One earlier bare run scored 1 of 5 because three answers came back in a shape the reader rejected; the reader now unwraps lists and double-encoded answers and logs the shape. The model also has run-to-run variance, so a score can move by one.
+Disposition: promote. Optional name box stays. Block 3 closed.
