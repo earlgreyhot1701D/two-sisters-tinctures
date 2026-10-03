@@ -569,13 +569,12 @@
     const hasRetinoid = activeProds.find(p => (p.ingredients || []).some(i => retinoidKeywords.some(k => i.toLowerCase().includes(k))));
     const hasAcid = activeProds.find(p => (p.ingredients || []).some(i => acidKeywords.some(k => i.toLowerCase().includes(k))));
     if (hasRetinoid && hasAcid) {
-      // Find the actual matched ingredient names for the title
-      const retinoidName = (hasRetinoid.ingredients || []).find(i => retinoidKeywords.some(k => i.toLowerCase().includes(k))) || 'Retinol';
-      const acidName = (hasAcid.ingredients || []).find(i => acidKeywords.some(k => i.toLowerCase().includes(k))) || 'Glycolic acid';
-      // Capitalise first letter for display
+      // Use the matched keyword as the display name, not the full ingredient string
       const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+      const retinoidKey = retinoidKeywords.find(k => (hasRetinoid.ingredients || []).some(i => i.toLowerCase().includes(k))) || 'retinol';
+      const acidKey = acidKeywords.find(k => (hasAcid.ingredients || []).some(i => i.toLowerCase().includes(k))) || 'glycolic acid';
       mixAlert = el('div', { className: 'alert-card warning' }, [
-        el('div', { className: 'alert-title-row' }, [`Don't mix tonight: ${cap(acidName)} and ${cap(retinoidName)}`]),
+        el('div', { className: 'alert-title-row' }, [`Don't mix tonight: ${cap(acidKey)} and ${cap(retinoidKey)}`]),
         el('p', { className: 'alert-desc' }, [
           "Pick one, or your moisture barrier will send me angry texts."
         ])
