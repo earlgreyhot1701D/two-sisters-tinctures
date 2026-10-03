@@ -55,7 +55,7 @@ public/shelf-store.js    storage, backup, restore, clear
 public/photo.js          shrink, strip location (Block 5)
 public/demo-shelf.json   demo data
 server/index.js          routes, static files, headers
-server/limits.js         rate limit, demo code, size caps
+server/limits.js         rate limit, daily caps, size caps
 server/validate.js       schema and source checks
 server/gemma.js          model call (MODEL_PROVIDER switch)
 render.yaml              Render Blueprint (hosting config)

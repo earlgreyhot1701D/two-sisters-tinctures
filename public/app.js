@@ -28,9 +28,8 @@
 
   // Voice lines for read failures (IDs in VOICE.md)
   const READ_ERRORS = {
-    code: "That code doesn't work. Check the post for the right one.", // error.code
     ratelimit: 'Slow down, sis. Try again in a minute.', // error.ratelimit
-    daily: "I've talked a lot today, sis. Try again tomorrow, or add it by hand.", // error.daily
+    daily: "I've read a lot of labels today, sis. Try again tomorrow, or add it by hand.", // error.daily
     timeout: "That label's being shy. Try again or type it in.", // timeout
     offline: 'No signal right now. You can still add it by hand.', // error.offline
     toolong: "That's too long. Keep it under 4,000 letters.", // error.paste.toolong
@@ -796,7 +795,6 @@
       readAbort = null;
       const backStep = mode === 'paste' ? 'paste_input' : 'type_input';
       if (!result.ok) {
-        if (result.reason === 'code') window.ReadClient.clearCode();
         readError = READ_ERRORS[result.reason] || READ_ERRORS.generic;
         addFlowStep = backStep;
         renderApp();
@@ -829,27 +827,6 @@
   function cancelRead() {
     readToken++;
     if (readAbort) { readAbort.abort(); readAbort = null; }
-  }
-
-  // Small demo code box shown on the paste and typed screens when no code is set yet.
-  function createCodeBox() {
-    if (window.ReadClient.hasCode()) return null;
-    return el('div', { className: 'form-group' }, [
-      el('label', { className: 'form-label' }, ['Demo code']),
-      el('input', {
-        className: 'form-input',
-        id: 'demo-code-input',
-        type: 'password',
-        autocomplete: 'off',
-        maxlength: '100',
-        placeholder: 'From the post'
-      })
-    ]);
-  }
-
-  function readCodeBox() {
-    const box = document.getElementById('demo-code-input');
-    if (box && box.value.trim()) window.ReadClient.setCode(box.value);
   }
 
   // 3. ADD SCREEN
@@ -946,7 +923,6 @@
         onclick: () => {
           const text = (document.getElementById('paste-textarea').value || '').trim();
           pasteDraft = text;
-          readCodeBox();
           const errEl = document.getElementById('error-read');
           if (!text) { errEl.textContent = 'Paste something first, sis.'; return; } // error.paste.empty
           if (text.length > 4000) { errEl.textContent = READ_ERRORS.toolong; return; }
@@ -964,8 +940,6 @@
       }, ['Back']);
 
       formBox.appendChild(pasteGroup);
-      const codeBox = createCodeBox();
-      if (codeBox) formBox.appendChild(codeBox);
       formBox.appendChild(errBox);
       formBox.appendChild(readBtn);
       formBox.appendChild(backBtn);
@@ -1320,7 +1294,6 @@
         onclick: () => {
           const text = (document.getElementById('type-name-input').value || '').trim();
           typedDraft = text;
-          readCodeBox();
           const errEl = document.getElementById('error-read');
           if (!text) { errEl.textContent = 'Type a name first, sis.'; return; } // error.typed.empty
           startRead('typed', text);
@@ -1337,8 +1310,6 @@
       }, ['Back']);
 
       formBox.appendChild(nameGroup);
-      const codeBox = createCodeBox();
-      if (codeBox) formBox.appendChild(codeBox);
       formBox.appendChild(errBox);
       formBox.appendChild(lookUpBtn);
       formBox.appendChild(backBtn);
@@ -1369,7 +1340,8 @@
     // Device & Home Screen Notes (PRD Gate C MUST)
     const deviceNote = el('div', { className: 'info-note-card' }, [
       el('p', {}, ["Your shelf lives on this phone only, so it won't show up on your other devices. Use Back up to move it to a new phone."]),
-      el('p', { className: 'info-note-subtext' }, ["Add this page to your Home Screen so your phone doesn't clear it."])
+      el('p', { className: 'info-note-subtext' }, ["Add this page to your Home Screen so your phone doesn't clear it."]),
+      el('p', { className: 'info-note-subtext' }, ["To keep the free demo running, label reading is limited to 10 a day per person. Adding by hand is unlimited."]) // about.limit
     ]);
 
     // Backup Actions

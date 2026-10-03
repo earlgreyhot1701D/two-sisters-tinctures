@@ -124,7 +124,6 @@ Every line the app says, in one place. The app speaks as **my little sister**, w
 | `photo.bad` | Unreadable photo | That photo's being difficult. Try another one, or paste the ingredients instead. | [ ] |
 | `error.generic` | Any failure | Something went sideways on my end. You can still add it by hand. | [ ] |
 | `error.ratelimit` | Too many tries | Slow down, sis. Try again in a minute. | [ ] |
-| `error.code` | Bad demo code | That code doesn't work. Check the post for the right one. | [ ] |
 | `error.offline` | No signal | No signal right now. You can still add it by hand. | [ ] |
 | `error.name.required` | Validation | Give it a name so you know which one it is. | [ ] |
 | `error.name.toolong` | Validation | That name is a bit too long. Keep it under 80 letters. | [ ] |
@@ -171,6 +170,7 @@ Every line the app says, in one place. The app speaks as **my little sister**, w
 | `about.how` | Gemma reads labels and explains products. Routine order, warnings, and shelf life come from fixed rules, not the model. | [ ] |
 | `about.device` | Your shelf lives on this phone only, so it won't show up on your other devices. Use Back up to move it to a new phone. | [ ] |
 | `about.homescreen` | Add this page to your Home Screen so your phone doesn't clear it. | [ ] |
+| `about.limit` | To keep the free demo running, label reading is limited to 10 a day per person. Adding by hand is unlimited. | [ ] |
 | `about.medical` | I know skincare, not medicine. If something's irritated, see a dermatologist. Two Sisters Tinctures explains products. It doesn't diagnose skin conditions, and it doesn't check for allergies. | [ ] |
 | `about.maker` | Made by La Shara Cordero for her little sister. More of my work at clewlabs.org. | [ ] |
 | `about.credits` | Powered by Gemma 4. Hero painting generated with Gemini. | [ ] |
@@ -214,13 +214,11 @@ Every line the app says, in one place. The app speaks as **my little sister**, w
 ## Read flow (Block 3 step 11)
 | ID | Line | Her OK |
 |---|---|---|
-| `error.daily` | I've talked a lot today, sis. Try again tomorrow, or add it by hand. | [ ] |
+| `error.daily` | I've read a lot of labels today, sis. Try again tomorrow, or add it by hand. | [ ] |
 | `error.paste.toolong` | That's too long. Keep it under 4,000 letters. | [ ] |
 | `error.paste.empty` | Paste something first, sis. | [ ] |
 | `error.typed.empty` | Type a name first, sis. | [ ] |
 | `photo.notready` | Photo reading isn't ready yet. Paste the ingredients or type it in. | [ ] |
 | `typed.button` | Look it up | [ ] |
 | `reading.cancel` | Cancel | [ ] |
-| `code.label` | Demo code | [ ] |
-| `code.placeholder` | From the post | [ ] |
 

@@ -31,7 +31,6 @@ How this app gets onto the internet, and how to undo it. Checked against Render'
 |---|---|---|
 | `NODE_ENV`, `MODEL_PROVIDER`, `GEMINI_MODEL`, `DAILY_CAP`, `RATE_LIMIT_PER_MINUTE`, `REQUEST_TIMEOUT_MS`, `MAX_IMAGE_BYTES`, `MAX_TEXT_CHARS` | `render.yaml` | Non-secret. Change them in the file, then push |
 | `GEMINI_API_KEY` | Dashboard, Environment, by hand | **Block 3.** Paid-tier key, restricted to the Gemini API |
-| `DEMO_CODE` | Dashboard, Environment, by hand | **Block 3.** The code printed in the post. Pick something throwaway |
 
 Render ignores `sync: false` variables after the first Blueprint creation, so secrets added later are always set by hand in the dashboard. After changing an environment variable, redeploy so the running service picks it up.
 
@@ -70,5 +69,5 @@ From Block 3 on, also run every Gate G4 proof in the PRD.
 | Deploy starts, then health check fails | The app isn't listening on `process.env.PORT` at `0.0.0.0`, or `/healthz` is missing |
 | Page loads, no styles or images | Static path wrong. Confirm `server/index.js` serves `/public` |
 | 502 or timeouts | The service crashed. Read Logs, then roll back |
-| `/api/read` returns an error | Missing or wrong `GEMINI_API_KEY` or `DEMO_CODE`, then check the budget alert |
+| `/api/read` returns an error | Missing or wrong `GEMINI_API_KEY`, or the daily cap was hit (`DAILY_CAP`, default 50), then check the budget alert |
 | Spend surprise | Google Cloud budget alert, plus `DAILY_CAP` |

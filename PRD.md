@@ -19,7 +19,7 @@
 | Open-source AI at the core | Gemma 4 (open weights) does the core job: reading labels and explaining products. |
 | Solves a real problem for a friend or loved one | Built for her little sister. Mom and cousin are a bonus, not the lead. |
 | Published DEV post using the template, tags `devchallenge`, `weekendchallenge`, `hf26challenge` | Draft stays unpublished until final. Only the first published entry counts. |
-| Demo (deployed link or video) and a link to the code | Video is primary. Live link with a public demo code. Public repo. |
+| Demo (deployed link or video) and a link to the code | Video is primary. Live link, no code. Daily caps bound the spend. Public repo. |
 | Explain why open-source AI matters for the project | Gate I has the honest version, including the hosted tradeoff. |
 | 18+, DEV member, eligible country, no employer policy conflict | Built on personal time and personal equipment. |
 | Privacy and publicity rights | Her OK before naming her, quoting her, or using her voice lines. Same for mom and cousin. |
@@ -146,7 +146,7 @@ HER PHONE (browser)                    RENDER (Starter web service)
 | public/index.html            |       | server/index.js   routes,     |
 | public/styles.css            | POST  |   serves /public, headers     |
 | public/app.js      UI only   | ----> | server/limits.js  rate limit, |
-| public/rules.json  facts,    | /api/ |   demo code, size caps        |
+| public/rules.json  facts,    | /api/ |   daily caps, size caps        |
 |   order, defaults, conflicts | read  | server/validate.js            |
 | public/shelf-store.js        |       |   schema + source checks      |
 |   storage, backup, restore   | <---- | server/gemma.js               |
@@ -197,7 +197,7 @@ One file, one responsibility. One Render service serves both the static files an
 
 ### API contract
 
-`POST /api/read`, header `X-Demo-Code`.
+`POST /api/read`. No demo code (dropped Oct 3). Daily caps: 50 total, 10 per visitor, plus a per-minute limit.
 
 Request: `{ "mode": "paste" | "typed" | "photo", "text": "...", "image": "<base64 jpeg>" }`. Text up to 4,000 characters. Image up to 1.5 MB.
 
@@ -317,7 +317,7 @@ Ordinary software alternative: Keyword match on type words runs first. Model onl
 | 1b | **First deploy.** Minimal `server/index.js` (serves `/public`, `GET /healthz`, security headers), `package.json` and lockfile, `.node-version`, `render.yaml`. Mock data only. Practice one rollback. | Working | Promote | Live URL loads on your Samsung and her iPhone. `/healthz` returns 200. Headers present. Rollback worked once. |
 | 2 | rules.json, shelf-store.js: add (manual), edit, archive, remove with undo, backup, restore with validation, clear | Working | Promote | Real state passes: add 2, refresh, back up, clear, restore. |
 | 3 | Server: proxy, gemma.js, validate.js, limits.js. Paste and typed paths wired. | Full | Promote | Gold set 4 of 5. Injection label stays clean. Model-off test: manual add still works. |
-| 4 | Harden the live deploy: set `GEMINI_API_KEY` and `DEMO_CODE` in the dashboard, budget alert, key restriction, rate limits verified | Full | Promote | Gate G4 proofs on the live URL. |
+| 4 | Harden the live deploy: set `GEMINI_API_KEY` in the dashboard, budget alert, key restriction, rate limits verified | Full | Promote | Gate G4 proofs on the live URL. |
 | 5 | Photo input (photo.js, photo path) | Full | Promote, or cut | Photo of a real bottle, right type, under 10 s, no location data in the upload. |
 | 6 | Her test, video, post | n/a | n/a | She uses it on her phone. Her reaction quoted with her OK. |
 
@@ -356,7 +356,7 @@ Typed and pasted entry, the shelf, the routine, and backup are a complete, hones
 | Key server-side only | `GEMINI_API_KEY` in Render env. Never in the repo, frontend, or agent chat. `.env` in `.gitignore`. GitHub secret scanning on. |
 | Key restricted | Restricted to the Gemini API in Google Cloud. |
 | Spend bounded | $5 budget alert on the Google Cloud project. Server daily cap on total calls. |
-| Rate limits | Per device and per IP on `/api/read`. Demo code required. |
+| Rate limits | Per device and per IP on `/api/read`. Daily caps: 50 total, 10 per visitor. No demo code. |
 | Input is data, never instructions | Label text and pasted text go in a clearly delimited data block. Fixed output schema. |
 | Model output is still input | Validated, length-capped, and rendered with `textContent` only. |
 | Upload checks | File type and 1.5 MB cap on the server. Text capped at 4,000 characters. |
@@ -386,7 +386,7 @@ Typed and pasted entry, the shelf, the routine, and backup are a complete, hones
 | Key not in frontend | View source and network tab show no key |
 | Headers | Live response headers include the full policy |
 | Rate limit | Rapid repeat requests get a friendly 429 |
-| Demo code | Request without the code is refused |
+| Daily cap | After 50 reads in a day (or 10 from one visitor), the server refuses with a friendly message and manual add still works |
 | Budget alert | Exists in Google Cloud, threshold visible |
 | No sensitive logs | Render logs after real requests show status and timing only |
 | Judge view | Cold browser on phone and laptop, demo shelf works |
@@ -407,7 +407,7 @@ Risk level: <low|medium|high>. Propose first. Wait for approval before implement
 
 | # | Item | Applies? | Plan |
 |---|---|---|---|
-| 1 | Authorization | Partly | No accounts. Demo code gates `/api/read`. |
+| 1 | Authorization | Partly | No accounts. Daily caps gate `/api/read`. |
 | 2 | Validation and sanitization | Yes | Client and server: types, lengths, sizes, schema, backup files |
 | 3 | CORS | N/A | Same origin, one Render service. Reject cross-origin requests. |
 | 4 | Rate limiting | Yes | Per device and IP, plus a daily total cap |

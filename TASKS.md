@@ -76,7 +76,7 @@ Do this right after Block 1, before building more. Read `DEPLOY.md` first.
 ## Block 3. Server and Gemma
 **Tier:** Full. **Disposition:** promote. **Status:** [ ]
 - [ ] `server/index.js`: static files, `POST /api/read`, `GET /healthz`, security headers
-- [ ] `server/limits.js`: demo code, per-device and per-IP limits, daily cap, size caps
+- [ ] `server/limits.js`: per-device and per-IP limits, daily caps (50 total, 10 per visitor), size caps. No demo code (dropped Oct 3)
 - [ ] `server/gemma.js`: Gemini call, 20 s timeout, `MODEL_PROVIDER` switch with `ollama` stub
 - [ ] `server/validate.js`: schema, lengths, paste verbatim check, typed empty-ingredients rule, mention check
 - [ ] Paste and typed paths wired to the confirm screen
@@ -100,7 +100,7 @@ Small and safe. Claude writes this directly in the repo to save Antigravity cred
 ## Block 4. Harden the live deploy
 **Tier:** Full. **Disposition:** promote. **Status:** [ ]
 The service already exists from Block 1b. Do not push the key through git.
-- [ ] `GEMINI_API_KEY` and `DEMO_CODE` set by hand in Dashboard, Environment, then redeploy
+- [ ] `GEMINI_API_KEY` set by hand in Dashboard, Environment, then redeploy
 - [ ] Google Cloud budget alert and key restriction confirmed
 - [ ] Rate limit and daily cap checked on the live URL
 - [ ] Every proof in PRD Gate G4

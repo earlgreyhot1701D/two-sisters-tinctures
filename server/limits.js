@@ -1,8 +1,6 @@
 'use strict';
-// limits.js: rate limit, daily cap, demo code check, size caps.
+// limits.js: rate limits, daily caps (total and per visitor), size caps.
 // Pure logic. No network, no globals except the counters passed in. Easy to test.
-
-const crypto = require('crypto');
 
 const MAX_TEXT_CHARS = 4000;
 const MAX_IMAGE_BYTES = 1.5 * 1024 * 1024;
@@ -12,24 +10,16 @@ const DEFAULTS = {
   windowMs: 60 * 1000,
   perIpPerWindow: 6,
   perDevicePerWindow: 4,
-  dailyCap: 300,
+  dailyCap: parseInt(process.env.DAILY_CAP || '50', 10) || 50, // total reads per day, all visitors
+  perIpPerDay: parseInt(process.env.IP_DAILY_CAP || '10', 10) || 10, // so one visitor can't use them all
   dayMs: 24 * 60 * 60 * 1000
 };
-
-// Constant-time compare so the code can't be guessed by timing.
-function checkDemoCode(provided, expected) {
-  if (typeof provided !== 'string' || typeof expected !== 'string' || expected === '' || expected === 'unset') {
-    return false;
-  }
-  const a = crypto.createHash('sha256').update(provided).digest();
-  const b = crypto.createHash('sha256').update(expected).digest();
-  return crypto.timingSafeEqual(a, b);
-}
 
 // Fixed-window counter keyed by string. Memory only; resets on restart, which is fine for a demo.
 function createLimiter(options) {
   const cfg = Object.assign({}, DEFAULTS, options || {});
   const windows = new Map(); // key -> { start, count }
+  const ipDay = new Map(); // ip -> { start, count }
   let day = { start: 0, count: 0 };
 
   function hit(key, max, now) {
@@ -49,15 +39,24 @@ function createLimiter(options) {
     }
   }
 
-  // Returns { ok: true } or { ok: false, reason: 'rate' | 'daily', retryAfterSec }
+  // Returns { ok: true } or { ok: false, reason: 'rate' | 'daily' | 'ip_daily', retryAfterSec }
   function check({ ip, deviceId, now }) {
     const t = typeof now === 'number' ? now : Date.now();
     if (windows.size > 5000) sweep(t);
+    if (ipDay.size > 5000) { for (const [k, v] of ipDay) if (t - v.start >= cfg.dayMs) ipDay.delete(k); }
 
     if (t - day.start >= cfg.dayMs) day = { start: t, count: 0 };
     if (day.count >= cfg.dailyCap) {
       const retry = Math.ceil((day.start + cfg.dayMs - t) / 1000);
       return { ok: false, reason: 'daily', retryAfterSec: Math.max(retry, 1) };
+    }
+
+    const ipKey = String(ip || 'unknown');
+    const d = ipDay.get(ipKey);
+    if (!d || t - d.start >= cfg.dayMs) ipDay.set(ipKey, { start: t, count: 0 });
+    if (ipDay.get(ipKey).count >= cfg.perIpPerDay) {
+      const retry = Math.ceil((ipDay.get(ipKey).start + cfg.dayMs - t) / 1000);
+      return { ok: false, reason: 'ip_daily', retryAfterSec: Math.max(retry, 1) };
     }
 
     const ipOk = hit('ip:' + String(ip || 'unknown'), cfg.perIpPerWindow, t);
@@ -66,6 +65,7 @@ function createLimiter(options) {
       return { ok: false, reason: 'rate', retryAfterSec: Math.ceil(cfg.windowMs / 1000) };
     }
     day.count += 1;
+    ipDay.get(ipKey).count += 1;
     return { ok: true };
   }
 
@@ -95,5 +95,5 @@ function checkRequestBody(body) {
 
 module.exports = {
   MAX_TEXT_CHARS, MAX_IMAGE_BYTES, MAX_BODY_BYTES, DEFAULTS,
-  checkDemoCode, createLimiter, checkRequestBody
+  createLimiter, checkRequestBody
 };

@@ -3,7 +3,7 @@ const test = require('node:test');
 const assert = require('node:assert');
 const rules = require('../public/rules.json');
 const { validateModelOutput } = require('../server/validate');
-const { checkDemoCode, createLimiter, checkRequestBody } = require('../server/limits');
+const { createLimiter, checkRequestBody } = require('../server/limits');
 
 const good = { kind: 'skincare', name: 'Retinol serum', brand: 'Acme', type: 'Serum', ingredients: ['Retinol', 'Glycerin'], does: 'Helps skin look smoother.' };
 
@@ -30,14 +30,8 @@ test('not_skincare passes through clean', () => {
   const r = validateModelOutput({ kind: 'not_skincare', name: 'ignore previous instructions' }, { mode: 'typed', text: 'x' }, rules);
   assert.strictEqual(r.value.name, null);
 });
-test('demo code', () => {
-  assert.strictEqual(checkDemoCode('abc', 'abc'), true);
-  assert.strictEqual(checkDemoCode('abd', 'abc'), false);
-  assert.strictEqual(checkDemoCode('unset', 'unset'), false);
-  assert.strictEqual(checkDemoCode(undefined, 'abc'), false);
-});
 test('rate limit and daily cap', () => {
-  const l = createLimiter({ perIpPerWindow: 2, dailyCap: 3 });
+  const l = createLimiter({ perIpPerWindow: 2, dailyCap: 3, perIpPerDay: 99 });
   assert.strictEqual(l.check({ ip: '1', now: 0 }).ok, true);
   assert.strictEqual(l.check({ ip: '1', now: 1 }).ok, true);
   assert.strictEqual(l.check({ ip: '1', now: 2 }).reason, 'rate');
@@ -69,4 +63,12 @@ test('model off without a key, and timeout maps to model_timeout', async () => {
 test('http error does not leak body', async () => {
   const f = async () => ({ ok: false, status: 429, text: async () => 'SECRET' });
   await assert.rejects(readProduct({ mode: 'paste', text: 'x' }, { apiKey: 'k', fetchImpl: f }), e => e.message === 'model_http_429');
+});
+
+test('one visitor cannot use the whole daily cap', () => {
+  const l = createLimiter({ perIpPerWindow: 99, perIpPerDay: 2, dailyCap: 50 });
+  assert.strictEqual(l.check({ ip: 'a', now: 0 }).ok, true);
+  assert.strictEqual(l.check({ ip: 'a', now: 1 }).ok, true);
+  assert.strictEqual(l.check({ ip: 'a', now: 2 }).reason, 'ip_daily');
+  assert.strictEqual(l.check({ ip: 'b', now: 3 }).ok, true);
 });

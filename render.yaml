@@ -38,5 +38,3 @@ services:
       # then set the real values by hand in Dashboard > Environment (Block 3).
       - key: GEMINI_API_KEY
         sync: false
-      - key: DEMO_CODE
-        sync: false

@@ -60,15 +60,12 @@ function readBody(req, maxBytes) {
   });
 }
 
-// POST /api/read. Order: demo code, rate limits, body checks, model, validation.
+// POST /api/read. Order: rate limits and daily caps, body checks, model, validation.
 async function handleRead(req, res) {
   try {
-    if (!limits.checkDemoCode(req.headers['x-demo-code'], process.env.DEMO_CODE)) {
-      return sendJson(res, 401, { error: 'demo_code' });
-    }
     const gate = limiter.check({ ip: clientIp(req), deviceId: req.headers['x-device-id'] });
     if (!gate.ok) {
-      return sendJson(res, 429, { error: gate.reason === 'daily' ? 'daily_cap' : 'slow_down' },
+      return sendJson(res, 429, { error: gate.reason === 'rate' ? 'slow_down' : 'daily_cap' },
         { 'Retry-After': String(gate.retryAfterSec) });
     }
     let body;
