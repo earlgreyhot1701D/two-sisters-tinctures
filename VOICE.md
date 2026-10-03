@@ -195,3 +195,18 @@ Every line the app says, in one place. The app speaks as **my little sister**, w
 | `add.form.ingredients` | Ingredients (optional, comma-separated) | [ ] |
 | `add.form.save` | Save to my shelf | [ ] |
 | `add.form.cancel` | Start over | [ ] |
+
+## Server fallbacks (general lines by type)
+| ID | Line | Her OK |
+|---|---|---|
+| `does.general.cleanser` | Washes off the day, or the night, so everything after it can do its job. | [ ] |
+| `does.general.toner` | A light step after cleansing that preps your skin for what comes next. | [ ] |
+| `does.general.essence` | A thin, watery layer that adds a little moisture before your serum. | [ ] |
+| `does.general.treatment` | A targeted step for one specific concern. Go slow and watch how your skin feels. | [ ] |
+| `does.general.serum` | A concentrated step that goes on before your moisturizer. | [ ] |
+| `does.general.eye_cream` | A gentle moisturizer made for the thin skin around your eyes. | [ ] |
+| `does.general.moisturizer` | Helps hold moisture in and keeps your skin comfortable. | [ ] |
+| `does.general.facial_oil` | Helps seal in moisture. Usually goes on last at night. | [ ] |
+| `does.general.sunscreen` | Protects your skin from the sun. Goes on last in the morning. | [ ] |
+| `does.general.mask` | A once-in-a-while step. Follow the directions on the box. | [ ] |
+| `does.general.other` | Something on your shelf that doesn't fit the usual steps. | [ ] |

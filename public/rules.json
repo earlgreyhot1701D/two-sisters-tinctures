@@ -54,25 +54,42 @@
   },
   "ingredientOverrides": [
     {
-      "match": ["retinol", "retinal"],
+      "match": [
+        "retinol",
+        "retinal"
+      ],
       "when": "pm",
       "freq": null
     },
     {
-      "match": ["glycolic acid", "lactic acid", "salicylic acid"],
+      "match": [
+        "glycolic acid",
+        "lactic acid",
+        "salicylic acid"
+      ],
       "when": "pm",
       "freq": "2 to 3 nights a week"
     },
     {
-      "match": ["ascorbic acid", "l-ascorbic acid"],
+      "match": [
+        "ascorbic acid",
+        "l-ascorbic acid"
+      ],
       "when": "am",
       "freq": null
     }
   ],
   "conflicts": [
     {
-      "groupA": ["retinol", "retinal"],
-      "groupB": ["glycolic acid", "lactic acid", "salicylic acid"],
+      "groupA": [
+        "retinol",
+        "retinal"
+      ],
+      "groupB": [
+        "glycolic acid",
+        "lactic acid",
+        "salicylic acid"
+      ],
       "warning": "Don't use on the same night. Take turns: one night each, never together."
     }
   ],
@@ -82,7 +99,12 @@
     "Moisturizer",
     "Sunscreen"
   ],
-  "paoOptions": [3, 6, 12, 24],
+  "paoOptions": [
+    3,
+    6,
+    12,
+    24
+  ],
   "ingredientNotes": {
     "colloidal oatmeal": "Calms redness and soothes the skin barrier.",
     "glycerin": "Draws water into the outer layer of skin.",
@@ -118,5 +140,18 @@
     "jojoba oil": "Lightweight botanical oil close to skin's own sebum.",
     "rosehip seed oil": "Plant oil rich in fatty acids and antioxidants."
   },
-  "defaultIngredientNote": "No note for this one yet."
+  "defaultIngredientNote": "No note for this one yet.",
+  "generalDoes": {
+    "Cleanser": "Washes off the day, or the night, so everything after it can do its job.",
+    "Toner": "A light step after cleansing that preps your skin for what comes next.",
+    "Essence": "A thin, watery layer that adds a little moisture before your serum.",
+    "Treatment": "A targeted step for one specific concern. Go slow and watch how your skin feels.",
+    "Serum": "A concentrated step that goes on before your moisturizer.",
+    "Eye cream": "A gentle moisturizer made for the thin skin around your eyes.",
+    "Moisturizer": "Helps hold moisture in and keeps your skin comfortable.",
+    "Facial oil": "Helps seal in moisture. Usually goes on last at night.",
+    "Sunscreen": "Protects your skin from the sun. Goes on last in the morning.",
+    "Mask": "A once-in-a-while step. Follow the directions on the box.",
+    "Other": "Something on your shelf that doesn't fit the usual steps."
+  }
 }
