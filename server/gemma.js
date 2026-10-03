@@ -5,7 +5,9 @@
 
 const MODEL = 'gemma-4-26b-a4b-it';
 const ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`;
-const TIMEOUT_MS = 20000; // Block 0 spike: ~18 s latency, thought parts must be filtered.
+// Block 0 spike: ~18 s latency; injection-style input timed out at 20 s twice in Block 3 testing.
+// Default 30 s, override with MODEL_TIMEOUT_MS.
+const TIMEOUT_MS = parseInt(process.env.MODEL_TIMEOUT_MS || '30000', 10) || 30000;
 
 const TYPES = ['Cleanser', 'Toner', 'Essence', 'Treatment', 'Serum', 'Eye cream', 'Moisturizer', 'Facial oil', 'Sunscreen', 'Mask', 'Other'];
 

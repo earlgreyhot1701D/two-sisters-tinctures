@@ -83,11 +83,13 @@ async function handleRead(req, res) {
     if (request.mode === 'photo') return sendJson(res, 501, { error: 'photo_not_ready' }); // Block 5 STUB
 
     let raw;
+    const startedAt = Date.now();
     try {
       raw = await readProduct(request);
+      console.log('model ok in', Date.now() - startedAt, 'ms');
     } catch (err) {
       const code = err && err.message;
-      console.error('model call failed:', code); // code only, never the body or key
+      console.error('model call failed:', code, 'after', Date.now() - startedAt, 'ms'); // code only, never the body or key
       if (code === 'model_off') return sendJson(res, 503, { error: 'model_off' });
       if (code === 'model_timeout') return sendJson(res, 504, { error: 'model_timeout' });
       return sendJson(res, 502, { error: 'unreadable' });
