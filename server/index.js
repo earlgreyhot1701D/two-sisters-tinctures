@@ -40,9 +40,13 @@ function sendJson(res, status, obj, extra) {
 }
 
 function clientIp(req) {
-  // Render puts the real client first in X-Forwarded-For.
+  // Render's proxy appends the real client address to the END of X-Forwarded-For. The first entries can be
+  // written by the client, so trusting them would let anyone dodge the per-visitor cap (found live, Oct 3).
   const xff = req.headers['x-forwarded-for'];
-  if (typeof xff === 'string' && xff.length) return xff.split(',')[0].trim();
+  if (typeof xff === 'string' && xff.length) {
+    const parts = xff.split(',').map(x => x.trim()).filter(Boolean);
+    if (parts.length) return parts[parts.length - 1];
+  }
   return req.socket.remoteAddress || 'unknown';
 }
 

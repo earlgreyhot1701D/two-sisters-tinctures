@@ -71,3 +71,8 @@ Disposition: promote. Length limits widened to 50 items of 100 characters, over-
 Question: Does the paste path meet the bar of 4 of 5 on real labels?
 Finding: With a product name on the paste screen, 5 of 5 (6 to 10 s each). Ingredients only, 3 of 5 on two runs. The misses are type guesses (BYOMA serum and CeraVe cleanser both read as Moisturizer). One earlier bare run scored 1 of 5 because three answers came back in a shape the reader rejected; the reader now unwraps lists and double-encoded answers and logs the shape. The model also has run-to-run variance, so a score can move by one.
 Disposition: promote. Optional name box stays. Block 3 closed.
+
+### Oct 3 | Block 4 | Live checks
+Question: Do the Gate G4 proofs hold on the live URL?
+Finding: Key not in any served file. CSP, HSTS, nosniff and frame-ancestors present. /healthz 200. A real paste read took 2.8 s. Rapid repeat requests get a friendly 429 after 4 to 6 per minute. One hole found: the per-visitor cap trusted the first X-Forwarded-For entry, which a client can write, so 8 requests with made-up addresses all got through. The total daily cap still bounded the spend.
+Disposition: promote. The server now uses the last entry, which Render's proxy adds. Re-test live after the deploy.
