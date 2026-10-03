@@ -162,6 +162,7 @@ Every line the app says, in one place. The app speaks as **my little sister**, w
 | `detail.finish` | Used it up | [ ] |
 | `detail.remove` | Remove from shelf | [ ] |
 | `detail.fine` | Gemma explained this from the ingredient list. Ingredient notes come from our own list, not the model. | [ ] |
+| `finished.restore` | Put back on the shelf | [ ] |
 
 ## About
 | ID | Line | Her OK |

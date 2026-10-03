@@ -1226,6 +1226,35 @@ nav.bottom-nav {
   margin-top: 8px;
 }
 
+.finished-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--brass-faint, rgba(180,150,90,0.15));
+}
+
+.finished-row-name {
+  font-family: var(--font-text);
+  font-size: 15px;
+  color: var(--label-paper);
+  opacity: 0.7;
+}
+
+.btn-text-inline {
+  background: none;
+  border: none;
+  color: var(--brass);
+  font-family: var(--font-text);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+  white-space: nowrap;
+}
+
 .reading-title {
   font-family: var(--font-display);
   font-size: 20px;

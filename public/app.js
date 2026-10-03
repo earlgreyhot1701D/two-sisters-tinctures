@@ -374,9 +374,20 @@
       el('button', {
         className: 'detail-btn-secondary',
         onclick: () => {
-          // Layout only for Block 1 (wiring in Block 2)
-          showToast('Finished. Look at you using things up.');
-          closeProductDetail();
+          if (isDemo) {
+            const idx = products.findIndex(p => p.id === product.id);
+            if (idx !== -1) products[idx] = Object.assign({}, products[idx], { status: 'finished' });
+            closeProductDetail();
+            showToast('Finished. Look at you using things up.');
+            renderApp();
+          } else {
+            const ok = window.ShelfStore && window.ShelfStore.updateProduct(product.id, { status: 'finished' });
+            if (!ok) { showToast('Your phone couldn\'t save that. Check if storage is full.'); return; }
+            products = window.ShelfStore.getShelf();
+            closeProductDetail();
+            showToast('Finished. Look at you using things up.');
+            renderApp();
+          }
         }
       }, ['Used it up']),
       el('button', {
@@ -459,8 +470,11 @@
 
     const shelfSection = el('div', { className: 'shelf-section' });
 
-    // Empty state check
-    if (products.length === 0) {
+    // Empty state: only active products count
+    const activeProducts = products.filter(p => p.status !== 'finished');
+    const finishedProducts = products.filter(p => p.status === 'finished');
+
+    if (activeProducts.length === 0 && finishedProducts.length === 0) {
       const emptyBox = el('div', { className: 'empty-shelf-box' }, [
         el('p', { className: 'empty-shelf-text' }, ["Your shelf's empty, sis. Let's fix that."]),
         el('button', {
@@ -473,9 +487,9 @@
       return container;
     }
 
-    // Meta bar: count always; demo banner only when isDemo
+    // Meta bar: count = active only; demo banner only when isDemo
     const metaBarChildren = [
-      el('div', { className: 'shelf-count' }, [`${products.length} products on your shelf`])
+      el('div', { className: 'shelf-count' }, [`${activeProducts.length} products on your shelf`])
     ];
     if (isDemo) {
       metaBarChildren.push(el('div', { className: 'demo-banner-right' }, [
@@ -502,11 +516,15 @@
     const metaBar = el('div', { className: 'shelf-meta-bar' }, metaBarChildren);
     shelfSection.appendChild(metaBar);
 
-    // Apothecary Chest with brass frame
+    // Apothecary Chest: only active products; if none, show empty text
     const chest = el('div', { className: 'apothecary-chest' });
     const drawersGrid = el('div', { className: 'apothecary-drawers-grid' });
 
-    products.forEach(prod => {
+    if (activeProducts.length === 0) {
+      chest.appendChild(el('p', { className: 'empty-shelf-text' }, ["Your shelf's empty, sis. Let's fix that."]));
+    }
+
+    activeProducts.forEach(prod => {
       const innerFrame = el('div', { className: 'drawer-inset-frame' }, [
         el('div', { className: 'drawer-rivet left' }),
         el('div', { className: 'drawer-rivet right' }),
@@ -615,10 +633,40 @@
     shelfSection.appendChild(alertsContainer);
 
     // PRD Gate C MUST: Finished list below memos
-    const finishedSection = el('div', { className: 'finished-section' }, [
-      el('div', { className: 'finished-header' }, ['Finished']),
-      el('p', { className: 'finished-empty' }, ['No products finished yet. Look at you holding onto things.'])
-    ]);
+    const finishedSection = el('div', { className: 'finished-section' });
+    finishedSection.appendChild(el('div', { className: 'finished-header' }, ['Finished']));
+    if (finishedProducts.length === 0) {
+      finishedSection.appendChild(el('p', { className: 'finished-empty' }, ['No products finished yet. Look at you holding onto things.']));
+    } else {
+      finishedProducts.forEach(fp => {
+        const row = document.createElement('div');
+        row.className = 'finished-row';
+        const nameSpan = document.createElement('span');
+        nameSpan.className = 'finished-row-name';
+        nameSpan.appendChild(document.createTextNode(fp.name + ' \u2014 ' + fp.type));
+        const putBackBtn = document.createElement('button');
+        putBackBtn.className = 'btn-text-inline';
+        putBackBtn.type = 'button';
+        putBackBtn.appendChild(document.createTextNode('Put back on the shelf'));
+        putBackBtn.addEventListener('click', () => {
+          if (isDemo) {
+            const idx = products.findIndex(p => p.id === fp.id);
+            if (idx !== -1) products[idx] = Object.assign({}, products[idx], { status: 'active' });
+            showToast('Back on the shelf.');
+            renderApp();
+          } else {
+            const ok = window.ShelfStore && window.ShelfStore.updateProduct(fp.id, { status: 'active' });
+            if (!ok) { showToast('Your phone couldn\'t save that. Check if storage is full.'); return; }
+            products = window.ShelfStore.getShelf();
+            showToast('Back on the shelf.');
+            renderApp();
+          }
+        });
+        row.appendChild(nameSpan);
+        row.appendChild(putBackBtn);
+        finishedSection.appendChild(row);
+      });
+    }
     shelfSection.appendChild(finishedSection);
 
     container.appendChild(shelfSection);
@@ -1225,9 +1273,10 @@
       if (isDemo) { showToast('This is a demo shelf. Nothing you add here is saved.'); return; }
       if (!products.length) { showToast('Nothing on your shelf to back up yet.'); return; }
       try {
-        window.ShelfStore.exportBackup();
+        const ok = window.ShelfStore.exportBackup();
+        if (!ok) { showToast('Your phone couldn\'t save that. Check if storage is full.'); return; }
         showToast('Backup saved. Keep it somewhere safe.');
-      } catch(e) { showToast('Something went sideways on my end. You can still add it by hand.'); }
+      } catch(e) { showToast('Your phone couldn\'t save that. Check if storage is full.'); }
     });
 
     // Hidden file input for restore
@@ -1246,13 +1295,14 @@
           if (!result.valid) { showToast('That file isn\'t a Two Sisters backup. Nothing changed.'); return; }
           const doRestore = () => {
             try {
-              window.ShelfStore.saveShelf(result.items);
+              const saved = window.ShelfStore.saveShelf(result.items);
+              if (!saved) { showToast('Your phone couldn\'t save that. Check if storage is full.'); return; }
               products = window.ShelfStore.getShelf();
               showToast('Your shelf is back.');
               currentTab = 'shelf';
               updateNavState();
               renderApp();
-            } catch(e) { showToast('Something went sideways on my end. You can still add it by hand.'); }
+            } catch(e) { showToast('Your phone couldn\'t save that. Check if storage is full.'); }
           };
           if (products.length > 0) {
             const ok = window.confirm('This replaces what\'s on your shelf now. Restore the backup?');
@@ -1302,7 +1352,10 @@
       if (isDemo) { showToast('This is a demo shelf. Nothing you add here is saved.'); return; }
       const ok = window.confirm("This removes everything on this phone. Back up first if you want to keep it. Clear it?");
       if (ok) {
-        try { window.ShelfStore.clearShelf(); } catch(e) {}
+        try {
+          const cleared = window.ShelfStore.clearShelf();
+          if (!cleared) { showToast('Your phone couldn\'t save that. Check if storage is full.'); return; }
+        } catch(e) { showToast('Your phone couldn\'t save that. Check if storage is full.'); return; }
         products = [];
         showToast('Clean slate.');
         currentTab = 'shelf';
