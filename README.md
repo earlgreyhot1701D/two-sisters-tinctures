@@ -92,7 +92,6 @@ Gemma 4 (gemma-4-26b-a4b-it) via the Gemini API
 - security headers: CSP (`script-src 'self'`), HSTS, nosniff, frame-ancestors none
 - the browser only uses `textContent`, never `innerHTML`, and ESLint enforces it
 
-**Known limit:** the per-visitor cap keys off the visitor's IP, and a forged `X-Forwarded-For` header can dodge it. The total daily cap and the budget alert are the real backstops. Details in `FINDINGS.md`.
 
 ## Run it locally
 
@@ -126,14 +125,14 @@ Never commit `.env`. The key stays server-side.
 | `npm start` | Run the server |
 | `npm test` | 40 unit tests (limits, validation, shelf logic, gap hints, ingredient matching) |
 | `npm run lint` | ESLint, including a rule that flags unsafe DOM writes |
-| `npm run gold` | Run the gold set (5 real products) against the live model, name plus ingredients |
+| `npm run gold` | Run the gold set (5 products) against the live model, name plus ingredients |
 | `npm run gold:bare` | Same, ingredients only |
 
 CI runs lint, tests, and `npm audit` on every push.
 
 ## Gold set
 
-Five real products, each with an expected type and ingredient list I checked against the source.
+Five products, each with an expected type and ingredient list I checked against the source.
 
 | Input | Correct |
 |---|---|
@@ -149,19 +148,20 @@ I direct, agents generate, I validate and decide. PRD first, then blocks, with a
 | Who | What |
 |---|---|
 | Me | PRD, MUST / STUB / NEVER labels, every approval, phone testing, all wording the app says to my sister |
-| Antigravity (Sonnet 4.6, with DevRelay MCP) | Blocks 0 to 2: skeleton, shelf and screens on mock data, first gold fixture draft |
-| Claude (Cowork) | Block 3 steps 9 to 12 (limits, validation, Gemma call, `/api/read`, front end wiring), ingredient notes, live testing, tests, lint, CI |
-| Gemini, Stitch, ChatGPT | Painting and mockup, early layout and wording |
+| Antigravity (mostly Gemini 3.8 Flash on low, Sonnet 4.6 when I hit my limits, with DevRelay MCP) | Blocks 0 to 2 (skeleton, shelf and screens on mock data, rules and shelf storage), first gold fixture draft and Block 3 gold set runs, then Block 7 polish (greyed photo card, best-read tip, gap hints), the ingredient-rule bug fixes, route tests and static file hardening |
+| Claude (Cowork) | Block 3 steps 9 to 12 (limits, validation, Gemma call, `/api/read`, front end wiring), 53 ingredient notes, Block 4 live checks, Block 3b tests, lint, and CI, reviews of Antigravity's later plans and changes, the bug hunt diagnosis, this README and its screenshots |
+| Gemini | The hero image |
+| Stitch | The UI design |
 
 Docs worth reading: `PRD.md` (the plan), `TASKS.md` (block by block, with pass or fail), `FINDINGS.md` (what testing turned up), `DEPLOY.md`, `VOICE.md` (every line the app says, with sign-off status).
 
 ## Lessons learned
 
-- **Check the fixtures, not just the model.** Two of the first gold fixtures an agent drafted were partly made up (a wrong source link, ingredient lists I could not verify). I checked each against the real product pages and replaced them.
+- **Check the fixtures, not just the model.** Two of the first gold fixtures an agent drafted were partly made up (a wrong source link, ingredient lists I could not verify). I checked each against the product pages and replaced them.
 - **Thinking costs time.** Reads timed out until I set the model's thinking level to minimal and raised the timeout to 30 seconds.
 - **Strict validation can reject good answers.** My first validator threw out reads over a 60 character ingredient name. I switched it to trim instead of reject.
 - **Test the idea by hand before you build it.** A web lookup found the right ingredient list for 2 of 2 products in a dashboard, along with an old formula and a junk page. I stubbed it, wrote down what I saw, and kept the app small.
-- **The bug was in the part I called deterministic.** The day before submitting, almost every product landed on Night only. The night rule matched any ingredient that contained an acid's name, so a pH adjuster at the end of a serum and a daytime SPF both went to night. The fix is one shared matcher with whole-name matching, a first-ten-ingredients rule of thumb for acids, and SPF always in the morning, each with a test built from a real product.
+- **The bug was in the part I called deterministic.** The day before submitting, almost every product landed on Night only. The night rule matched any ingredient that contained an acid's name, so a pH adjuster at the end of a serum and a daytime SPF both went to night. The fix is one shared matcher with whole-name matching, a first-ten-ingredients rule of thumb for acids, and SPF always in the morning, each with a test built from one of the gold set products.
 - **Models wrap their answers.** Sometimes a list, sometimes JSON inside a string. The unwrap step and a logged reason code made that visible.
 - **A demo code is a bad first minute.** I built one so reviewers could skip the caps, then dropped it. The `?demo=1` shelf does the job without making anyone find and paste a code.
 - **A fix that does not fix is worth reverting.** Two attempts to close the forged-header hole did not work. I reverted and documented the limit instead of shipping a false sense of safety.
@@ -183,7 +183,6 @@ These are known and written down, not forgotten. None of them change what the ap
 
 - Photo input and product lookup are not built. Both are stubs with notes.
 - Ingredients-only reads are right 3 times in 5 on my gold set.
-- The per-visitor cap can be dodged, and all caps reset when the server restarts. The total cap and the budget alert are the real limits.
 - Only the Gemini path is tested.
 - No allergy checks. This is a shelf and a set of order notes, not medical advice.
 
