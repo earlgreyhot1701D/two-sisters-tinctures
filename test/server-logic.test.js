@@ -72,3 +72,12 @@ test('one visitor cannot use the whole daily cap', () => {
   assert.strictEqual(l.check({ ip: 'a', now: 2 }).reason, 'ip_daily');
   assert.strictEqual(l.check({ ip: 'b', now: 3 }).ok, true);
 });
+
+test('thinking level is sent by default and can be turned off', async () => {
+  let sent = null;
+  const f = async (url, init) => { sent = JSON.parse(init.body); return { ok: true, status: 200, json: async () => ({ candidates: [{ content: { parts: [{ text: '{"kind":"not_skincare"}' }] } }] }) }; };
+  await readProduct({ mode: 'typed', text: 'x' }, { apiKey: 'k', fetchImpl: f, thinkingLevel: undefined });
+  assert.strictEqual(sent.generationConfig.thinkingConfig.thinkingLevel, 'MINIMAL');
+  await readProduct({ mode: 'typed', text: 'x' }, { apiKey: 'k', fetchImpl: f, thinkingLevel: 'off' });
+  assert.strictEqual(sent.generationConfig.thinkingConfig, undefined);
+});
