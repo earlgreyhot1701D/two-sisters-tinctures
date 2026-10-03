@@ -95,3 +95,9 @@ test('bad shape still fails with a reason', () => {
   assert.strictEqual(r.ok, false);
   assert.strictEqual(r.why, 'ingredients_shape');
 });
+
+test('extractJson unwraps a list or a double-encoded answer', () => {
+  const wrap = (txt) => ({ candidates: [{ content: { parts: [{ text: txt }] } }] });
+  assert.strictEqual(extractJson(wrap('[{"kind":"not_skincare"}]')).kind, 'not_skincare');
+  assert.strictEqual(extractJson(wrap(JSON.stringify('{"kind":"not_skincare"}'))).kind, 'not_skincare');
+});

@@ -53,7 +53,11 @@ function extractJson(apiResponse) {
   let text = answer.text.trim();
   const fenced = text.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/);
   if (fenced) text = fenced[1];
-  return JSON.parse(text);
+  let parsed = JSON.parse(text);
+  // Seen in gold runs: the model sometimes double-encodes (a JSON string holding JSON) or wraps the object in a list.
+  if (typeof parsed === 'string') parsed = JSON.parse(parsed);
+  if (Array.isArray(parsed) && parsed.length === 1 && parsed[0] && typeof parsed[0] === 'object') parsed = parsed[0];
+  return parsed;
 }
 
 // opts.fetchImpl lets tests run with no network.

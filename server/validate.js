@@ -38,7 +38,7 @@ function doesMentionsUnlistedIngredient(does, ingredients, rules) {
 // raw: parsed model JSON. request: { mode, text }. rules: parsed rules.json.
 function validateModelOutput(raw, request, rules) {
   const bad = (why) => ({ ok: false, error: 'unreadable', why });
-  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return bad('not_object');
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return bad('not_object:' + (raw === null ? 'null' : Array.isArray(raw) ? 'array' : typeof raw));
 
   if (raw.kind === 'not_skincare') {
     return { ok: true, value: { kind: 'not_skincare', name: null, brand: null, type: null, ingredients: [], does: '' } };
