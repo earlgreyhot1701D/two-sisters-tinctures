@@ -87,7 +87,7 @@ When the done line is met, the build stops.
 - Confirm screen before anything saves: "Here's what I see. Fix anything I got wrong." Missing fields show "Couldn't read this," never a guess.
 - Typed name: type plus a general explanation, and "I can't see the ingredients, so I won't guess them. Paste them or snap the label and I'll tell you more."
 - Not skincare (cat, receipt): "That doesn't look like a skincare product."
-- Timeout at 20 seconds: "That label's being shy. Try again or type it in."
+- Timeout at 30 seconds (was 20; real reads and the 17.7 s spike made 20 too tight): "That label's being shy. Try again or type it in."
 
 **Routine**
 - Morning and Night views, numbered steps, one-line reason each.
@@ -208,7 +208,7 @@ Response (validated server-side before it's returned):
   "kind": "skincare" | "not_skincare",
   "name": "string or null, max 60",
   "brand": "string or null, max 40",
-  "type": "one of the seven types, or null",
+  "type": "one of the 11 types in rules.json, or null",
   "ingredients": ["max 50 items, each max 100 chars"],
   "does": "string, max 240"
 }
