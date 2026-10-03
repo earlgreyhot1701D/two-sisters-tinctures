@@ -73,7 +73,7 @@ async function handleRead(req, res) {
     const origin = req.headers.origin;
     if (origin) {
       let sameOrigin = false;
-      try { sameOrigin = new URL(origin).host === req.headers.host; } catch (e) { sameOrigin = false; }
+      try { sameOrigin = new URL(origin).host === req.headers.host; } catch { sameOrigin = false; }
       if (!sameOrigin) return sendJson(res, 403, { error: 'origin' });
     }
     const gate = limiter.check({ ip: clientIp(req), deviceId: req.headers['x-device-id'] });
@@ -138,7 +138,7 @@ const server = http.createServer((req, res) => {
   }
 
   // Handle static assets
-  let safePath = path.normalize(pathname).replace(/^(\.\.[\/\\])+/, '');
+  let safePath = path.normalize(pathname).replace(/^(\.\.[/\\])+/, '');
   if (safePath === '/' || safePath === '\\') {
     safePath = '/index.html';
   }

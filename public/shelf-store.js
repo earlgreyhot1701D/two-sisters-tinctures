@@ -273,4 +273,4 @@
   };
 
   global.ShelfStore = ShelfStore;
-})(window);
+})(typeof window !== 'undefined' ? window : globalThis);

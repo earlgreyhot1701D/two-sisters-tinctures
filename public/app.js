@@ -438,7 +438,7 @@
           if (isDemo) {
             products.splice(idx, 1);
           } else {
-            try { window.ShelfStore && window.ShelfStore.removeProduct(removed.id); } catch(e) {}
+            try { window.ShelfStore && window.ShelfStore.removeProduct(removed.id); } catch { /* storage is best effort here */ }
             products = (window.ShelfStore && window.ShelfStore.getShelf) ? window.ShelfStore.getShelf() : products.filter(p => p.id !== removed.id);
           }
           closeProductDetail();
@@ -454,7 +454,7 @@
                 const list = window.ShelfStore.getShelf();
                 list.splice(pendingUndo.index, 0, pendingUndo.product);
                 window.ShelfStore.saveShelf(list);
-              } catch(e) {}
+              } catch { /* storage is best effort here */ }
               products = window.ShelfStore.getShelf();
             }
             pendingUndo = null;
@@ -592,7 +592,6 @@
     const activeProds = products.filter(p => p.status !== 'finished');
 
     // Memo 1: Don't mix (Retinoids vs AHAs/BHAs)
-    let mixAlert = null;
     const retinoidKeywords = ['retinol', 'retinal'];
     const acidKeywords = ['glycolic acid', 'lactic acid', 'salicylic acid'];
     const hasRetinoid = activeProds.find(p => (p.ingredients || []).some(i => retinoidKeywords.some(k => i.toLowerCase().includes(k))));
@@ -602,7 +601,7 @@
       const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
       const retinoidKey = retinoidKeywords.find(k => (hasRetinoid.ingredients || []).some(i => i.toLowerCase().includes(k))) || 'retinol';
       const acidKey = acidKeywords.find(k => (hasAcid.ingredients || []).some(i => i.toLowerCase().includes(k))) || 'glycolic acid';
-      mixAlert = el('div', { className: 'alert-card warning' }, [
+      const mixAlert = el('div', { className: 'alert-card warning' }, [
         el('div', { className: 'alert-title-row' }, [`Don't mix tonight: ${cap(acidKey)} and ${cap(retinoidKey)}`]),
         el('p', { className: 'alert-desc' }, [
           "Pick one, or your moisture barrier will send me angry texts."
@@ -1391,7 +1390,7 @@
         const ok = window.ShelfStore.exportBackup();
         if (!ok) { showToast('Your phone couldn\'t save that. Check if storage is full.'); return; }
         showToast('Backup saved. Keep it somewhere safe.');
-      } catch(e) { showToast('Your phone couldn\'t save that. Check if storage is full.'); }
+      } catch { showToast('Your phone couldn\'t save that. Check if storage is full.'); }
     });
 
     // Hidden file input for restore
@@ -1417,7 +1416,7 @@
               currentTab = 'shelf';
               updateNavState();
               renderApp();
-            } catch(e) { showToast('Your phone couldn\'t save that. Check if storage is full.'); }
+            } catch { showToast('Your phone couldn\'t save that. Check if storage is full.'); }
           };
           if (products.length > 0) {
             const ok = window.confirm('This replaces what\'s on your shelf now. Restore the backup?');
@@ -1425,7 +1424,7 @@
           } else {
             doRestore();
           }
-        } catch(e) { showToast('That file isn\'t a Two Sisters backup. Nothing changed.'); }
+        } catch { showToast('That file isn\'t a Two Sisters backup. Nothing changed.'); }
         restoreInput.value = '';
       });
       reader.readAsText(file);
@@ -1470,7 +1469,7 @@
         try {
           const cleared = window.ShelfStore.clearShelf();
           if (!cleared) { showToast('Your phone couldn\'t save that. Check if storage is full.'); return; }
-        } catch(e) { showToast('Your phone couldn\'t save that. Check if storage is full.'); return; }
+        } catch { showToast('Your phone couldn\'t save that. Check if storage is full.'); return; }
         products = [];
         showToast('Clean slate.');
         currentTab = 'shelf';

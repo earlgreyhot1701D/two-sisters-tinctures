@@ -10,6 +10,7 @@ const LIMITS = { name: 60, brand: 40, ingredients: 50, ingredient: 100, does: 24
 // Returns a clean string, or null if it isn't a usable string. With trim=true, over-long text is cut to max.
 function cleanString(v, max, trim) {
   if (typeof v !== 'string') return null;
+  // eslint-disable-next-line no-control-regex -- stripping control characters is the point
   const s = v.replace(/[\u0000-\u001F\u007F]/g, ' ').replace(/\s+/g, ' ').trim();
   if (s.length === 0) return null;
   if (s.length > max) return trim ? s.slice(0, max).trim() : null;

@@ -95,7 +95,7 @@ async function readProduct({ mode, text }, opts) {
     if (!res.ok) throw new Error('model_http_' + res.status); // never include the body or the key
     return extractJson(await res.json());
   } catch (err) {
-    if (err && err.name === 'AbortError') throw new Error('model_timeout');
+    if (err && err.name === 'AbortError') throw new Error('model_timeout', { cause: err });
     throw err;
   } finally {
     clearTimeout(timer);

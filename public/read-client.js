@@ -16,7 +16,7 @@
         window.localStorage.setItem(DEVICE_KEY, id);
       }
       return id;
-    } catch (e) {
+    } catch {
       return '';
     }
   }
@@ -35,7 +35,7 @@
         signal: controller.signal
       });
       let body = null;
-      try { body = await res.json(); } catch (e) { body = null; }
+      try { body = await res.json(); } catch { body = null; }
       if (res.ok && body && typeof body === 'object') return { ok: true, data: body };
       const err = body && body.error;
       if (res.status === 429) return { ok: false, reason: err === 'daily_cap' ? 'daily' : 'ratelimit' };

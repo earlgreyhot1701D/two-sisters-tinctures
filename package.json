@@ -6,7 +6,9 @@
   "scripts": {
     "start": "node server/index.js",
     "gold": "node test/gold.mjs",
-    "gold:bare": "node test/gold.mjs --bare"
+    "gold:bare": "node test/gold.mjs --bare",
+    "test": "node --test test/server-logic.test.js test/shelf-store.test.js",
+    "lint": "eslint ."
   },
   "keywords": [
     "gemma",
@@ -15,5 +17,11 @@
     "devrelay"
   ],
   "author": "Shara",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.12.0",
+    "eslint-plugin-no-unsanitized": "^4.1.5",
+    "globals": "^17.13.0"
+  }
 }

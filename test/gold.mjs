@@ -7,7 +7,7 @@ import { readProduct } from '../server/gemma.js';
 
 try {
   process.loadEnvFile();
-} catch (e) {
+} catch {
   // .env is optional or already in environment
 }
 
