@@ -19,7 +19,17 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+// --bare runs ingredients only, like pasting with no name. Default sends the name too.
+const bare = process.argv.includes('--bare');
+
+// Same format as the Paste screen in public/app.js.
+function buildText(fixture) {
+  if (bare || !fixture.name) return fixture.text;
+  return 'Product name: ' + fixture.name + '\nIngredients: ' + fixture.text;
+}
+
 async function runGoldSet() {
+  console.log(bare ? 'Mode: ingredients only\n' : 'Mode: with product name\n');
   const files = fs.readdirSync(fixturesDir).filter(f => f.endsWith('.json')).sort();
   let passedCount = 0;
   const totalCount = files.length;
@@ -38,8 +48,9 @@ async function runGoldSet() {
     let failReason = '';
 
     try {
-      const modelRaw = await readProduct({ mode: fixture.mode, text: fixture.text });
-      const validated = validateModelOutput(modelRaw, { mode: fixture.mode, text: fixture.text }, rules);
+      const text = buildText(fixture);
+      const modelRaw = await readProduct({ mode: fixture.mode, text });
+      const validated = validateModelOutput(modelRaw, { mode: fixture.mode, text }, rules);
 
       if (!validated.ok) {
         failReason = 'validation failed (' + validated.error + (validated.why ? ': ' + validated.why : '') + ')';

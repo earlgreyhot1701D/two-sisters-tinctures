@@ -5,7 +5,8 @@
   "main": "server/index.js",
   "scripts": {
     "start": "node server/index.js",
-    "gold": "node test/gold.mjs"
+    "gold": "node test/gold.mjs",
+    "gold:bare": "node test/gold.mjs --bare"
   },
   "keywords": [
     "gemma",

@@ -34,7 +34,7 @@ Reply with JSON only, using exactly this schema:
 If the data is not a skincare product, reply {"kind":"not_skincare","name":null,"brand":null,"type":null,"ingredients":[],"does":""}.`;
 
 const MODE_NOTES = {
-  paste: 'The data is a pasted ingredient list or label text. Copy ingredient names exactly as written. Do not add any that are not in the text.',
+  paste: 'The data is a pasted ingredient list or label text. If it starts with "Product name:", use that as the name and use it to decide the type. Copy ingredient names exactly as written. Do not add any that are not in the text.',
   typed: 'The data is only a product name typed by a person. Return "ingredients": [] always. Do not guess ingredients. In "does", describe only the general kind of product, no ingredient names.'
 };
 

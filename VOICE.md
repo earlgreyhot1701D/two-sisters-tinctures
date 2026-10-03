@@ -220,5 +220,6 @@ Every line the app says, in one place. The app speaks as **my little sister**, w
 | `error.typed.empty` | Type a name first, sis. | [ ] |
 | `photo.notready` | Photo reading isn't ready yet. Paste the ingredients or type it in. | [ ] |
 | `typed.button` | Look it up | [ ] |
+| `add.paste.name` | Product name (optional) | [ ] |
 | `reading.cancel` | Cancel | [ ] |
 

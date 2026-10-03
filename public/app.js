@@ -22,6 +22,7 @@
   let pendingUndo = null; // { product, index, timerId }
   let pasteDraft = '';
   let typedDraft = '';
+  let pasteNameDraft = '';
   let readError = ''; // message shown on the input screens after a failed read
   let readToken = 0; // guards against stale responses
   let readAbort = null;
@@ -904,6 +905,18 @@
 
       const formBox = el('div', { className: 'add-flow-container' });
 
+      const pasteNameGroup = el('div', { className: 'form-group' }, [
+        el('label', { className: 'form-label' }, ['Product name (optional)']), // add.paste.name
+        el('input', {
+          className: 'form-input',
+          id: 'paste-name-input',
+          maxlength: '80',
+          placeholder: 'e.g. Hydrating serum',
+          oninput: (e) => { pasteNameDraft = e.target.value; }
+        })
+      ]);
+      pasteNameGroup.lastChild.value = pasteNameDraft;
+
       const pasteGroup = el('div', { className: 'form-group' }, [
         el('label', { className: 'form-label' }, ['Ingredients']),
         el('textarea', {
@@ -921,10 +934,14 @@
       const readBtn = el('button', {
         className: 'btn-primary',
         onclick: () => {
-          const text = (document.getElementById('paste-textarea').value || '').trim();
-          pasteDraft = text;
+          const ingText = (document.getElementById('paste-textarea').value || '').trim();
+          const nameText = (document.getElementById('paste-name-input').value || '').trim();
+          pasteDraft = ingText;
+          pasteNameDraft = nameText;
+          // Same format as test/gold.mjs: the name goes on its own line ahead of the ingredients.
+          const text = nameText ? 'Product name: ' + nameText + '\nIngredients: ' + ingText : ingText;
           const errEl = document.getElementById('error-read');
-          if (!text) { errEl.textContent = 'Paste something first, sis.'; return; } // error.paste.empty
+          if (!ingText) { errEl.textContent = 'Paste something first, sis.'; return; } // error.paste.empty
           if (text.length > 4000) { errEl.textContent = READ_ERRORS.toolong; return; }
           startRead('paste', text);
         }
@@ -939,6 +956,7 @@
         }
       }, ['Back']);
 
+      formBox.appendChild(pasteNameGroup);
       formBox.appendChild(pasteGroup);
       formBox.appendChild(errBox);
       formBox.appendChild(readBtn);
@@ -1212,6 +1230,7 @@
             manualFormState = {};
             pasteDraft = '';
             typedDraft = '';
+            pasteNameDraft = '';
             showToast('On the shelf. Cute.');
             addFlowStep = 'select';
             currentTab = 'shelf';
@@ -1238,6 +1257,7 @@
           manualFormState = {};
           pasteDraft = '';
           typedDraft = '';
+          pasteNameDraft = '';
           showToast('On the shelf. Cute.');
           addFlowStep = 'select';
           currentTab = 'shelf';
