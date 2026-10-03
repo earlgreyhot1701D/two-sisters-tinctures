@@ -420,14 +420,16 @@
       return container;
     }
 
-    // Demo Mode Meta Bar with Leave the demo button
-    const metaBar = el('div', { className: 'shelf-meta-bar' }, [
-      el('div', { className: 'shelf-count' }, [`${products.length} products on your shelf`]),
-      el('div', { className: 'demo-banner-right' }, [
+    // Meta bar: count always; demo banner only when isDemo
+    const metaBarChildren = [
+      el('div', { className: 'shelf-count' }, [`${products.length} products on your shelf`])
+    ];
+    if (isDemo) {
+      metaBarChildren.push(el('div', { className: 'demo-banner-right' }, [
         el('div', { className: 'demo-shelf-note' }, ['This is a demo shelf. Nothing you add here is saved.']),
         el('button', {
           className: 'demo-exit-btn',
-          attrs: { type: 'button' },
+          type: 'button',
           onclick: () => {
             isDemo = false;
             products = (window.ShelfStore && typeof window.ShelfStore.getShelf === 'function')
@@ -442,8 +444,9 @@
             renderApp();
           }
         }, ['Leave the demo'])
-      ])
-    ]);
+      ]));
+    }
+    const metaBar = el('div', { className: 'shelf-meta-bar' }, metaBarChildren);
     shelfSection.appendChild(metaBar);
 
     // Apothecary Chest with brass frame
