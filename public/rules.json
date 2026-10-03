@@ -1,0 +1,122 @@
+{
+  "types": [
+    "Cleanser",
+    "Toner",
+    "Essence",
+    "Treatment",
+    "Serum",
+    "Eye cream",
+    "Moisturizer",
+    "Facial oil",
+    "Sunscreen",
+    "Mask",
+    "Other"
+  ],
+  "order": {
+    "Cleanser": 1,
+    "Toner": 2,
+    "Essence": 3,
+    "Treatment": 4,
+    "Serum": 5,
+    "Eye cream": 6,
+    "Moisturizer": 7,
+    "Facial oil": 8,
+    "Sunscreen": 9,
+    "Mask": null,
+    "Other": null
+  },
+  "defaultWhen": {
+    "Cleanser": "both",
+    "Toner": "both",
+    "Essence": "both",
+    "Treatment": "pm",
+    "Serum": "both",
+    "Eye cream": "both",
+    "Moisturizer": "both",
+    "Facial oil": "pm",
+    "Sunscreen": "am",
+    "Mask": "pm",
+    "Other": "both"
+  },
+  "reasons": {
+    "Cleanser": {
+      "am": "Wakes skin up and cleans off overnight oils.",
+      "pm": "Removes pollution and sunscreen before skincare goes on."
+    },
+    "Toner": "Preps damp skin so your serums can go on smoothly.",
+    "Essence": "Lightweight hydration that sinks in before treatment.",
+    "Treatment": "Targeted active for blemishes, texture, or spot renewal.",
+    "Serum": "Targeted actives soak in while the formula is thin.",
+    "Eye cream": "Thinner skin around the eyes absorbs gently before heavier creams.",
+    "Moisturizer": "Locks in hydration and cushions your skin barrier.",
+    "Facial oil": "Nourishing plant oils seal your night routine.",
+    "Sunscreen": "Sunscreen is always last. Never put moisturizer on top of sunscreen."
+  },
+  "ingredientOverrides": [
+    {
+      "match": ["retinol", "retinal"],
+      "when": "pm",
+      "freq": null
+    },
+    {
+      "match": ["glycolic acid", "lactic acid", "salicylic acid"],
+      "when": "pm",
+      "freq": "2 to 3 nights a week"
+    },
+    {
+      "match": ["ascorbic acid", "l-ascorbic acid"],
+      "when": "am",
+      "freq": null
+    }
+  ],
+  "conflicts": [
+    {
+      "groupA": ["retinol", "retinal"],
+      "groupB": ["glycolic acid", "lactic acid", "salicylic acid"],
+      "warning": "Don't use on the same night. Take turns: one night each, never together."
+    }
+  ],
+  "doublesTypes": [
+    "Cleanser",
+    "Eye cream",
+    "Moisturizer",
+    "Sunscreen"
+  ],
+  "paoOptions": [3, 6, 12, 24],
+  "ingredientNotes": {
+    "colloidal oatmeal": "Calms redness and soothes the skin barrier.",
+    "glycerin": "Draws water into the outer layer of skin.",
+    "lauryl glucoside": "Mild plant-derived cleanser that doesn't strip.",
+    "damask rose distillate": "Gentle botanical water that softens skin.",
+    "rose water": "Gentle botanical water that softens skin.",
+    "sodium pca": "Skin-identical humectant that binds moisture.",
+    "glycolic acid": "AHA chemical exfoliant for surface skin smoothing.",
+    "aloe leaf juice": "Hydrating plant juice that cushions active formulas.",
+    "l-ascorbic acid": "Pure Vitamin C antioxidant for morning brightness.",
+    "ascorbic acid": "Pure Vitamin C antioxidant for morning brightness.",
+    "ferulic acid": "Plant antioxidant that helps keep Vitamin C stable.",
+    "niacinamide": "Vitamin B3 that supports barrier strength and oil balance.",
+    "zinc pca": "Mineral salt that helps balance surface shine.",
+    "retinol": "Vitamin A active that encourages skin renewal.",
+    "encapsulated retinol": "Vitamin A active that encourages skin renewal.",
+    "squalane": "Weightless skin-friendly oil that softens and cushions.",
+    "caffeine": "Plant extract that temporarily depuffs the eye area.",
+    "green tea caffeine extract": "Plant extract that temporarily depuffs the eye area.",
+    "centella asiatica": "Herb that calms and supports sensitive skin.",
+    "copper tripeptide-1": "Amino acid peptide that supports skin resilience.",
+    "shea butter": "Rich plant butter that softens dry patches.",
+    "shea butter unsaponifiables": "Rich plant butter that softens dry patches.",
+    "ceramides": "Key lipids that keep the skin barrier intact.",
+    "ceramides np, ap, eop": "Key lipids that keep the skin barrier intact.",
+    "cholesterol and fatty acids": "Natural skin lipids that complement ceramides.",
+    "zinc oxide": "Mineral sunscreen active that reflects UV rays.",
+    "bisabolol": "Chamomile-derived extract that calms irritation.",
+    "salicylic acid": "BHA oil-soluble exfoliant that clears pores.",
+    "lactic acid": "Gentle AHA that exfoliates and hydrates.",
+    "hyaluronic acid": "Humectant that holds water on the skin surface.",
+    "sodium hyaluronate": "Humectant that holds water on the skin surface.",
+    "jojoba oil": "Lightweight botanical oil close to skin's own sebum.",
+    "rosehip seed oil": "Plant oil rich in fatty acids and antioxidants."
+  },
+  "defaultIngredientNote": "No note for this one yet."
+}

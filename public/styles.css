@@ -746,6 +746,16 @@ header.app-header {
   border-color: var(--amber-glow);
 }
 
+.form-error-msg {
+  display: block;
+  font-family: var(--font-text);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--pharmacy-red);
+  margin-top: 6px;
+  line-height: 1.4;
+}
+
 /* Buttons strictly Amber #9C6515 for primary */
 .btn-primary {
   display: inline-flex;
@@ -1126,6 +1136,24 @@ nav.bottom-nav {
   font-size: 13px;
   font-weight: 700;
   color: var(--prescription-ink);
+}
+
+.detail-category-select {
+  font-family: var(--font-text);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--prescription-ink);
+  background: rgba(34, 48, 74, 0.08);
+  border: 1px solid var(--brass);
+  border-radius: 6px;
+  padding: 6px 8px;
+  width: 100%;
+  cursor: pointer;
+  min-height: 38px;
+}
+
+.detail-category-select:focus {
+  outline: 2px solid var(--amber-glow);
 }
 
 .label-warning-box {

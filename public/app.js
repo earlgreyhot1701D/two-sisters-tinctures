@@ -17,6 +17,119 @@
   let addMethod = '';
   let products = []; // Starts empty by default
   let isDemo = false;
+  let rules = null; // Loaded from rules.json
+  let manualFormState = {};
+
+  // Date and Calculation Helpers
+  function parseDateString(str) {
+    if (!str || typeof str !== 'string') return new Date();
+    const [y, m, d] = str.split('-').map(Number);
+    return new Date(y, m - 1, d);
+  }
+
+  function isValidDateString(str) {
+    if (typeof str !== 'string') return false;
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(str)) return false;
+    const [y, m, d] = str.split('-').map(Number);
+    const dt = new Date(y, m - 1, d);
+    return dt.getFullYear() === y && dt.getMonth() === m - 1 && dt.getDate() === d;
+  }
+
+  function formatDateString(d) {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  }
+
+  function computeUseByDate(openedStr, paoMonths) {
+    const dt = parseDateString(openedStr);
+    dt.setMonth(dt.getMonth() + Number(paoMonths || 12));
+    return formatDateString(dt);
+  }
+
+  function computeBadge(product, refDate) {
+    const useBy = parseDateString(computeUseByDate(product.opened, product.paoMonths));
+    const now = refDate || (isDemo ? TODAY : new Date());
+    const diffTime = useBy.getTime() - now.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays <= 0) {
+      return { text: 'Past its prime', type: 'past-prime' };
+    }
+    if (diffDays <= 30) {
+      return { text: 'Use soon', type: 'use-soon' };
+    }
+    return null;
+  }
+
+  function getIngredientNote(ingName) {
+    if (!rules || !rules.ingredientNotes) return 'No note for this one yet.';
+    const key = ingName.toLowerCase().trim();
+    return rules.ingredientNotes[key] || rules.defaultIngredientNote || 'No note for this one yet.';
+  }
+
+  function computeProductWarning(prod, allProds) {
+    if (!rules || !rules.conflicts) return null;
+    const ingList = (prod.ingredients || []).map(i => i.toLowerCase());
+    const hasA = rules.conflicts.some(c => c.groupA.some(g => ingList.some(i => i.includes(g))));
+    const hasB = rules.conflicts.some(c => c.groupB.some(g => ingList.some(i => i.includes(g))));
+
+    // Check if other products on shelf conflict
+    if (hasA) {
+      const conflictB = allProds.find(other => 
+        other.id !== prod.id && 
+        (other.ingredients || []).some(i => rules.conflicts.some(c => c.groupB.some(g => i.toLowerCase().includes(g))))
+      );
+      if (conflictB) {
+        return `Do not use on the same night as ${conflictB.name}.`;
+      }
+    }
+    if (hasB) {
+      const conflictA = allProds.find(other => 
+        other.id !== prod.id && 
+        (other.ingredients || []).some(i => rules.conflicts.some(c => c.groupA.some(g => i.toLowerCase().includes(g))))
+      );
+      if (conflictA) {
+        return `Do not use on the same night as ${conflictA.name}.`;
+      }
+    }
+    return null;
+  }
+
+  function computeStepReason(prod, timeSlot) {
+    if (!rules || !rules.reasons) return '';
+    const typeRule = rules.reasons[prod.type];
+    if (typeof typeRule === 'object' && typeRule !== null) {
+      return typeRule[timeSlot] || '';
+    }
+    if (typeof typeRule === 'string') {
+      return typeRule;
+    }
+    return '';
+  }
+
+  // Recompute 'when' slot when changing category (Adjustment 5)
+  // Mask and Other keep when as she set it.
+  // Other types use default for the type plus ingredient overrides from rules.json.
+  function recomputeWhenForType(product, newType) {
+    if (newType === 'Mask' || newType === 'Other') {
+      return Array.isArray(product.when) && product.when.length > 0 ? product.when : ['both'];
+    }
+    let defaultSlot = (rules && rules.defaultWhen && rules.defaultWhen[newType]) || 'both';
+    
+    // Check ingredient overrides
+    if (rules && rules.ingredientOverrides && Array.isArray(product.ingredients)) {
+      const ings = product.ingredients.map(i => i.toLowerCase());
+      for (const override of rules.ingredientOverrides) {
+        if (override.match.some(m => ings.some(i => i.includes(m)))) {
+          defaultSlot = override.when;
+          break;
+        }
+      }
+    }
+    return [defaultSlot];
+  }
 
   const mainContent = document.getElementById('main-content');
   const detailBackdrop = document.getElementById('detail-sheet-backdrop');
@@ -37,11 +150,15 @@
     for (const [key, val] of Object.entries(attrs)) {
       if (key === 'className') {
         element.className = val;
-      } else if (key === 'onclick') {
-        element.addEventListener('click', val);
+      } else if (key.startsWith('on') && typeof val === 'function') {
+        element.addEventListener(key.slice(2), val);
+      } else if (key === 'selected') {
+        if (val) element.selected = true;
+      } else if (key === 'value') {
+        element.value = val;
       } else if (key.startsWith('aria-')) {
         element.setAttribute(key, val);
-      } else {
+      } else if (val !== undefined && val !== null) {
         element.setAttribute(key, val);
       }
     }
@@ -93,21 +210,40 @@
     return el('div', { className: 'marquee-container' }, [track]);
   }
 
-  function loadDemoShelf() {
-    fetch('demo-shelf.json')
+  function ensureRulesLoaded() {
+    if (rules) return Promise.resolve(rules);
+    return fetch('rules.json')
       .then(res => {
-        if (!res.ok) throw new Error('Network error loading demo');
+        if (!res.ok) throw new Error('Network error loading rules');
         return res.json();
       })
       .then(data => {
-        products = data;
-        isDemo = true;
-        renderApp();
-        showToast('Demo shelf loaded');
+        rules = data;
+        return rules;
       })
-      .catch(() => {
-        showToast("Couldn't load demo shelf");
+      .catch(err => {
+        console.error('Failed to load rules.json:', err);
+        return null;
       });
+  }
+
+  function loadDemoShelf() {
+    ensureRulesLoaded().then(() => {
+      fetch('demo-shelf.json')
+        .then(res => {
+          if (!res.ok) throw new Error('Network error loading demo');
+          return res.json();
+        })
+        .then(data => {
+          products = data;
+          isDemo = true;
+          renderApp();
+          showToast('Demo shelf loaded');
+        })
+        .catch(() => {
+          showToast("Couldn't load demo shelf");
+        });
+    });
   }
 
   // Product Detail Card
@@ -117,7 +253,7 @@
     const headerOrnament = el('div', { className: 'paper-header-ornament' }, [
       el('div', { className: 'apothecary-seal' }, ['Two Sisters Tinctures : Specimen card']),
       el('div', { className: 'label-brand-name' }, [product.brand]),
-      el('h2', { className: 'label-product-title' }, [product.fullName || product.name]),
+      el('h2', { className: 'label-product-title' }, [product.name]),
       el('button', {
         className: 'sheet-close-btn',
         'aria-label': 'Close detail label',
@@ -127,38 +263,62 @@
 
     const doesSection = el('div', { className: 'label-section' }, [
       el('div', { className: 'label-heading' }, ['What it does']),
-      el('p', { className: 'label-body-text' }, [product.whatItDoes])
+      el('p', { className: 'label-body-text' }, [product.does || ''])
     ]);
 
     const ingHeading = el('div', { className: 'label-heading' }, ["What's in it"]);
     const ingList = el('ul', { className: 'ingredient-list' });
-    product.ingredients.forEach(ing => {
+    (product.ingredients || []).forEach(ingName => {
+      const ingNote = getIngredientNote(ingName);
       ingList.appendChild(
         el('li', { className: 'ingredient-item' }, [
-          el('span', { className: 'ingredient-name' }, [`${ing.name}: `]),
-          el('span', { className: 'ingredient-desc' }, [ing.note])
+          el('span', { className: 'ingredient-name' }, [`${ingName}: `]),
+          el('span', { className: 'ingredient-desc' }, [ingNote])
         ])
       );
     });
 
+    const whenStr = (product.when && product.when.includes('both'))
+      ? 'Morning and Night'
+      : (product.when && product.when.includes('am'))
+        ? 'Morning only'
+        : 'Night only';
+
+    const useBy = computeUseByDate(product.opened, product.paoMonths);
+
     const metaGrid = el('div', { className: 'label-meta-grid' }, [
       el('div', {}, [
         el('div', { className: 'label-meta-cell-label' }, ['In your routine']),
-        el('div', { className: 'label-meta-cell-value' }, [
-          product.slot === 'both' ? 'Morning and Night' : product.slot === 'am' ? 'Morning only' : 'Night only'
-        ])
+        el('div', { className: 'label-meta-cell-value' }, [whenStr])
       ]),
       el('div', {}, [
         el('div', { className: 'label-meta-cell-label' }, ['Product type']),
-        el('div', { className: 'label-meta-cell-value' }, [product.typeName])
+        el('select', {
+          className: 'detail-category-select',
+          'aria-label': 'Change product category',
+          onchange: (e) => {
+            const newType = e.target.value;
+            const newWhen = recomputeWhenForType(product, newType);
+            product.type = newType;
+            product.when = newWhen;
+            if (!isDemo && window.ShelfStore && typeof window.ShelfStore.updateProduct === 'function') {
+              window.ShelfStore.updateProduct(product.id, { type: newType, when: newWhen });
+            }
+            showToast('Category updated');
+            renderApp();
+            openProductDetail(product);
+          }
+        }, ((rules && rules.types) || [
+          'Cleanser', 'Toner', 'Essence', 'Treatment', 'Serum', 'Eye cream', 'Moisturizer', 'Facial oil', 'Sunscreen', 'Mask', 'Other'
+        ]).map(t => el('option', { value: t, selected: t === product.type ? 'selected' : undefined }, [t])))
       ]),
       el('div', {}, [
         el('div', { className: 'label-meta-cell-label' }, ['Opened date']),
-        el('div', { className: 'label-meta-cell-value' }, [product.openedDate])
+        el('div', { className: 'label-meta-cell-value' }, [product.opened])
       ]),
       el('div', {}, [
         el('div', { className: 'label-meta-cell-label' }, ['Shelf life']),
-        el('div', { className: 'label-meta-cell-value' }, [`${product.bestWithinMonths} mo (${product.useByDate})`])
+        el('div', { className: 'label-meta-cell-value' }, [`${product.paoMonths} mo (${useBy})`])
       ])
     ]);
 
@@ -167,12 +327,14 @@
     detailContent.appendChild(el('div', { className: 'label-section' }, [ingHeading, ingList]));
     detailContent.appendChild(el('div', { className: 'label-section' }, [metaGrid]));
 
-    if (product.warning) {
+    // Computed warning
+    const warning = computeProductWarning(product, products);
+    if (warning) {
       const warnBox = el('div', { className: 'label-warning-box' }, [
         el('span', {}, ['!']),
         el('div', {}, [
           el('strong', {}, ['Sister alert: ']),
-          product.warning
+          warning
         ])
       ]);
       detailContent.appendChild(warnBox);
@@ -267,8 +429,10 @@
           className: 'demo-exit-btn',
           attrs: { type: 'button' },
           onclick: () => {
-            products = [];
             isDemo = false;
+            products = (window.ShelfStore && typeof window.ShelfStore.getShelf === 'function')
+              ? window.ShelfStore.getShelf()
+              : [];
             if (window.history && window.history.replaceState) {
               const url = new URL(window.location.href);
               url.searchParams.delete('demo');
@@ -291,16 +455,17 @@
         el('div', { className: 'drawer-rivet left' }),
         el('div', { className: 'drawer-rivet right' }),
         el('div', { className: 'drawer-title' }, [prod.name]),
-        el('div', { className: 'drawer-category' }, [prod.typeName])
+        el('div', { className: 'drawer-category' }, [prod.type])
       ]);
 
       const knob = el('div', { className: 'drawer-knob' });
       const drawerCardChildren = [innerFrame, knob];
 
-      if (prod.badge) {
+      const badge = computeBadge(prod, isDemo ? TODAY : new Date());
+      if (badge) {
         const badgeEl = el('span', {
-          className: `drawer-badge ${prod.badge.type}`
-        }, [prod.badge.text]);
+          className: `drawer-badge ${badge.type}`
+        }, [badge.text]);
         drawerCardChildren.unshift(badgeEl);
       }
 
@@ -316,47 +481,81 @@
     chest.appendChild(drawersGrid);
     shelfSection.appendChild(chest);
 
-    // Memos and Alerts Section below the chest
+    // Memos and Alerts Section below the chest (Computed dynamically from rules)
     const alertsContainer = el('div', { className: 'alerts-container' });
     const alertsTitle = el('div', { className: 'alerts-header' }, ['Shelf memos']);
     alertsContainer.appendChild(alertsTitle);
 
-    // Memo 1: Don't mix (memo.mix)
-    const mixAlert = el('div', { className: 'alert-card warning' }, [
-      el('div', { className: 'alert-title-row' }, ["Don't mix tonight: Glycolic acid and Retinol"]),
-      el('p', { className: 'alert-desc' }, [
-        "Pick one, or your moisture barrier will send me angry texts."
-      ])
-    ]);
+    const activeProds = products.filter(p => p.status !== 'finished');
 
-    // Memo 2: Past shelf life (memo.past)
-    const expiredAlert = el('div', { className: 'alert-card warning' }, [
-      el('div', { className: 'alert-title-row' }, ["Past its shelf life: Vitamin C serum"]),
-      el('p', { className: 'alert-desc' }, [
-        "It's been open 7 months, and it's best within 6. Time to let it go."
-      ])
-    ]);
+    // Memo 1: Don't mix (Retinoids vs AHAs/BHAs)
+    let mixAlert = null;
+    const hasRetinoid = activeProds.find(p => (p.ingredients || []).some(i => i.toLowerCase().includes('retinol') || i.toLowerCase().includes('retinal')));
+    const hasAcid = activeProds.find(p => (p.ingredients || []).some(i => i.toLowerCase().includes('glycolic acid') || i.toLowerCase().includes('lactic acid') || i.toLowerCase().includes('salicylic acid')));
+    if (hasRetinoid && hasAcid) {
+      mixAlert = el('div', { className: 'alert-card warning' }, [
+        el('div', { className: 'alert-title-row' }, ["Don't mix tonight: Glycolic acid and Retinol"]),
+        el('p', { className: 'alert-desc' }, [
+          "Pick one, or your moisture barrier will send me angry texts."
+        ])
+      ]);
+      alertsContainer.appendChild(mixAlert);
+    }
 
-    // Memo 3: Expiring soon (memo.soon)
-    const expiringAlert = el('div', { className: 'alert-card' }, [
-      el('div', { className: 'alert-title-row' }, ["Use up soon: Retinol serum"]),
-      el('p', { className: 'alert-desc' }, [
-        "Best by Oct 11, 2026. Give it a good spot on the shelf."
-      ])
-    ]);
+    // Memo 2: Past shelf life
+    activeProds.forEach(p => {
+      const b = computeBadge(p, isDemo ? TODAY : new Date());
+      if (b && b.type === 'past-prime') {
+        const pOpened = parseDateString(p.opened);
+        const refD = isDemo ? TODAY : new Date();
+        const diffMonths = Math.max(1, Math.round((refD.getTime() - pOpened.getTime()) / (1000 * 60 * 60 * 24 * 30.4375)));
+        alertsContainer.appendChild(
+          el('div', { className: 'alert-card warning' }, [
+            el('div', { className: 'alert-title-row' }, [`Past its shelf life: ${p.name}`]),
+            el('p', { className: 'alert-desc' }, [
+              `It's been open ${diffMonths} months, and it's best within ${p.paoMonths}. Time to let it go.`
+            ])
+          ])
+        );
+      }
+    });
 
-    // Memo 4: Doubles (memo.double)
-    const doublesAlert = el('div', { className: 'alert-card' }, [
-      el('div', { className: 'alert-title-row' }, ["Two of a kind: Toners"]),
-      el('p', { className: 'alert-desc' }, [
-        "Fine, if one's for morning and one's for night."
-      ])
-    ]);
+    // Memo 3: Expiring soon
+    activeProds.forEach(p => {
+      const b = computeBadge(p, isDemo ? TODAY : new Date());
+      if (b && b.type === 'use-soon') {
+        const useByStr = computeUseByDate(p.opened, p.paoMonths);
+        const useByDate = parseDateString(useByStr);
+        const options = { month: 'short', day: 'numeric', year: 'numeric' };
+        const dateFormatted = useByDate.toLocaleDateString('en-US', options);
+        alertsContainer.appendChild(
+          el('div', { className: 'alert-card' }, [
+            el('div', { className: 'alert-title-row' }, [`Use up soon: ${p.name}`]),
+            el('p', { className: 'alert-desc' }, [
+              `Best by ${dateFormatted}. Give it a good spot on the shelf.`
+            ])
+          ])
+        );
+      }
+    });
 
-    alertsContainer.appendChild(mixAlert);
-    alertsContainer.appendChild(expiredAlert);
-    alertsContainer.appendChild(expiringAlert);
-    alertsContainer.appendChild(doublesAlert);
+    // Memo 4: Doubles (2 or more in doublesTypes)
+    if (rules && rules.doublesTypes) {
+      rules.doublesTypes.forEach(dType => {
+        const matches = activeProds.filter(p => p.type === dType);
+        if (matches.length >= 2) {
+          alertsContainer.appendChild(
+            el('div', { className: 'alert-card' }, [
+              el('div', { className: 'alert-title-row' }, [`Two of a kind: ${dType}s`]),
+              el('p', { className: 'alert-desc' }, [
+                "Fine, if one's for morning and one's for night."
+              ])
+            ])
+          );
+        }
+      });
+    }
+
     shelfSection.appendChild(alertsContainer);
 
     // PRD Gate C MUST: Finished list below memos
@@ -416,26 +615,28 @@
       return container;
     }
 
-    const routineItems = products.filter(p => p.slot === 'both' || p.slot === routineTime);
-    routineItems.sort((a, b) => a.stepOrder - b.stepOrder);
+    const routineItems = products.filter(p => {
+      if (p.status === 'finished') return false;
+      // Mask and Other have order null and never appear in daily routine steps (Adjustment 6)
+      const stepNum = (rules && rules.order && rules.order[p.type]) || null;
+      if (stepNum === null || p.type === 'Mask' || p.type === 'Other') return false;
+      const whenArr = Array.isArray(p.when) ? p.when : ['both'];
+      return whenArr.includes('both') || whenArr.includes(routineTime);
+    });
+
+    routineItems.sort((a, b) => {
+      const orderA = (rules && rules.order && rules.order[a.type]) || 99;
+      const orderB = (rules && rules.order && rules.order[b.type]) || 99;
+      return orderA - orderB;
+    });
 
     const stepsList = el('div', { className: 'routine-steps-list' });
 
     let stepIndex = 1;
     routineItems.forEach(prod => {
-      let stepReason = '';
-      if (prod.type === 'cleanser') {
-        stepReason = routineTime === 'am' ? 'Wakes skin up and cleans off overnight oils.' : 'Removes pollution and sunscreen before skincare goes on.';
-      } else if (prod.type === 'toner') {
-        stepReason = 'Preps damp skin so your serums absorb twice as well.';
-      } else if (prod.type === 'serum') {
-        stepReason = prod.name.toLowerCase().includes('retinol') ? 'Cell turnover active. Use on alternate nights from glycolic acid.' : 'Targeted actives soak in while the formula is thin.';
-      } else if (prod.type === 'eye_cream') {
-        stepReason = 'Thinner skin around the eyes absorbs gently before heavier creams.';
-      } else if (prod.type === 'moisturizer') {
-        stepReason = 'Locks all underlying moisture down so water doesn’t evaporate overnight.';
-      } else if (prod.type === 'sunscreen') {
-        stepReason = 'Sunscreen is always last. Never put moisturizer on top of sunscreen.';
+      let stepReason = computeStepReason(prod, routineTime);
+      if (prod.type === 'Serum' && prod.name.toLowerCase().includes('retinol')) {
+        stepReason = 'Cell turnover active. Use on alternate nights from glycolic acid.';
       }
 
       const stepCard = el('div', {
@@ -444,8 +645,8 @@
       }, [
         el('div', { className: 'routine-step-number' }, [stepIndex++]),
         el('div', { className: 'routine-step-content' }, [
-          el('div', { className: 'routine-step-type' }, [prod.typeName]),
-          el('div', { className: 'routine-step-name' }, [prod.fullName || prod.name]),
+          el('div', { className: 'routine-step-type' }, [prod.type]),
+          el('div', { className: 'routine-step-name' }, [prod.name]),
           el('div', { className: 'routine-step-reason' }, [stepReason])
         ])
       ]);
@@ -585,80 +786,263 @@
       container.appendChild(readingBox);
 
     } else if (addFlowStep === 'confirm') {
-      container.appendChild(createGreetingBubble(
-        "Here's what I see. Fix anything I got wrong before you save."
-      ));
+      const bubbleMsg = addMethod === 'manual'
+        ? "Add it by hand, sis. Fill in what you know and we'll put it in your routine."
+        : "Here's what I see. Fix anything I got wrong before you save.";
+      container.appendChild(createGreetingBubble(bubbleMsg));
 
       const formBox = el('div', { className: 'add-flow-container' });
 
+      // Name group
       const nameGroup = el('div', { className: 'form-group' }, [
-        el('label', { className: 'form-label' }, ['Product name']),
-        el('input', { className: 'form-input', value: 'Elderberry and Zinc calming elixir', id: 'new-prod-name' })
+        el('label', { className: 'form-label' }, ['Product name *']),
+        el('input', {
+          className: 'form-input',
+          id: 'new-prod-name',
+          placeholder: 'e.g. Squalane cleanser',
+          value: manualFormState.name || ''
+        }),
+        el('div', { className: 'form-error-msg', id: 'error-prod-name' })
       ]);
 
+      // Brand group
       const brandGroup = el('div', { className: 'form-group' }, [
         el('label', { className: 'form-label' }, ['Brand']),
-        el('input', { className: 'form-input', value: "Couldn't read this", id: 'new-prod-brand' })
+        el('input', {
+          className: 'form-input',
+          id: 'new-prod-brand',
+          placeholder: 'e.g. Briar and Bramble',
+          value: manualFormState.brand || ''
+        }),
+        el('div', { className: 'form-error-msg', id: 'error-prod-brand' })
       ]);
+
+      // Type group
+      const allTypes = (rules && rules.types) || [
+        'Cleanser', 'Toner', 'Essence', 'Treatment', 'Serum', 'Eye cream', 'Moisturizer', 'Facial oil', 'Sunscreen', 'Mask', 'Other'
+      ];
+      const initialType = manualFormState.type || 'Cleanser';
+
+      const typeSelect = el('select', {
+        className: 'form-select',
+        id: 'new-prod-type',
+        onchange: (e) => {
+          const chosen = e.target.value;
+          manualFormState.type = chosen;
+          // Recompute when dropdown based on chosen type
+          const whenSelect = document.getElementById('new-prod-when');
+          if (whenSelect) {
+            const ingVal = (document.getElementById('new-prod-ingredients') || {}).value || '';
+            const dummyProd = { type: chosen, ingredients: ingVal.split(',').map(s => s.trim()).filter(Boolean) };
+            const recomputed = recomputeWhenForType(dummyProd, chosen);
+            whenSelect.value = recomputed[0] || 'both';
+            manualFormState.when = whenSelect.value;
+          }
+        }
+      }, allTypes.map(t => el('option', { value: t, selected: t === initialType ? 'selected' : undefined }, [t])));
 
       const typeGroup = el('div', { className: 'form-group' }, [
-        el('label', { className: 'form-label' }, ['Product type']),
-        el('select', { className: 'form-select', id: 'new-prod-type' }, [
-          el('option', { value: 'serum' }, ['Serum']),
-          el('option', { value: 'cleanser' }, ['Cleanser']),
-          el('option', { value: 'toner' }, ['Toner']),
-          el('option', { value: 'eye_cream' }, ['Eye cream']),
-          el('option', { value: 'moisturizer' }, ['Moisturizer']),
-          el('option', { value: 'sunscreen' }, ['Sunscreen'])
-        ])
+        el('label', { className: 'form-label' }, ['Product type *']),
+        typeSelect
       ]);
 
-      // PRD Gate C MUST: Opened date and Best-within
+      // When group (am, pm, both)
+      const initialWhen = manualFormState.when || recomputeWhenForType({ type: initialType, ingredients: [] }, initialType)[0] || 'both';
+      const whenSelect = el('select', {
+        className: 'form-select',
+        id: 'new-prod-when',
+        onchange: (e) => {
+          manualFormState.when = e.target.value;
+          manualFormState.whenCustomized = true;
+        }
+      }, [
+        el('option', { value: 'both', selected: initialWhen === 'both' ? 'selected' : undefined }, ['Morning and Night']),
+        el('option', { value: 'am', selected: initialWhen === 'am' ? 'selected' : undefined }, ['Morning only']),
+        el('option', { value: 'pm', selected: initialWhen === 'pm' ? 'selected' : undefined }, ['Night only'])
+      ]);
+
+      const whenGroup = el('div', { className: 'form-group' }, [
+        el('label', { className: 'form-label' }, ['In your routine']),
+        whenSelect
+      ]);
+
+      // Opened date (YYYY-MM-DD)
+      const defaultOpened = manualFormState.opened || formatDateString(new Date());
       const openedGroup = el('div', { className: 'form-group' }, [
-        el('label', { className: 'form-label' }, ['Opened date']),
-        el('input', { className: 'form-input', type: 'date', value: '2026-10-02', id: 'new-prod-opened' })
+        el('label', { className: 'form-label' }, ['Opened date *']),
+        el('input', {
+          className: 'form-input',
+          type: 'date',
+          value: defaultOpened,
+          id: 'new-prod-opened'
+        }),
+        el('div', { className: 'form-error-msg', id: 'error-prod-opened' })
       ]);
 
+      // PAO months (3, 6, 12, 24)
+      const initialPao = String(manualFormState.paoMonths || 12);
       const paoGroup = el('div', { className: 'form-group' }, [
         el('label', { className: 'form-label' }, ['Best within (open-jar number)']),
         el('select', { className: 'form-select', id: 'new-prod-pao' }, [
-          el('option', { value: '3' }, ['3 months']),
-          el('option', { value: '6' }, ['6 months']),
-          el('option', { value: '12', selected: 'true' }, ['12 months']),
-          el('option', { value: '24' }, ['24 months'])
+          el('option', { value: '3', selected: initialPao === '3' ? 'selected' : undefined }, ['3 months']),
+          el('option', { value: '6', selected: initialPao === '6' ? 'selected' : undefined }, ['6 months']),
+          el('option', { value: '12', selected: initialPao === '12' ? 'selected' : undefined }, ['12 months']),
+          el('option', { value: '24', selected: initialPao === '24' ? 'selected' : undefined }, ['24 months'])
         ])
       ]);
+
+      // Ingredients (optional, comma-separated, max 50 items, max 100 chars each)
+      const ingGroup = el('div', { className: 'form-group' }, [
+        el('label', { className: 'form-label' }, ['Ingredients (optional, comma-separated)']),
+        el('input', {
+          className: 'form-input',
+          id: 'new-prod-ingredients',
+          placeholder: 'e.g. Glycerin, Colloidal oatmeal',
+          value: manualFormState.ingredients || '',
+          oninput: (e) => {
+            const ingVal = e.target.value;
+            manualFormState.ingredients = ingVal;
+            const currentType = (document.getElementById('new-prod-type') || {}).value || 'Cleanser';
+            const whenSelect = document.getElementById('new-prod-when');
+            if (whenSelect && !manualFormState.whenCustomized) {
+              const dummyProd = { type: currentType, ingredients: ingVal.split(',').map(s => s.trim()).filter(Boolean) };
+              const recomputed = recomputeWhenForType(dummyProd, currentType);
+              whenSelect.value = recomputed[0] || 'both';
+              manualFormState.when = whenSelect.value;
+            }
+          }
+        }),
+        el('div', { className: 'form-error-msg', id: 'error-prod-ingredients' })
+      ]);
+
+      // Storage failure banner
+      const storageErrorBox = el('div', {
+        className: 'form-error-msg',
+        id: 'error-prod-storage'
+      });
 
       const saveBtn = el('button', {
         className: 'btn-primary',
         onclick: () => {
-          const nameVal = document.getElementById('new-prod-name').value || 'Elderberry and Zinc elixir';
-          const brandVal = document.getElementById('new-prod-brand').value || 'Sister Cellar';
+          // Clear error elements
+          const errNameEl = document.getElementById('error-prod-name');
+          const errBrandEl = document.getElementById('error-prod-brand');
+          const errOpenedEl = document.getElementById('error-prod-opened');
+          const errIngEl = document.getElementById('error-prod-ingredients');
+          const errStorageEl = document.getElementById('error-prod-storage');
+          if (errNameEl) errNameEl.textContent = '';
+          if (errBrandEl) errBrandEl.textContent = '';
+          if (errOpenedEl) errOpenedEl.textContent = '';
+          if (errIngEl) errIngEl.textContent = '';
+          if (errStorageEl) errStorageEl.textContent = '';
+
+          const nameVal = (document.getElementById('new-prod-name').value || '').trim();
+          const brandVal = (document.getElementById('new-prod-brand').value || '').trim();
           const typeVal = document.getElementById('new-prod-type').value;
-          const openedVal = document.getElementById('new-prod-opened').value || '2026-10-02';
-          const paoVal = document.getElementById('new-prod-pao').value || '12';
+          const whenVal = document.getElementById('new-prod-when').value;
+          const openedVal = (document.getElementById('new-prod-opened').value || '').trim();
+          const paoVal = parseInt(document.getElementById('new-prod-pao').value, 10) || 12;
+          const ingRaw = (document.getElementById('new-prod-ingredients').value || '').trim();
 
-          products.unshift({
-            id: 'prod-' + Date.now(),
-            name: nameVal.length > 20 ? nameVal.substring(0, 18) + '...' : nameVal,
-            fullName: nameVal,
-            brand: brandVal === "Couldn't read this" ? 'Sister Cellar' : brandVal,
+          // Sync current form state so nothing is lost if invalid or save fails
+          manualFormState = {
+            name: nameVal,
+            brand: brandVal,
             type: typeVal,
-            typeName: typeVal.charAt(0).toUpperCase() + typeVal.slice(1).replace('_', ' '),
-            slot: 'both',
-            stepOrder: 3,
-            badge: null,
-            whatItDoes: 'Comforts sensitive flare-ups and locks moisture into place.',
-            openedDate: openedVal,
-            bestWithinMonths: parseInt(paoVal, 10),
-            useByDate: '2027-10-02',
-            warning: null,
-            ingredients: [
-              { name: 'Elderberry fruit extract', note: 'Rich in protective polyphenols' },
-              { name: 'Zinc PCA', note: 'Calms redness' }
-            ]
-          });
+            when: whenVal,
+            opened: openedVal,
+            paoMonths: paoVal,
+            ingredients: ingRaw
+          };
 
+          let hasError = false;
+
+          // 1. Name validation
+          if (!nameVal) {
+            if (errNameEl) errNameEl.textContent = 'Give it a name so you know which one it is.';
+            hasError = true;
+          } else if (nameVal.length > 80) {
+            if (errNameEl) errNameEl.textContent = 'That name is a bit too long. Keep it under 80 letters.';
+            hasError = true;
+          }
+
+          // 2. Brand validation
+          if (brandVal.length > 60) {
+            if (errBrandEl) errBrandEl.textContent = 'That brand name is too long. Keep it under 60 letters.';
+            hasError = true;
+          }
+
+          // 3. Opened date validation
+          if (!isValidDateString(openedVal)) {
+            if (errOpenedEl) errOpenedEl.textContent = 'Put in a real opened date like YYYY-MM-DD.';
+            hasError = true;
+          } else {
+            const todayStr = isDemo ? formatDateString(TODAY) : formatDateString(new Date());
+            if (openedVal > todayStr) {
+              if (errOpenedEl) errOpenedEl.textContent = "You couldn't have opened it in the future, sis.";
+              hasError = true;
+            }
+          }
+
+          // 4. Ingredients validation
+          let parsedIngs = [];
+          if (ingRaw) {
+            const rawParts = ingRaw.split(',').map(s => s.trim()).filter(Boolean);
+            if (rawParts.length > 50) {
+              if (errIngEl) errIngEl.textContent = "That's a lot of ingredients! Keep it under 50 items.";
+              hasError = true;
+            } else {
+              parsedIngs = rawParts.map(s => s.slice(0, 100));
+            }
+          }
+
+          if (hasError) return;
+
+          // Build product object
+          const newProduct = {
+            id: 'p_' + Date.now(),
+            name: nameVal,
+            brand: brandVal || '',
+            type: typeVal,
+            when: [whenVal],
+            freq: null,
+            ingredients: parsedIngs,
+            does: '',
+            opened: openedVal,
+            paoMonths: paoVal,
+            status: 'active',
+            addedVia: 'manual',
+            createdAt: new Date().toISOString()
+          };
+
+          // If in demo mode, update in-memory products only (never touch storage)
+          if (isDemo) {
+            products.unshift(newProduct);
+            manualFormState = {};
+            showToast('On the shelf. Cute.');
+            addFlowStep = 'select';
+            currentTab = 'shelf';
+            updateNavState();
+            renderApp();
+            return;
+          }
+
+          // Real shelf mode: persist to ShelfStore
+          const saved = window.ShelfStore && typeof window.ShelfStore.addProduct === 'function'
+            ? window.ShelfStore.addProduct(newProduct)
+            : false;
+
+          if (!saved) {
+            if (errStorageEl) {
+              errStorageEl.textContent = "Your phone couldn't save that. Check if storage is full.";
+            }
+            showToast("Your phone couldn't save that. Check if storage is full.");
+            return;
+          }
+
+          // Success
+          products = window.ShelfStore.getShelf();
+          manualFormState = {};
           showToast('On the shelf. Cute.');
           addFlowStep = 'select';
           currentTab = 'shelf';
@@ -670,6 +1054,7 @@
       const cancelBtn = el('button', {
         className: 'btn-secondary',
         onclick: () => {
+          manualFormState = {};
           addFlowStep = 'select';
           renderApp();
         }
@@ -678,8 +1063,11 @@
       formBox.appendChild(nameGroup);
       formBox.appendChild(brandGroup);
       formBox.appendChild(typeGroup);
+      formBox.appendChild(whenGroup);
       formBox.appendChild(openedGroup);
       formBox.appendChild(paoGroup);
+      formBox.appendChild(ingGroup);
+      formBox.appendChild(storageErrorBox);
       formBox.appendChild(saveBtn);
       formBox.appendChild(cancelBtn);
       container.appendChild(formBox);
@@ -896,12 +1284,18 @@
     }
   }
 
-  // URL query parameter check for ?demo=1
+  // Boot sequence: URL query parameter check for ?demo=1 or load from storage
   const params = new URLSearchParams(window.location.search);
   if (params.get('demo') === '1') {
     loadDemoShelf();
   } else {
-    renderApp();
+    products = (window.ShelfStore && typeof window.ShelfStore.getShelf === 'function')
+      ? window.ShelfStore.getShelf()
+      : [];
+    isDemo = false;
+    ensureRulesLoaded().then(() => {
+      renderApp();
+    });
   }
 
 })();

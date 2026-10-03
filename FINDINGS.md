@@ -59,5 +59,6 @@ Disposition: promote.
 
 ### Oct 2 | Block 1b | First Render deploy
 Question: Does the Blueprint deploy cleanly and load on a phone?
-Finding: Blueprint created one Starter web service (0.5c-512mb, $7/mo, oregon) from commit 125ee19. The first Blueprint check showed "a Blueprint file was found, but there was an issue" with no detail; clicking Retry once cleared it. The first deploy took 40.3 s and went Live. Samsung check: loads and looks right. iPhone 11 and her sister's phone: demo loads and works. Promo credit of $50 redeemed to My Workspace, valid until Sep 30 2027. Render docs do not explain how promo credits are applied, so this is unconfirmed beyond what the redeem page said. Secrets not yet set (Block 3).
+Finding: Blueprint created one Starter web service (0.5c-512mb, $7/mo, oregon) from commit 125ee19. The first Blueprint check showed "a Blueprint file was found, but there was an issue" with no detail; clicking Retry once cleared it. The first deploy took 40.3 s and went Live. Samsung check: loads and looks right. iPhone 11 and her sister's phone: demo loads and works. Promo credit of $50 redeemed to My Workspace, valid until Sep 30 2027. Render docs do not explain how promo credits are applied, so this is unconfirmed beyond what the redeem page said. Secrets not yet set (Block 3). Second deploy (00a67e3) took 28.6 s via Auto-Deploy on push. Rollback practice skipped for MVP; untested.
 Disposition: promote. Rollback practice and iPhone check still open.
+

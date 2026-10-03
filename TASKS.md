@@ -46,7 +46,7 @@ Cut order if behind: photo input, then archive, then edit.
 **PASS:** matches the mockup on your phone. Blank and demo states pass.
 
 ## Block 1b. First deploy
-**Tier:** Working. **Disposition:** promote. **Status:** [ ]
+**Tier:** Working. **Disposition:** promote. **Status:** [x] (rollback untested; auto-deploy still on, commit trigger)
 Do this right after Block 1, before building more. Read `DEPLOY.md` first.
 - [x] Unzip design/two-sisters-tinctures-brand.zip into design/brand/, copy the favicon set and apple-touch icon into public/, and add the favicon and apple-touch-icon links to index.html.
 - [x] `server/index.js`: serves `/public`, listens on `process.env.PORT` at `0.0.0.0`, `GET /healthz` returns 200, security headers (CSP, HSTS, X-Content-Type-Options, frame-ancestors none)
@@ -54,8 +54,8 @@ Do this right after Block 1, before building more. Read `DEPLOY.md` first.
 - [x] `render.yaml` in the repo root (already provided)
 - [x] Render: New, Blueprint, pick the repo, enter `unset` for the two secrets. Live at https://two-sisters-tinctures.onrender.com (Oct 2, commit 125ee19).
 - [x] Live URL tested on your Samsung and her iPhone (screenshot her status). Tested Oct 2 on Samsung, an iPhone 11, and her sister's phone. All PASS.
-- [ ] Practice one rollback from the Deploys page, then re-enable auto-deploy
-- [ ] FINDINGS.md entry: deploy surprises, load time on a phone
+- [~] Skipped by choice for MVP, not tested. Render keeps every deploy in the Deploys list if one is needed. Practice one rollback from the Deploys page, then re-enable auto-deploy
+- [x] FINDINGS.md entry: deploy surprises, load time on a phone
 
 **PASS:** the mock-data app loads at the live URL on both phones. `/healthz` returns 200. Headers present. One rollback worked. No key anywhere.
 
