@@ -1,0 +1,17 @@
+{
+  "id": "supergoop-unseen-sunscreen",
+  "mode": "paste",
+  "text": "Active Ingredients: Avobenzone 3%, Homosalate 7%, Octisalate 5%, Octocrylene 9%. Inactive Ingredients: Isododecane, Dimethicone/Bis-Isobutyl PPG-20 Crosspolymer, Dimethicone/Vinyl Dimethicone Crosspolymer, Dimethicone, Dimethicone Crosspolymer, Caprylic/Capric Triglyceride, Butyrospermum Parkii (Shea) Butter, Physalis Angulata Extract, Himanthalia Elongata Extract, Meadowfoam Estolide, Tocopherol, Jojoba Esters, Polymethylsilsesquioxane, Caprylyl Glycol, Diethylhexyl Syringylidenemalonate, Silica, Bisabolol, Dipotassium Glycyrrhizate.",
+  "expect": {
+    "type": "Sunscreen",
+    "mustInclude": [
+      "Avobenzone",
+      "Homosalate"
+    ],
+    "mustNotInclude": [
+      "Zinc Oxide"
+    ]
+  },
+  "source": "https://supergoop.com/products/unseen-sunscreen",
+  "checked": "2026-10-03"
+}

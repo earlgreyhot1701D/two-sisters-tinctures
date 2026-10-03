@@ -81,6 +81,7 @@ Do this right after Block 1, before building more. Read `DEPLOY.md` first.
 - [ ] `server/validate.js`: schema, lengths, paste verbatim check, typed empty-ingredients rule, mention check
 - [ ] Paste and typed paths wired to the confirm screen
 - [ ] Gold set of 5 real products saved as fixtures
+- [ ] Run gold set test against live model (test/gold.mjs)
 
 **PASS:** gold set 4 of 5. Injection label stays clean. Model-off test: manual add still works.
 

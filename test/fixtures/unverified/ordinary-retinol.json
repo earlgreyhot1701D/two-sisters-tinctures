@@ -1,0 +1,17 @@
+{
+  "id": "the-ordinary-retinol-02-squalane",
+  "mode": "paste",
+  "text": "Squalane, Caprylic/Capric Triglyceride, Simmondsia Chinensis (Jojoba) Seed Oil, Retinol, Solanum Lycopersicum (Tomato) Fruit Extract, Rosmarinus Officinalis (Rosemary) Leaf Extract, Hydroxymethoxyphenyl Decanone, BHT",
+  "expect": {
+    "type": "Serum",
+    "mustInclude": [
+      "Retinol",
+      "Squalane"
+    ],
+    "mustNotInclude": [
+      "Niacinamide"
+    ]
+  },
+  "source": "https://theordinary.com/en-us/retinol-0.2-in-squalane-serum-100438.html",
+  "checked": "2026-10-03"
+}

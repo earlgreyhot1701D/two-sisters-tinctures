@@ -1,0 +1,21 @@
+{
+  "id": "loreal-age-perfect-spf30",
+  "mode": "paste",
+  "text": "Water, Glycerin, Dimethicone, Niacinamide, Silica, Alcohol Denat., Octyldodecanol, Isopropyl Isostearate, Behenyl Alcohol, Phenoxyethanol, Butylene Glycol, Acrylamide/Sodium Acryloyldimethyltaurate Copolymer, Tocopherol, Aluminum Starch Octenylsuccinate, Ammonium Acryloyldimethyltaurate/Steareth-25 Methacrylate Crosspolymer, Cetyl Alcohol, Dimethicone/Vinyl Dimethicone Crosspolymer, Dimethiconol, Peg-100 Stearate, Capryloyl Salicylic Acid, Isohexadecane, Cetearyl Alcohol, Trisodium Ethylenediamine Disuccinate, Carbomer, Fragrance, Sodium Hyaluronate, Ethylhexylglycerin, Polysorbate 80, Cetearyl Glucoside, Sorbitan Oleate, Sodium Lactate, Sodium Hydroxide, Polysorbate 20, Citronellol, Limonene, Palmitoyl Tripeptide-1, Palmitoyl Tetrapeptide-7 Fil V279603/1",
+  "expect": {
+    "type": [
+      "Moisturizer",
+      "Sunscreen"
+    ],
+    "mustInclude": [
+      "Niacinamide",
+      "Glycerin",
+      "Sodium Hyaluronate"
+    ],
+    "mustNotInclude": [
+      "Retinol"
+    ]
+  },
+  "source": "Pasted by Shara from her own L'Oreal Age Perfect with SPF 30",
+  "checked": "2026-10-03"
+}

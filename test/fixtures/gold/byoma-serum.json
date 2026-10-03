@@ -1,0 +1,18 @@
+{
+  "id": "byoma-hydrating-serum",
+  "mode": "paste",
+  "text": "Aqua (Carrier), Glycerin (Humectants), Butylene Glycol (Skin-Conditioner), Squalane (Skin-Conditioner), Sodium Stearoyl Glutamate (Emulsifier), Ammonium Acryloyldimethyltaurate/VP Copolymer (Viscosity Controlling), Dipropylene Glycol (Solvents), Ceramide NP (Skin-Conditioner), Caprylic/Capric Triglyceride (Skin-Conditioner), Cholesterol (Skin-Conditioner), Phytosphingosine (Skin-Conditioner), Stearic Acid (Skin-Conditioner), Oleic Acid (Skin-Conditioner), Hydroxyacetophenone (Antioxidants), Polyglyceryl-4 Oleate (Emollient), Hydroxyethyl Acrylate/Sodium Acryloyldimethyl Taurate Copolymer (Viscosity Controlling), Hydrogenated Lecithin (Emulsifier), Caprylyl Glycol (Preservative), Glyceryl Oleate (Skin-Conditioner), Lactic Acid (pH Adjusters), Ethylhexylglycerin (Skin-Conditioner), Hydrogenated Rapeseed Alcohol (Emulsion Stabilizers), Sorbitan Isostearate (Surfactants), Sodium Phytate (Chelating Agents), Xanthan Gum (Viscosity Controlling), Dipotassium Glycyrrhizate (Skin-Conditioner), Tocopherol (Antioxidant), Caprylhydroxamic Acid (Chelating Agents).",
+  "expect": {
+    "type": "Serum",
+    "mustInclude": [
+      "Squalane",
+      "Ceramide NP",
+      "Glycerin"
+    ],
+    "mustNotInclude": [
+      "Retinol"
+    ]
+  },
+  "source": "https://www.ulta.com/p/hydrating-serum-with-tri-ceramide-complex-pimprod2059308?sku=2654922",
+  "checked": "2026-10-03"
+}

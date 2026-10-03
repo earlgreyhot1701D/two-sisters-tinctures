@@ -1,0 +1,18 @@
+{
+  "id": "cerave-hydrating-cleanser",
+  "mode": "paste",
+  "text": "Aqua / Water / Eau, Glycerin, Cetearyl Alcohol, Peg-40 Stearate, Stearyl Alcohol, Potassium Phosphate, Ceramide NP, Ceramide AP, Ceramide EOP, Carbomer, Glyceryl Stearate, Behentrimonium Methosulfate, Sodium Lauroyl Lactylate, Sodium Hyaluronate, Cholesterol, Phenoxyethanol, Disodium EDTA, Dipotassium Phosphate, Tocopherol, Phytosphingosine, Xanthan Gum, Cetyl Alcohol, Polysorbate 20, Ethylhexylglycerin",
+  "expect": {
+    "type": "Cleanser",
+    "mustInclude": [
+      "Glycerin",
+      "Ceramide NP",
+      "Sodium Hyaluronate"
+    ],
+    "mustNotInclude": [
+      "Retinol"
+    ]
+  },
+  "source": "https://www.cerave.com/skincare/cleansers/hydrating-facial-cleanser",
+  "checked": "2026-10-03"
+}

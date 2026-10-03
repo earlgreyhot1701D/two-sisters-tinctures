@@ -4,7 +4,8 @@
   "description": "A skincare shelf tracker for my little sister.",
   "main": "server/index.js",
   "scripts": {
-    "start": "node server/index.js"
+    "start": "node server/index.js",
+    "gold": "node test/gold.mjs"
   },
   "keywords": [
     "gemma",
