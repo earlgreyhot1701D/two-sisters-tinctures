@@ -52,8 +52,8 @@ Do this right after Block 1, before building more. Read `DEPLOY.md` first.
 - [x] `server/index.js`: serves `/public`, listens on `process.env.PORT` at `0.0.0.0`, `GET /healthz` returns 200, security headers (CSP, HSTS, X-Content-Type-Options, frame-ancestors none)
 - [x] `package.json` with a `start` script, `package-lock.json` committed, `.node-version` present
 - [x] `render.yaml` in the repo root (already provided)
-- [ ] Render: New, Blueprint, pick the repo, enter `unset` for the two secrets
-- [ ] Live URL tested on your Samsung and her iPhone (screenshot her status)
+- [x] Render: New, Blueprint, pick the repo, enter `unset` for the two secrets. Live at https://two-sisters-tinctures.onrender.com (Oct 2, commit 125ee19).
+- [x] Live URL tested on your Samsung and her iPhone (screenshot her status). Tested Oct 2 on Samsung, an iPhone 11, and her sister's phone. All PASS.
 - [ ] Practice one rollback from the Deploys page, then re-enable auto-deploy
 - [ ] FINDINGS.md entry: deploy surprises, load time on a phone
 

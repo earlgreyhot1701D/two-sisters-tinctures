@@ -57,5 +57,7 @@ Question: Which design artifact serves as the single visual source of truth?
 Finding: Design source of truth changed from mockup-v4 to Stitch round 3 (`design/stitch-round3.html`). The layout adopts the Stitch 4-tab bottom nav (Shelf, Routine, Add, About), the full brass apothecary chest, memos below the chest, the "Little sister says:" avatar speech bubble, and dedicated screen views for each tab. Missing PRD Gate C MUST controls (Edit, Used it up, Remove from shelf, Finished section, doubles memo, manual add link, paste textarea, opened/pao inputs, and full About disclaimers with Clear my shelf) are integrated in the Stitch visual style.
 Disposition: promote.
 
-
-
+### Oct 2 | Block 1b | First Render deploy
+Question: Does the Blueprint deploy cleanly and load on a phone?
+Finding: Blueprint created one Starter web service (0.5c-512mb, $7/mo, oregon) from commit 125ee19. The first Blueprint check showed "a Blueprint file was found, but there was an issue" with no detail; clicking Retry once cleared it. The first deploy took 40.3 s and went Live. Samsung check: loads and looks right. iPhone 11 and her sister's phone: demo loads and works. Promo credit of $50 redeemed to My Workspace, valid until Sep 30 2027. Render docs do not explain how promo credits are applied, so this is unconfirmed beyond what the redeem page said. Secrets not yet set (Block 3).
+Disposition: promote. Rollback practice and iPhone check still open.

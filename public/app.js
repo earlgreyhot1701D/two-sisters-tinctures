@@ -236,9 +236,9 @@
     const container = el('div');
     container.appendChild(createHeader());
 
-    // VOICE.md greet line: "Your whole skincare shelf, sis. I'll tell you what goes where, what not to mix, and when to toss it."
+    // VOICE.md greet line: "Your whole skincare shelf, in one place, sis. I'll tell you what goes where, what not to mix, and when to toss it."
     container.appendChild(createGreetingBubble(
-      "Your whole skincare shelf, sis. I'll tell you what goes where, what not to mix, and when to toss it."
+      "Your whole skincare shelf, in one place, sis. I'll tell you what goes where, what not to mix, and when to toss it."
     ));
     container.appendChild(createMarquee());
 
@@ -761,9 +761,6 @@
     // Story Card
     const storyCard = el('div', { className: 'about-story-card' }, [
       el('div', { className: 'story-quote' }, ['"What order do these go in again?"']),
-      el('p', { className: 'story-paragraph' }, [
-        "One sister built this for the other, so she could keep track of her shelf and stop answering the same serum questions in the group chat."
-      ]),
       el('p', { className: 'story-paragraph' }, [
         "Gemma reads labels and explains products. Routine order, warnings, and shelf life come from fixed rules, not the model."
       ])
