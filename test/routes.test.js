@@ -345,3 +345,107 @@ test('static file stream errors do not crash the server', async t => {
     assert.strictEqual(health.text, 'OK');
   });
 });
+
+test('daily cap is only charged for valid non-photo requests', async t => {
+  const port = await getFreePort();
+  const child = await new Promise((resolve, reject) => {
+    const proc = cp.spawn(process.execPath, ['server/index.js'], {
+      env: Object.assign({}, process.env, {
+        PORT: String(port),
+        DAILY_CAP: '1',
+        IP_DAILY_CAP: '1',
+        GEMINI_API_KEY: ''
+      }),
+      stdio: ['ignore', 'pipe', 'pipe']
+    });
+
+    let stdout = '';
+    let stderr = '';
+
+    const onData = chunk => {
+      stdout += chunk.toString();
+      if (stdout.includes(`Server listening on http://0.0.0.0:${port}`)) {
+        proc.stdout.removeListener('data', onData);
+        resolve(proc);
+      }
+    };
+
+    proc.stdout.on('data', onData);
+    proc.stderr.on('data', chunk => {
+      stderr += chunk.toString();
+    });
+    proc.on('error', reject);
+    proc.on('exit', (code, signal) => {
+      reject(new Error(`Server exited unexpectedly with code ${code} / signal ${signal}: ${stderr}`));
+    });
+  });
+
+  t.after(() => {
+    child.kill('SIGTERM');
+  });
+
+  await t.test('junk (400/413) and photo (501) do not consume daily cap, valid request does', async () => {
+    const post = (ip, body) => request({
+      hostname: '127.0.0.1',
+      port,
+      path: '/api/read',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Forwarded-For': ip
+      }
+    }, body);
+
+    const badJson = await post('198.51.100.1', '{"mode": "typed", broken');
+    assert.strictEqual(badJson.statusCode, 400);
+    assert.deepStrictEqual(badJson.json, { error: 'bad_request' });
+
+    const badMode = await post('198.51.100.1', JSON.stringify({ mode: 'nope', text: 'cleanser' }));
+    assert.strictEqual(badMode.statusCode, 400);
+    assert.deepStrictEqual(badMode.json, { error: 'bad_request' });
+
+    const tooLarge = await post('198.51.100.1', JSON.stringify({ mode: 'paste', text: 'a'.repeat(4005) }));
+    assert.strictEqual(tooLarge.statusCode, 413);
+    assert.deepStrictEqual(tooLarge.json, { error: 'too_large' });
+
+    const photo = await post('198.51.100.1', JSON.stringify({ mode: 'photo', image: 'AAAA' }));
+    assert.strictEqual(photo.statusCode, 501);
+    assert.deepStrictEqual(photo.json, { error: 'photo_not_ready' });
+
+    // Valid request still passes daily cap (1/1) and reaches model_off (503)
+    const firstValid = await post('198.51.100.2', JSON.stringify({ mode: 'typed', text: 'gentle cleanser' }));
+    assert.strictEqual(firstValid.statusCode, 503);
+    assert.deepStrictEqual(firstValid.json, { error: 'model_off' });
+
+    // Second valid request is blocked by daily cap (429 daily_cap with Retry-After)
+    const secondValid = await post('198.51.100.3', JSON.stringify({ mode: 'paste', text: 'Water, Glycerin' }));
+    assert.strictEqual(secondValid.statusCode, 429);
+    assert.deepStrictEqual(secondValid.json, { error: 'daily_cap' });
+    assert.ok(secondValid.headers['retry-after'], 'Should include Retry-After header');
+  });
+
+  await t.test('flooding malformed requests still triggers per-minute 429 slow_down before body read', async () => {
+    const floodIp = '198.51.100.55';
+    let rateRes = null;
+    for (let i = 0; i < 10; i++) {
+      const res = await request({
+        hostname: '127.0.0.1',
+        port,
+        path: '/api/read',
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Forwarded-For': floodIp
+        }
+      }, '{bad_json');
+      if (res.statusCode === 429) {
+        rateRes = res;
+        break;
+      }
+    }
+    assert.ok(rateRes, 'Per-minute rate limit should trigger on malformed flood');
+    assert.strictEqual(rateRes.statusCode, 429);
+    assert.deepStrictEqual(rateRes.json, { error: 'slow_down' });
+    assert.ok(rateRes.headers['retry-after'], 'Should include Retry-After header');
+  });
+});

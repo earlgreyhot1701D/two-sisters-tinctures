@@ -180,6 +180,7 @@ These are known and written down, not forgotten. None of them change what the ap
 | Saving the "2 to 3 nights a week" note from the ingredient rules | Comment stub in `public/ingredient-match.js` |
 
 - Nov 23: crash guard. Malformed requests now get a 400 instead of crashing the server.
+- Nov 23: daily read limits now only count requests that actually reach the AI. Bad or empty requests no longer use them up.
 
 ## Limits, plainly
 

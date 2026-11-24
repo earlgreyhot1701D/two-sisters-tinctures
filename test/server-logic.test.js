@@ -35,12 +35,17 @@ test('not_skincare passes through clean', () => {
   assert.strictEqual(r.value.name, null);
 });
 test('rate limit and daily cap', () => {
-  const l = createLimiter({ perIpPerWindow: 2, dailyCap: 3, perIpPerDay: 99 });
-  assert.strictEqual(l.check({ ip: '1', now: 0 }).ok, true);
-  assert.strictEqual(l.check({ ip: '1', now: 1 }).ok, true);
-  assert.strictEqual(l.check({ ip: '1', now: 2 }).reason, 'rate');
-  assert.strictEqual(l.check({ ip: '2', now: 3 }).ok, true);
-  assert.strictEqual(l.check({ ip: '3', now: 4 }).reason, 'daily');
+  const l = createLimiter({ perIpPerWindow: 2, perDevicePerWindow: 1, dailyCap: 3, perIpPerDay: 99 });
+  assert.strictEqual(l.checkRate({ ip: '1', deviceId: 'd1', now: 0 }).ok, true);
+  // Device limit hit should not consume an IP slot (suggestion 2)
+  assert.strictEqual(l.checkRate({ ip: '1', deviceId: 'd1', now: 1 }).reason, 'rate');
+  assert.strictEqual(l.checkRate({ ip: '1', deviceId: 'd2', now: 2 }).ok, true);
+  assert.strictEqual(l.checkRate({ ip: '1', deviceId: 'd3', now: 3 }).reason, 'rate');
+  // Rate checks alone did not move daily counters
+  assert.strictEqual(l.chargeDaily({ ip: '1', now: 4 }).ok, true);
+  assert.strictEqual(l.chargeDaily({ ip: '1', now: 5 }).ok, true);
+  assert.strictEqual(l.chargeDaily({ ip: '2', now: 6 }).ok, true);
+  assert.strictEqual(l.chargeDaily({ ip: '3', now: 7 }).reason, 'daily');
 });
 test('body checks', () => {
   assert.strictEqual(checkRequestBody({ mode: 'typed', text: 'x'.repeat(4001) }).error, 'too_large');
@@ -71,10 +76,10 @@ test('http error does not leak body', async () => {
 
 test('one visitor cannot use the whole daily cap', () => {
   const l = createLimiter({ perIpPerWindow: 99, perIpPerDay: 2, dailyCap: 50 });
-  assert.strictEqual(l.check({ ip: 'a', now: 0 }).ok, true);
-  assert.strictEqual(l.check({ ip: 'a', now: 1 }).ok, true);
-  assert.strictEqual(l.check({ ip: 'a', now: 2 }).reason, 'ip_daily');
-  assert.strictEqual(l.check({ ip: 'b', now: 3 }).ok, true);
+  assert.strictEqual(l.chargeDaily({ ip: 'a', now: 0 }).ok, true);
+  assert.strictEqual(l.chargeDaily({ ip: 'a', now: 1 }).ok, true);
+  assert.strictEqual(l.chargeDaily({ ip: 'a', now: 2 }).reason, 'ip_daily');
+  assert.strictEqual(l.chargeDaily({ ip: 'b', now: 3 }).ok, true);
 });
 
 test('thinking level is sent by default and can be turned off', async () => {

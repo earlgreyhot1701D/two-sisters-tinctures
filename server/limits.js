@@ -22,15 +22,19 @@ function createLimiter(options) {
   const ipDay = new Map(); // ip -> { start, count }
   let day = { start: 0, count: 0 };
 
-  function hit(key, max, now) {
+  function canHit(key, max, now) {
+    const w = windows.get(key);
+    if (!w || now - w.start >= cfg.windowMs) return true;
+    return w.count < max;
+  }
+
+  function bump(key, now) {
     const w = windows.get(key);
     if (!w || now - w.start >= cfg.windowMs) {
       windows.set(key, { start: now, count: 1 });
-      return true;
+      return;
     }
-    if (w.count >= max) return false;
     w.count += 1;
-    return true;
   }
 
   function sweep(now) {
@@ -39,10 +43,26 @@ function createLimiter(options) {
     }
   }
 
-  // Returns { ok: true } or { ok: false, reason: 'rate' | 'daily' | 'ip_daily', retryAfterSec }
-  function check({ ip, deviceId, now }) {
+  // Per-minute flood guard. Runs before body read.
+  // Returns { ok: true } or { ok: false, reason: 'rate', retryAfterSec }
+  function checkRate({ ip, deviceId, now }) {
     const t = typeof now === 'number' ? now : Date.now();
     if (windows.size > 5000) sweep(t);
+
+    const ipKey = 'ip:' + String(ip || 'unknown');
+    const devKey = deviceId ? 'dev:' + String(deviceId).slice(0, 64) : null;
+    if (!canHit(ipKey, cfg.perIpPerWindow, t) || (devKey && !canHit(devKey, cfg.perDevicePerWindow, t))) {
+      return { ok: false, reason: 'rate', retryAfterSec: Math.ceil(cfg.windowMs / 1000) };
+    }
+    bump(ipKey, t);
+    if (devKey) bump(devKey, t);
+    return { ok: true };
+  }
+
+  // Daily cap check and charge. Runs only when a request is about to call the model.
+  // Returns { ok: true } or { ok: false, reason: 'daily' | 'ip_daily', retryAfterSec }
+  function chargeDaily({ ip, now }) {
+    const t = typeof now === 'number' ? now : Date.now();
     if (ipDay.size > 5000) { for (const [k, v] of ipDay) if (t - v.start >= cfg.dayMs) ipDay.delete(k); }
 
     if (t - day.start >= cfg.dayMs) day = { start: t, count: 0 };
@@ -59,17 +79,12 @@ function createLimiter(options) {
       return { ok: false, reason: 'ip_daily', retryAfterSec: Math.max(retry, 1) };
     }
 
-    const ipOk = hit('ip:' + String(ip || 'unknown'), cfg.perIpPerWindow, t);
-    const devOk = deviceId ? hit('dev:' + String(deviceId).slice(0, 64), cfg.perDevicePerWindow, t) : true;
-    if (!ipOk || !devOk) {
-      return { ok: false, reason: 'rate', retryAfterSec: Math.ceil(cfg.windowMs / 1000) };
-    }
     day.count += 1;
     ipDay.get(ipKey).count += 1;
     return { ok: true };
   }
 
-  return { check };
+  return { checkRate, chargeDaily };
 }
 
 // Validates the request body shape and sizes. Returns { ok, error?, value? }.

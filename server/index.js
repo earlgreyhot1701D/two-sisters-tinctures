@@ -66,7 +66,7 @@ function readBody(req, maxBytes) {
   });
 }
 
-// POST /api/read. Order: rate limits and daily caps, body checks, model, validation.
+// POST /api/read. Order: origin, per-minute rate limit, body checks, photo stub, daily cap, model, validation.
 async function handleRead(req, res) {
   try {
     // Same origin only. A browser on another site sends an Origin header that won't match this host.
@@ -76,10 +76,11 @@ async function handleRead(req, res) {
       try { sameOrigin = new URL(origin).host === req.headers.host; } catch { sameOrigin = false; }
       if (!sameOrigin) return sendJson(res, 403, { error: 'origin' });
     }
-    const gate = limiter.check({ ip: clientIp(req), deviceId: req.headers['x-device-id'] });
-    if (!gate.ok) {
-      return sendJson(res, 429, { error: gate.reason === 'rate' ? 'slow_down' : 'daily_cap' },
-        { 'Retry-After': String(gate.retryAfterSec) });
+    const ip = clientIp(req);
+    const rateGate = limiter.checkRate({ ip, deviceId: req.headers['x-device-id'] });
+    if (!rateGate.ok) {
+      return sendJson(res, 429, { error: 'slow_down' },
+        { 'Retry-After': String(rateGate.retryAfterSec) });
     }
     let body;
     try {
@@ -91,6 +92,12 @@ async function handleRead(req, res) {
     if (!checked.ok) return sendJson(res, checked.error === 'too_large' ? 413 : 400, { error: checked.error });
     const request = checked.value;
     if (request.mode === 'photo') return sendJson(res, 501, { error: 'photo_not_ready' }); // Block 5 STUB
+
+    const dailyGate = limiter.chargeDaily({ ip });
+    if (!dailyGate.ok) {
+      return sendJson(res, 429, { error: 'daily_cap' },
+        { 'Retry-After': String(dailyGate.retryAfterSec) });
+    }
 
     let raw;
     const startedAt = Date.now();
