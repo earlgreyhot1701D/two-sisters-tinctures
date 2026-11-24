@@ -85,7 +85,7 @@ Gemma 4 (gemma-4-26b-a4b-it) via the Gemini API
 
 **Protection for a public link with a paid key:**
 
-- 50 reads a day for the whole app, 10 a day per visitor, and a per-minute limit
+- 200 reads a day for the whole app, 10 a day per visitor, and a per-minute limit
 - same-origin check on the API route
 - Gemini key lives only in the server environment, restricted to the Gemini API
 - a budget alert sits behind all of it
@@ -113,7 +113,7 @@ Never commit `.env`. The key stays server-side.
 |---|---|---|
 | `GEMINI_API_KEY` | none | Your Gemini API key (required for reads) |
 | `MODEL_PROVIDER` | `gemini` | `ollama` is a stub |
-| `DAILY_CAP` | 50 | Total reads per day, whole app |
+| `DAILY_CAP` | 200 | Total reads per day, whole app |
 | `IP_DAILY_CAP` | 10 | Reads per day per visitor |
 | `MODEL_TIMEOUT_MS` | 30000 | Server wait for the model |
 | `MODEL_THINKING_LEVEL` | `MINIMAL` | `MINIMAL`, `LOW`, `MEDIUM`, `HIGH`, or `off` |
@@ -182,6 +182,7 @@ These are known and written down, not forgotten. None of them change what the ap
 - Nov 23: crash guard. Malformed requests now get a 400 instead of crashing the server.
 - Nov 23: daily read limits now only count requests that actually reach the AI. Bad or empty requests no longer use them up.
 - Nov 23: repeat label reads are cached for 24 hours, so the same product asked twice doesn't use up a daily read.
+- Nov 23: daily read limit raised from 50 to 200 for the launch window. Reads are free on Gemma and the Google spend cap stays at $5.
 
 ## Limits, plainly
 

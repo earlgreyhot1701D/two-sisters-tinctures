@@ -22,7 +22,7 @@ services:
       - key: MODEL_PROVIDER
         value: gemini
       - key: DAILY_CAP
-        value: "50"            # total AI reads per day, all visitors
+        value: "200"           # total AI reads per day, all visitors
       - key: IP_DAILY_CAP
         value: "10"            # AI reads per day, one visitor
       - key: MODEL_TIMEOUT_MS
