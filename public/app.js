@@ -764,6 +764,26 @@
     toggleBar.appendChild(pmBtn);
     container.appendChild(toggleBar);
 
+    if (!rules) {
+      const retryBtn = el('button', {
+        className: 'btn-primary',
+        type: 'button',
+        onclick: () => {
+          ensureRulesLoaded().then(() => {
+            if (currentTab === 'routine') renderApp();
+          });
+        }
+      }, ['Try again']); // routine.rules_retry
+      const errorBox = el('div', { className: 'shelf-section' }, [
+        el('div', { className: 'empty-shelf-box' }, [
+          el('p', { className: 'empty-shelf-text' }, ["My notes didn't load, friend. Give it another try."]), // routine.rules_error
+          retryBtn
+        ])
+      ]);
+      container.appendChild(errorBox);
+      return container;
+    }
+
     if (products.filter(p => p.status !== 'finished').length === 0) {
       const emptyBox = el('div', { className: 'shelf-section' }, [
         createEmptyShelfBox()
@@ -1555,12 +1575,24 @@
   document.getElementById('tab-shelf').addEventListener('click', () => {
     currentTab = 'shelf';
     updateNavState();
+    if (!rules) {
+      ensureRulesLoaded().then(() => {
+        if (currentTab === 'shelf') renderApp();
+      });
+      return;
+    }
     renderApp();
   });
 
   document.getElementById('tab-routine').addEventListener('click', () => {
     currentTab = 'routine';
     updateNavState();
+    if (!rules) {
+      ensureRulesLoaded().then(() => {
+        if (currentTab === 'routine') renderApp();
+      });
+      return;
+    }
     renderApp();
   });
 

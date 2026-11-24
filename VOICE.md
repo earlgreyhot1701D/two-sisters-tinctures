@@ -57,6 +57,8 @@ Every line the app says, in one place. The app speaks as **my little sister**, w
 | `reason.moisturizer` | Moisturizer reason | Locks in hydration and cushions your skin barrier. | [ ] |
 | `reason.facial_oil` | Facial oil reason | Nourishing plant oils seal your night routine. | [ ] |
 | `reason.sunscreen` | Sunscreen reason | Sunscreen is always last. Never put moisturizer on top of sunscreen. | [ ] |
+| `routine.rules_error` | Routine, rules failed to load | My notes didn't load, friend. Give it another try. | [ ] |
+| `routine.rules_retry` | Retry button | Try again | [ ] |
 
 ## Types
 | ID | Type Name | Her OK |
