@@ -67,7 +67,10 @@
     {
       "match": [
         "retinol",
-        "retinal"
+        "retinal",
+        "encapsulated retinol",
+        "retinaldehyde",
+        "hydroxypinacolone retinoate"
       ],
       "when": "pm",
       "freq": null
@@ -94,7 +97,10 @@
     {
       "groupA": [
         "retinol",
-        "retinal"
+        "retinal",
+        "encapsulated retinol",
+        "retinaldehyde",
+        "hydroxypinacolone retinoate"
       ],
       "groupB": [
         "glycolic acid",

@@ -184,6 +184,7 @@ These are known and written down, not forgotten. None of them change what the ap
 - Nov 23: repeat label reads are cached for 24 hours, so the same product asked twice doesn't use up a daily read.
 - Nov 23: daily read limit raised from 50 to 200 for the launch window. Reads are free on Gemma and the Google spend cap stays at $5.
 - Nov 23: if the routine rules fail to load, the Routine tab now says so and offers a retry instead of going blank.
+- Nov 23: the retinol and acid warning now recognizes encapsulated retinol, retinaldehyde, and hydroxypinacolone retinoate. It used to miss them, including on the demo shelf.
 
 ## Limits, plainly
 

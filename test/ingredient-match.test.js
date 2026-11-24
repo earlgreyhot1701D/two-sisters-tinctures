@@ -2,6 +2,7 @@
 const test = require('node:test');
 const assert = require('node:assert');
 const rules = require('../public/rules.json');
+const demoShelf = require('../public/demo-shelf.json');
 const byoma = require('./fixtures/gold/byoma-serum.json');
 const loreal = require('./fixtures/gold/loreal-spf.json');
 const {
@@ -112,4 +113,27 @@ test('findShelfMixAlert finds Retinoid and Acid conflict on active night product
   assert.notStrictEqual(alert, null);
   assert.strictEqual(alert.a, 'Lactic acid');
   assert.strictEqual(alert.b, 'Retinol');
+});
+
+test('real demo-shelf.json triggers glycolic + encapsulated retinol alert and conflict partner', () => {
+  const alert = findShelfMixAlert(demoShelf, rules);
+  assert.notStrictEqual(alert, null);
+  assert.strictEqual(alert.a, 'Glycolic acid');
+  assert.strictEqual(alert.b, 'Encapsulated retinol');
+  assert.strictEqual(alert.title, "Don't mix tonight: Glycolic acid and Encapsulated retinol");
+
+  const retinolSerum = demoShelf.find(p => p.id === 'prod-6');
+  const glycolicToner = demoShelf.find(p => p.id === 'prod-3');
+  assert.strictEqual(findConflictPartner(retinolSerum, demoShelf, rules), glycolicToner);
+  assert.strictEqual(findConflictPartner(glycolicToner, demoShelf, rules), retinolSerum);
+});
+
+test('product listing only Encapsulated retinol is night-only in computeWhen', () => {
+  const when = computeWhen({ name: 'Gentle Night Serum', type: 'Serum', ingredients: ['Encapsulated retinol'] }, 'Serum', rules);
+  assert.deepStrictEqual(when, ['pm']);
+});
+
+test('product listing Hydroxypinacolone retinoate is night-only in computeWhen', () => {
+  const when = computeWhen({ name: 'Granactive Emulsion', type: 'Serum', ingredients: ['Water', 'Hydroxypinacolone retinoate'] }, 'Serum', rules);
+  assert.deepStrictEqual(when, ['pm']);
 });
