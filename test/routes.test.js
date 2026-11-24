@@ -209,4 +209,139 @@ test('POST /api/read and static file containment routes', async t => {
     assert.strictEqual(res.statusCode, 403);
     assert.strictEqual(res.text, 'Forbidden');
   });
+
+  await t.test('malformed Host header -> 400 with security headers and server keeps running', async () => {
+    const res = await request({
+      hostname: '127.0.0.1',
+      port,
+      path: '/healthz',
+      method: 'GET',
+      headers: {
+        'Host': 'bad:host:80'
+      }
+    });
+
+    assert.strictEqual(res.statusCode, 400);
+    assert.strictEqual(res.text, 'Bad Request');
+    assert.ok(res.headers['content-security-policy'], 'Should include CSP header');
+    assert.ok(res.headers['strict-transport-security'], 'Should include HSTS header');
+    assert.strictEqual(res.headers['x-content-type-options'], 'nosniff');
+    assert.strictEqual(res.headers['x-frame-options'], 'DENY');
+
+    const health = await request({
+      hostname: '127.0.0.1',
+      port,
+      path: '/healthz',
+      method: 'GET'
+    });
+    assert.strictEqual(health.statusCode, 200);
+    assert.strictEqual(health.text, 'OK');
+  });
+});
+
+test('static file stream errors do not crash the server', async t => {
+  const port = await getFreePort();
+  const bootstrap = `
+    const fs = require('fs');
+    const { PassThrough } = require('stream');
+    const orig = fs.createReadStream;
+    fs.createReadStream = function(filePath, ...args) {
+      if (String(filePath).endsWith('index.html')) {
+        const s = new PassThrough();
+        process.nextTick(() => s.destroy(Object.assign(new Error('open failed'), { code: 'EACCES' })));
+        return s;
+      }
+      if (String(filePath).endsWith('rules.json')) {
+        const s = new PassThrough();
+        process.nextTick(() => {
+          s.emit('open', 1);
+          s.write('partial');
+          process.nextTick(() => s.destroy(Object.assign(new Error('read failed'), { code: 'EIO' })));
+        });
+        return s;
+      }
+      return orig.call(this, filePath, ...args);
+    };
+    require('./server/index.js');
+  `;
+
+  const child = await new Promise((resolve, reject) => {
+    const proc = cp.spawn(process.execPath, ['-e', bootstrap], {
+      env: Object.assign({}, process.env, {
+        PORT: String(port),
+        GEMINI_API_KEY: ''
+      }),
+      stdio: ['ignore', 'pipe', 'pipe']
+    });
+
+    let stdout = '';
+    let stderr = '';
+
+    const onData = chunk => {
+      stdout += chunk.toString();
+      if (stdout.includes(`Server listening on http://0.0.0.0:${port}`)) {
+        proc.stdout.removeListener('data', onData);
+        resolve(proc);
+      }
+    };
+
+    proc.stdout.on('data', onData);
+    proc.stderr.on('data', chunk => {
+      stderr += chunk.toString();
+    });
+    proc.on('error', reject);
+    proc.on('exit', (code, signal) => {
+      reject(new Error(`Server exited unexpectedly with code ${code} / signal ${signal}: ${stderr}`));
+    });
+  });
+
+  t.after(() => {
+    child.kill('SIGTERM');
+  });
+
+  await t.test('failed file open -> 500 with security headers and server keeps running', async () => {
+    const res = await request({
+      hostname: '127.0.0.1',
+      port,
+      path: '/index.html',
+      method: 'GET'
+    });
+
+    assert.strictEqual(res.statusCode, 500);
+    assert.strictEqual(res.text, 'Internal Server Error');
+    assert.ok(res.headers['content-security-policy'], 'Should include CSP header');
+    assert.ok(res.headers['strict-transport-security'], 'Should include HSTS header');
+    assert.strictEqual(res.headers['x-content-type-options'], 'nosniff');
+    assert.strictEqual(res.headers['x-frame-options'], 'DENY');
+
+    const health = await request({
+      hostname: '127.0.0.1',
+      port,
+      path: '/healthz',
+      method: 'GET'
+    });
+    assert.strictEqual(health.statusCode, 200);
+    assert.strictEqual(health.text, 'OK');
+  });
+
+  await t.test('stream error after headers sent -> ends cleanly and server keeps running', async () => {
+    const res = await request({
+      hostname: '127.0.0.1',
+      port,
+      path: '/rules.json',
+      method: 'GET'
+    });
+
+    assert.strictEqual(res.statusCode, 200);
+    assert.strictEqual(res.text, 'partial');
+
+    const health = await request({
+      hostname: '127.0.0.1',
+      port,
+      path: '/healthz',
+      method: 'GET'
+    });
+    assert.strictEqual(health.statusCode, 200);
+    assert.strictEqual(health.text, 'OK');
+  });
 });

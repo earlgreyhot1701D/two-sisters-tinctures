@@ -117,57 +117,89 @@ async function handleRead(req, res) {
 }
 
 const server = http.createServer((req, res) => {
-  const parsedUrl = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
-  const pathname = parsedUrl.pathname;
+  const startedAt = Date.now();
+  try {
+    let parsedUrl;
+    try {
+      parsedUrl = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
+    } catch (err) {
+      const code = (err && err.code) || 'bad_request';
+      console.error('request parse error:', code, 'after', Date.now() - startedAt, 'ms');
+      res.writeHead(400, { 'Content-Type': 'text/plain; charset=utf-8', ...SECURITY_HEADERS });
+      res.end('Bad Request');
+      return;
+    }
+    const pathname = parsedUrl.pathname;
 
-  // Health check endpoint: zero side effects, no model call, no storage
-  if (pathname === '/healthz' && req.method === 'GET') {
-    res.writeHead(200, {
-      'Content-Type': 'text/plain; charset=utf-8',
-      'Cache-Control': 'no-store',
-      ...SECURITY_HEADERS
-    });
-    res.end('OK');
-    return;
-  }
-
-  if (pathname === '/api/read') {
-    if (req.method !== 'POST') return sendJson(res, 405, { error: 'method' }, { Allow: 'POST' });
-    handleRead(req, res);
-    return;
-  }
-
-  // Handle static assets
-  const rawPath = req.url.split('?')[0];
-  const targetRel = (rawPath === '/' || rawPath === '') ? '/index.html' : rawPath;
-  const filePath = path.resolve(PUBLIC_DIR, '.' + targetRel);
-
-  // Prevent directory traversal outside public
-  const rel = path.relative(PUBLIC_DIR, filePath);
-  if (rel.startsWith('..') || path.isAbsolute(rel)) {
-    res.writeHead(403, { 'Content-Type': 'text/plain; charset=utf-8', ...SECURITY_HEADERS });
-    res.end('Forbidden');
-    return;
-  }
-
-  fs.stat(filePath, (err, stats) => {
-    if (err || !stats.isFile()) {
-      res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8', ...SECURITY_HEADERS });
-      res.end('Not Found');
+    // Health check endpoint: zero side effects, no model call, no storage
+    if (pathname === '/healthz' && req.method === 'GET') {
+      res.writeHead(200, {
+        'Content-Type': 'text/plain; charset=utf-8',
+        'Cache-Control': 'no-store',
+        ...SECURITY_HEADERS
+      });
+      res.end('OK');
       return;
     }
 
-    const ext = path.extname(filePath).toLowerCase();
-    const contentType = MIME_TYPES[ext] || 'application/octet-stream';
+    if (pathname === '/api/read') {
+      if (req.method !== 'POST') return sendJson(res, 405, { error: 'method' }, { Allow: 'POST' });
+      handleRead(req, res);
+      return;
+    }
 
-    res.writeHead(200, {
-      'Content-Type': contentType,
-      ...SECURITY_HEADERS
+    // Handle static assets
+    const rawPath = req.url.split('?')[0];
+    const targetRel = (rawPath === '/' || rawPath === '') ? '/index.html' : rawPath;
+    const filePath = path.resolve(PUBLIC_DIR, '.' + targetRel);
+
+    // Prevent directory traversal outside public
+    const rel = path.relative(PUBLIC_DIR, filePath);
+    if (rel.startsWith('..') || path.isAbsolute(rel)) {
+      res.writeHead(403, { 'Content-Type': 'text/plain; charset=utf-8', ...SECURITY_HEADERS });
+      res.end('Forbidden');
+      return;
+    }
+
+    fs.stat(filePath, (err, stats) => {
+      if (err || !stats.isFile()) {
+        res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8', ...SECURITY_HEADERS });
+        res.end('Not Found');
+        return;
+      }
+
+      const ext = path.extname(filePath).toLowerCase();
+      const contentType = MIME_TYPES[ext] || 'application/octet-stream';
+
+      const stream = fs.createReadStream(filePath);
+      stream.on('open', () => {
+        res.writeHead(200, {
+          'Content-Type': contentType,
+          ...SECURITY_HEADERS
+        });
+        stream.pipe(res);
+      });
+      stream.on('error', streamErr => {
+        const code = (streamErr && streamErr.code) || 'stream_error';
+        console.error('static stream error:', code, 'after', Date.now() - startedAt, 'ms');
+        if (!res.headersSent) {
+          res.writeHead(500, { 'Content-Type': 'text/plain; charset=utf-8', ...SECURITY_HEADERS });
+          res.end('Internal Server Error');
+        } else if (!res.writableEnded) {
+          res.end();
+        }
+      });
     });
-
-    const stream = fs.createReadStream(filePath);
-    stream.pipe(res);
-  });
+  } catch (err) {
+    const code = (err && err.code) || 'server_error';
+    console.error('request handler error:', code, 'after', Date.now() - startedAt, 'ms');
+    if (!res.headersSent) {
+      res.writeHead(500, { 'Content-Type': 'text/plain; charset=utf-8', ...SECURITY_HEADERS });
+      res.end('Internal Server Error');
+    } else if (!res.writableEnded) {
+      res.end();
+    }
+  }
 });
 
 server.listen(PORT, HOST, () => {

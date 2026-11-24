@@ -179,6 +179,8 @@ These are known and written down, not forgotten. None of them change what the ap
 | Photo input and product lookup (web search, product page, barcode) | Stubs with notes in `PRD.md` and `FINDINGS.md` |
 | Saving the "2 to 3 nights a week" note from the ingredient rules | Comment stub in `public/ingredient-match.js` |
 
+- Nov 23: crash guard. Malformed requests now get a 400 instead of crashing the server.
+
 ## Limits, plainly
 
 - Photo input and product lookup are not built. Both are stubs with notes.
