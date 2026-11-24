@@ -181,6 +181,7 @@ These are known and written down, not forgotten. None of them change what the ap
 
 - Nov 23: crash guard. Malformed requests now get a 400 instead of crashing the server.
 - Nov 23: daily read limits now only count requests that actually reach the AI. Bad or empty requests no longer use them up.
+- Nov 23: repeat label reads are cached for 24 hours, so the same product asked twice doesn't use up a daily read.
 
 ## Limits, plainly
 

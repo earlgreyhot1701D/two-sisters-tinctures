@@ -449,3 +449,189 @@ test('daily cap is only charged for valid non-photo requests', async t => {
     assert.ok(rateRes.headers['retry-after'], 'Should include Retry-After header');
   });
 });
+
+test('repeat reads hit cache without calling model or charging daily cap', async t => {
+  const port = await getFreePort();
+  const bootstrap = `
+    const path = require('path');
+    const gemmaPath = require.resolve('./server/gemma');
+    let calls = 0;
+    require.cache[gemmaPath] = {
+      id: gemmaPath,
+      filename: gemmaPath,
+      loaded: true,
+      exports: {
+        readProduct: async (req) => {
+          calls += 1;
+          if (req.text === 'trigger_timeout') throw new Error('model_timeout');
+          if (req.text === 'trigger_bad_output') return { kind: 'maybe' };
+          return {
+            kind: 'skincare',
+            name: 'CeraVe Cleanser #' + calls,
+            brand: 'CeraVe',
+            type: 'Cleanser',
+            ingredients: [],
+            does: 'Gently cleanses skin.'
+          };
+        }
+      }
+    };
+    require('./server/index.js');
+  `;
+
+  const child = await new Promise((resolve, reject) => {
+    const proc = cp.spawn(process.execPath, ['-e', bootstrap], {
+      env: Object.assign({}, process.env, {
+        PORT: String(port),
+        DAILY_CAP: '1',
+        IP_DAILY_CAP: '1',
+        GEMINI_API_KEY: ''
+      }),
+      stdio: ['ignore', 'pipe', 'pipe']
+    });
+
+    let stdout = '';
+    let stderr = '';
+
+    const onData = chunk => {
+      stdout += chunk.toString();
+      if (stdout.includes(`Server listening on http://0.0.0.0:${port}`)) {
+        proc.stdout.removeListener('data', onData);
+        resolve(proc);
+      }
+    };
+
+    proc.stdout.on('data', onData);
+    proc.stderr.on('data', chunk => {
+      stderr += chunk.toString();
+    });
+    proc.on('error', reject);
+    proc.on('exit', (code, signal) => {
+      reject(new Error(`Server exited unexpectedly with code ${code} / signal ${signal}: ${stderr}`));
+    });
+  });
+
+  t.after(() => {
+    child.kill('SIGTERM');
+  });
+
+  const post = (ip, body) => request({
+    hostname: '127.0.0.1',
+    port,
+    path: '/api/read',
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Forwarded-For': ip
+    }
+  }, JSON.stringify(body));
+
+  await t.test('same request twice returns cached 200 without charging daily cap, different mode/text misses', async () => {
+    const first = await post('198.51.100.10', { mode: 'typed', text: 'CeraVe Cleanser' });
+    assert.strictEqual(first.statusCode, 200);
+    assert.strictEqual(first.json.name, 'CeraVe Cleanser #1');
+
+    // Normalized-equivalent repeat: cache hit (same #1 answer, does not hit daily cap 1/1)
+    const repeat = await post('198.51.100.11', { mode: 'typed', text: '  cerave   cleanser\n' });
+    assert.strictEqual(repeat.statusCode, 200);
+    assert.deepStrictEqual(repeat.json, first.json);
+
+    // Same text in different mode is a miss -> hits daily cap (1/1 already used)
+    const diffMode = await post('198.51.100.12', { mode: 'paste', text: 'CeraVe Cleanser' });
+    assert.strictEqual(diffMode.statusCode, 429);
+    assert.deepStrictEqual(diffMode.json, { error: 'daily_cap' });
+
+    // Different text in same mode is a miss -> hits daily cap
+    const diffText = await post('198.51.100.13', { mode: 'typed', text: 'Other Cleanser' });
+    assert.strictEqual(diffText.statusCode, 429);
+    assert.deepStrictEqual(diffText.json, { error: 'daily_cap' });
+  });
+});
+
+test('failed or rejected model reads are never cached', async t => {
+  const port = await getFreePort();
+  const bootstrap = `
+    const gemmaPath = require.resolve('./server/gemma');
+    let attempts = 0;
+    require.cache[gemmaPath] = {
+      id: gemmaPath,
+      filename: gemmaPath,
+      loaded: true,
+      exports: {
+        readProduct: async () => {
+          attempts += 1;
+          if (attempts === 1) throw new Error('model_timeout');
+          if (attempts === 2) return { kind: 'maybe' };
+          return {
+            kind: 'skincare',
+            name: 'Recovered Cleanser',
+            brand: 'Acme',
+            type: 'Cleanser',
+            ingredients: [],
+            does: 'Gently cleanses skin.'
+          };
+        }
+      }
+    };
+    require('./server/index.js');
+  `;
+
+  const child = await new Promise((resolve, reject) => {
+    const proc = cp.spawn(process.execPath, ['-e', bootstrap], {
+      env: Object.assign({}, process.env, {
+        PORT: String(port),
+        DAILY_CAP: '10',
+        IP_DAILY_CAP: '10',
+        GEMINI_API_KEY: ''
+      }),
+      stdio: ['ignore', 'pipe', 'pipe']
+    });
+
+    let stdout = '';
+    let stderr = '';
+
+    const onData = chunk => {
+      stdout += chunk.toString();
+      if (stdout.includes(`Server listening on http://0.0.0.0:${port}`)) {
+        proc.stdout.removeListener('data', onData);
+        resolve(proc);
+      }
+    };
+
+    proc.stdout.on('data', onData);
+    proc.stderr.on('data', chunk => {
+      stderr += chunk.toString();
+    });
+    proc.on('error', reject);
+    proc.on('exit', (code, signal) => {
+      reject(new Error(`Server exited unexpectedly with code ${code} / signal ${signal}: ${stderr}`));
+    });
+  });
+
+  t.after(() => {
+    child.kill('SIGTERM');
+  });
+
+  const post = () => request({
+    hostname: '127.0.0.1',
+    port,
+    path: '/api/read',
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Forwarded-For': '198.51.100.20'
+    }
+  }, JSON.stringify({ mode: 'typed', text: 'flaky cleanser' }));
+
+  const first = await post();
+  assert.strictEqual(first.statusCode, 504);
+  assert.deepStrictEqual(first.json, { error: 'model_timeout' });
+
+  const second = await post();
+  assert.strictEqual(second.statusCode, 502);
+  assert.deepStrictEqual(second.json, { error: 'unreadable' });
+
+  const third = await post();
+  assert.strictEqual(third.statusCode, 200);
+  assert.strictEqual(third.json.name, 'Recovered Cleanser');
+});

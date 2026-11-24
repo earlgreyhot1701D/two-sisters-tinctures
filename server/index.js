@@ -3,6 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const rules = require('../public/rules.json');
 const limits = require('./limits');
+const { cacheKey, createCache } = require('./cache');
 const { validateModelOutput } = require('./validate');
 const { readProduct } = require('./gemma');
 
@@ -30,6 +31,7 @@ const SECURITY_HEADERS = {
 };
 
 const limiter = limits.createLimiter();
+const readCache = createCache();
 
 function sendJson(res, status, obj, extra) {
   res.writeHead(status, Object.assign({
@@ -66,7 +68,7 @@ function readBody(req, maxBytes) {
   });
 }
 
-// POST /api/read. Order: origin, per-minute rate limit, body checks, photo stub, daily cap, model, validation.
+// POST /api/read. Order: origin, per-minute rate limit, body checks, photo stub, cache lookup, daily cap, model, validation, cache store.
 async function handleRead(req, res) {
   try {
     // Same origin only. A browser on another site sends an Origin header that won't match this host.
@@ -93,6 +95,15 @@ async function handleRead(req, res) {
     const request = checked.value;
     if (request.mode === 'photo') return sendJson(res, 501, { error: 'photo_not_ready' }); // Block 5 STUB
 
+    const startedAt = Date.now();
+    const key = cacheKey(request.mode, request.text);
+    const cached = readCache.get(key);
+    if (cached) {
+      console.log('cache hit in', Date.now() - startedAt, 'ms');
+      return sendJson(res, 200, cached);
+    }
+    console.log('cache miss in', Date.now() - startedAt, 'ms');
+
     const dailyGate = limiter.chargeDaily({ ip });
     if (!dailyGate.ok) {
       return sendJson(res, 429, { error: 'daily_cap' },
@@ -100,7 +111,6 @@ async function handleRead(req, res) {
     }
 
     let raw;
-    const startedAt = Date.now();
     try {
       raw = await readProduct(request);
       console.log('model ok in', Date.now() - startedAt, 'ms');
@@ -116,6 +126,7 @@ async function handleRead(req, res) {
       console.error('model output rejected:', result.why); // reason code only, never the content
       return sendJson(res, 502, { error: 'unreadable' });
     }
+    readCache.set(key, result.value);
     return sendJson(res, 200, result.value);
   } catch (err) {
     console.error('read handler error:', err && err.message);
