@@ -220,7 +220,7 @@ header.app-header {
 }
 
 .shelf-count {
-  font-family: var(--font-display);
+  font-family: var(--font-text);
   font-size: 20px;
   color: var(--label-paper);
   font-weight: 400;
@@ -321,7 +321,7 @@ header.app-header {
   background: var(--drawer-face);
   border: 1px solid var(--brass);
   border-radius: 10px;
-  padding: 12px 10px 10px;
+  padding: 12px 8px 10px;
   cursor: pointer;
   text-align: center;
   display: flex;
@@ -360,27 +360,6 @@ header.app-header {
   padding: 10px 6px 8px;
 }
 
-.drawer-rivet {
-  position: absolute;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--brass);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
-}
-
-.drawer-rivet.left {
-  left: -4px;
-  top: 50%;
-  transform: translateY(-50%);
-}
-
-.drawer-rivet.right {
-  right: -4px;
-  top: 50%;
-  transform: translateY(-50%);
-}
-
 /* Drawer Typography */
 .drawer-title {
   font-family: var(--font-display);
@@ -388,9 +367,12 @@ header.app-header {
   line-height: 1.15;
   font-weight: 400;
   color: var(--prescription-ink);
+  text-align: center;
+  width: 100%;
+  text-wrap: balance;
   margin-bottom: 4px;
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 4;
   -webkit-box-orient: vertical;
   overflow: hidden;
   word-break: break-word;
@@ -410,23 +392,10 @@ header.app-header {
   height: 18px;
   border-radius: 50%;
   margin-top: 10px;
-  background: var(--brass);
+  background: radial-gradient(circle at 35% 35%, var(--wordmark-brass), var(--brass) 55%, color-mix(in srgb, var(--brass), black 40%));
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.7);
   position: relative;
   flex-shrink: 0;
-}
-
-.drawer-knob::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #D9C38B;
-  opacity: 0.6;
 }
 
 /* Drawer Badges */

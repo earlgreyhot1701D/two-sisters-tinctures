@@ -582,8 +582,6 @@
 
     activeProducts.forEach(prod => {
       const innerFrame = el('div', { className: 'drawer-inset-frame' }, [
-        el('div', { className: 'drawer-rivet left' }),
-        el('div', { className: 'drawer-rivet right' }),
         el('div', { className: 'drawer-title' }, [prod.name]),
         el('div', { className: 'drawer-category' }, [prod.type])
       ]);

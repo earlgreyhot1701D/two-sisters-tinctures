@@ -186,6 +186,7 @@ These are known and written down, not forgotten. None of them change what the ap
 - Nov 23: if the routine rules fail to load, the Routine tab now says so and offers a retry instead of going blank.
 - Nov 23: the retinol and acid warning now recognizes encapsulated retinol, retinaldehyde, and hydroxypinacolone retinoate. It used to miss them, including on the demo shelf.
 - Nov 24: if the routine rules or demo shelf stall, the app gives up after 8 seconds and shows a message instead of a blank screen.
+- Nov 24: drawers redone for the launch: full product names, no side pins, and a shaded brass knob.
 
 ## Limits, plainly
 
