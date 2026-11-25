@@ -9,6 +9,7 @@
   // Fixed date for demo mode only so expiry states are stable for judges.
   // Real shelves use the real date.
   const TODAY = new Date(2026, 9, 2);
+  const ASSET_TIMEOUT_MS = 8000;
 
   // Application State
   let currentTab = 'shelf';
@@ -18,6 +19,7 @@
   let products = []; // Starts empty by default
   let isDemo = false;
   let rules = null; // Loaded from rules.json
+  let rulesPromise = null;
   let manualFormState = {};
   let pendingUndo = null; // { product, index, timerId }
   let pasteDraft = '';
@@ -280,7 +282,10 @@
 
   function ensureRulesLoaded() {
     if (rules) return Promise.resolve(rules);
-    return fetch('rules.json')
+    if (rulesPromise) return rulesPromise;
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), ASSET_TIMEOUT_MS);
+    rulesPromise = fetch('rules.json', { signal: controller.signal })
       .then(res => {
         if (!res.ok) throw new Error('Network error loading rules');
         return res.json();
@@ -292,12 +297,19 @@
       .catch(err => {
         console.error('Failed to load rules.json:', err);
         return null;
+      })
+      .finally(() => {
+        clearTimeout(timer);
+        rulesPromise = null;
       });
+    return rulesPromise;
   }
 
   function loadDemoShelf() {
     ensureRulesLoaded().then(() => {
-      fetch('demo-shelf.json')
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), ASSET_TIMEOUT_MS);
+      fetch('demo-shelf.json', { signal: controller.signal })
         .then(res => {
           if (!res.ok) throw new Error('Network error loading demo');
           return res.json();
@@ -310,6 +322,10 @@
         })
         .catch(() => {
           showToast("Couldn't load demo shelf");
+          renderApp();
+        })
+        .finally(() => {
+          clearTimeout(timer);
         });
     });
   }
