@@ -40,7 +40,7 @@ A skincare shelf tracker for my little sister. She adds a product by pasting ing
 
 ## Design
 - `design/stitch-round3.html` is the visual source of truth.
-- Fonts: IM Fell DW Pica (wordmark, product names, titles, 20px and up) and Libre Caslon Text (everything else). No italics. No ALL CAPS. Sizes 13, 15, 17, 20, 28, 36, 56 only.
+- Fonts: IM Fell DW Pica (wordmark, product names, titles, 20px and up) and Libre Caslon Text (everything else). No italics. No ALL CAPS. Sizes 13, 15, 17, 20, 28, 36, 48 (wordmark title only), 56 only.
 - Colors: only the palette in PRD Gate D.
 - **All user-facing copy comes from `VOICE.md`.** Do not write new lines. If a screen needs one, propose it and wait.
 - No em dashes in any copy.
