@@ -593,6 +593,36 @@ header.app-header {
   line-height: 1.4;
 }
 
+.routine-step-card.routine-step-conflict {
+  border-left: 4px solid var(--pharmacy-red);
+}
+
+.routine-step-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 2px;
+}
+
+.routine-step-header .routine-step-type {
+  margin-bottom: 0;
+}
+
+.routine-alt-tag {
+  display: inline-block;
+  font-family: var(--font-text);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--pharmacy-red-light);
+  background: var(--drawer-edge);
+  border: 1px solid var(--pharmacy-red);
+  border-radius: 10px;
+  padding: 2px 8px;
+  white-space: nowrap;
+}
+
 /* Shelf Gap Banner */
 .shelf-gap-banner {
   margin: 12px 16px 4px;

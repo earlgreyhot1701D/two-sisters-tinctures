@@ -823,6 +823,29 @@
 
     const stepsList = el('div', { className: 'routine-steps-list' });
 
+    const conflictSet = new Set();
+    let firstConflictPair = null;
+    if (routineTime === 'pm' && window.IngredientMatch && typeof window.IngredientMatch.findConflictPartner === 'function') {
+      routineItems.forEach(prod => {
+        const partner = window.IngredientMatch.findConflictPartner(prod, routineItems, rules);
+        if (partner) {
+          conflictSet.add(prod);
+          conflictSet.add(partner);
+          if (!firstConflictPair) firstConflictPair = [prod, partner];
+        }
+      });
+    }
+
+    if (firstConflictPair) {
+      const [a, b] = firstConflictPair;
+      const altBanner = el('div', { className: 'alert-card warning' }, [
+        el('div', { className: 'alert-desc' }, [
+          `${a.name} and ${b.name} are both on your night list. Take turns: one night each, never together.` // routine.alt
+        ])
+      ]);
+      stepsList.appendChild(altBanner);
+    }
+
     let stepIndex = 1;
     routineItems.forEach(prod => {
       let stepReason = computeStepReason(prod, routineTime);
@@ -833,13 +856,21 @@
         }
       }
 
+      const isConflict = conflictSet.has(prod);
+      const topRow = isConflict
+        ? el('div', { className: 'routine-step-header' }, [
+            el('div', { className: 'routine-step-type' }, [prod.type]),
+            el('span', { className: 'routine-alt-tag' }, ['Alternate nights']) // routine.alt.tag
+          ])
+        : el('div', { className: 'routine-step-type' }, [prod.type]);
+
       const stepCard = el('div', {
-        className: 'routine-step-card',
+        className: isConflict ? 'routine-step-card routine-step-conflict' : 'routine-step-card',
         onclick: () => openProductDetail(prod)
       }, [
         el('div', { className: 'routine-step-number' }, [stepIndex++]),
         el('div', { className: 'routine-step-content' }, [
-          el('div', { className: 'routine-step-type' }, [prod.type]),
+          topRow,
           el('div', { className: 'routine-step-name' }, [prod.name]),
           el('div', { className: 'routine-step-reason' }, [stepReason])
         ])
