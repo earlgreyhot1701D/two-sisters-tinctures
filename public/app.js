@@ -10,6 +10,7 @@
   // Real shelves use the real date.
   const TODAY = new Date(2026, 9, 2);
   const ASSET_TIMEOUT_MS = 8000;
+  const V2_LIST_URL = 'https://forms.gle/B3GmpGPYNYb4iJ5j9';
 
   // Application State
   let currentTab = 'shelf';
@@ -936,6 +937,20 @@
     if (readAbort) { readAbort.abort(); readAbort = null; }
   }
 
+  function createV2ListBlock(className) {
+    return el('div', { className: className || 'v2-list-block' }, [
+      el('a', {
+        className: 'v2-list-link',
+        href: V2_LIST_URL,
+        target: '_blank',
+        rel: 'noopener noreferrer'
+      }, ['Want label scanning? Join the v2 list.']), // v2.list.link
+      el('div', { className: 'v2-list-note' }, [
+        'This list is a separate Google Form, not part of the app.' // v2.list.note
+      ])
+    ]);
+  }
+
   // 3. ADD SCREEN
   function renderAddScreen() {
     const container = el('div');
@@ -946,10 +961,8 @@
 
       const addContainer = el('div', { className: 'add-flow-container' });
 
-      const snapCard = el('button', {
-        className: 'add-choice-card add-choice-disabled',
-        disabled: true,
-        'aria-disabled': 'true'
+      const snapCard = el('div', {
+        className: 'add-choice-card add-choice-disabled'
       }, [
         // STUB: photo reading is Block 5 (stubbed Oct 3, see TASKS.md).
         // STUB: lookup, three ways in, none built (PRD Gate C, FINDINGS Oct 3 Lookup):
@@ -962,7 +975,8 @@
             'Snap the label',
             el('span', { className: 'add-choice-badge' }, ['Coming soon'])
           ]),
-          el('div', { className: 'add-choice-sub' }, ['A photo of the back of the bottle works best.'])
+          el('div', { className: 'add-choice-sub' }, ['A photo of the back of the bottle works best.']),
+          createV2ListBlock()
         ])
       ]);
 
@@ -1600,8 +1614,11 @@
     clearSection.className = 'clear-shelf-section';
     clearSection.appendChild(clearBtn);
 
+    const v2Card = createV2ListBlock('info-note-card');
+
     aboutWrapper.appendChild(storyCard);
     aboutWrapper.appendChild(deviceNote);
+    aboutWrapper.appendChild(v2Card);
     aboutWrapper.appendChild(backupActions);
     aboutWrapper.appendChild(creditsCard);
     aboutWrapper.appendChild(disclaimerCard);

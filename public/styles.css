@@ -784,6 +784,41 @@ header.app-header {
   opacity: 0.8;
 }
 
+.v2-list-block {
+  margin-top: 6px;
+}
+
+.v2-list-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-family: var(--font-text);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--label-paper);
+  text-decoration: underline;
+  text-decoration-color: var(--wordmark-brass);
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.v2-list-link:hover {
+  color: var(--wordmark-brass);
+}
+
+.v2-list-link:focus-visible {
+  outline: 2px solid var(--amber-glow);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.v2-list-note {
+  font-family: var(--font-text);
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--label-paper);
+}
+
 .add-manual-link {
   display: block;
   text-align: center;

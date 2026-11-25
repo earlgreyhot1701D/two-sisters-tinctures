@@ -192,6 +192,7 @@ These are known and written down, not forgotten. None of them change what the ap
 - Nov 24: the Night routine now flags products that shouldn't be used together, with a warning card and an Alternate nights tag on both.
 - Nov 24: polish: easier-to-read subtitle, brand font on the close button, and messages no longer cut each other short.
 - Nov 24: the header now reads as one name, Two Sisters Tinctures.
+- Nov 24: link to the v2 interest list (a separate Google Form) on the photo card and About page.
 
 ## Limits, plainly
 

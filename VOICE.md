@@ -292,3 +292,9 @@ Every line the app says, in one place. The app speaks as **my little sister**, w
 | `gap.moisturizer` | Gap hint | No moisturizer on your shelf yet to seal in hydration. | [ ] |
 | `gap.dismiss` | Gap hint dismiss button | Got it | [ ] |
 
+## v2 interest list
+| ID | Where | Line | Her OK |
+|---|---|---|---|
+| `v2.list.link` | Photo card and About | Want label scanning? Join the v2 list. | Shara, Nov 24 |
+| `v2.list.note` | Photo card and About | This list is a separate Google Form, not part of the app. | Shara, Nov 24 |
+
