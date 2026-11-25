@@ -190,6 +190,7 @@ These are known and written down, not forgotten. None of them change what the ap
 - Nov 24: messages now pop up at the bottom, above the tabs, so they never cover the title.
 - Nov 24: red warning text is now readable on the green background.
 - Nov 24: the Night routine now flags products that shouldn't be used together, with a warning card and an Alternate nights tag on both.
+- Nov 24: polish: easier-to-read subtitle, brand font on the close button, and messages no longer cut each other short.
 
 ## Limits, plainly
 

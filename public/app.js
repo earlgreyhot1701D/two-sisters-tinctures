@@ -184,16 +184,20 @@
   const detailBackdrop = document.getElementById('detail-sheet-backdrop');
   const detailContent = document.getElementById('detail-sheet-content');
   const toastEl = document.getElementById('app-toast');
+  let toastHideTimer = null;
 
   function showToast(msg) {
+    if (toastHideTimer) clearTimeout(toastHideTimer);
     toastEl.textContent = msg;
     toastEl.classList.add('visible');
-    setTimeout(() => {
+    toastHideTimer = setTimeout(() => {
       toastEl.classList.remove('visible');
+      toastHideTimer = null;
     }, 2800);
   }
 
   function showToastWithUndo(msg, undoLabel, onUndo) {
+    if (toastHideTimer) clearTimeout(toastHideTimer);
     // Clear existing content safely
     while (toastEl.firstChild) { toastEl.removeChild(toastEl.firstChild); }
     toastEl.appendChild(document.createTextNode(msg + ' '));
@@ -202,14 +206,18 @@
     undoBtn.type = 'button';
     undoBtn.appendChild(document.createTextNode(undoLabel));
     undoBtn.addEventListener('click', () => {
+      if (toastHideTimer) { clearTimeout(toastHideTimer); toastHideTimer = null; }
       toastEl.classList.remove('visible');
       onUndo();
     });
     toastEl.appendChild(undoBtn);
     toastEl.classList.add('visible');
-    return setTimeout(() => {
+    toastHideTimer = setTimeout(() => {
       toastEl.classList.remove('visible');
       while (toastEl.firstChild) { toastEl.removeChild(toastEl.firstChild); }
+      toastHideTimer = null;
+    }, 5000);
+    return setTimeout(() => {
       pendingUndo = null; // Fix B: removal is final once timer expires
     }, 5000);
   }
