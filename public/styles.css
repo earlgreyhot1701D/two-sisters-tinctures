@@ -11,6 +11,7 @@
   --brass: #A88B4A;
   --wordmark-brass: #CDB27A;
   --pharmacy-red: #A1272F;
+  --pharmacy-red-light: color-mix(in srgb, var(--pharmacy-red), white 55%);
   
   --font-display: 'IM Fell DW Pica', serif;
   --font-text: 'Libre Caslon Text', serif;
@@ -414,7 +415,7 @@ header.app-header {
 
 .drawer-badge.past-prime {
   background: var(--drawer-edge);
-  color: var(--pharmacy-red);
+  color: var(--pharmacy-red-light);
   border: 1px solid var(--pharmacy-red);
 }
 
@@ -825,7 +826,7 @@ header.app-header {
   font-family: var(--font-text);
   font-size: 13px;
   font-weight: 700;
-  color: var(--pharmacy-red);
+  color: var(--pharmacy-red-light);
   margin-top: 6px;
   line-height: 1.4;
 }
@@ -883,7 +884,7 @@ header.app-header {
   align-items: center;
   justify-content: center;
   background-color: transparent;
-  color: var(--pharmacy-red);
+  color: var(--pharmacy-red-light);
   font-family: var(--font-text);
   font-size: 15px;
   font-weight: 700;
