@@ -16,3 +16,11 @@ Blank labels, no faces, no real brands.
 | 08-drawers.jpg | Cabinet drawers, one open | Cut to the app's drawer cabinet |
 
 Not served by the app (lives in design/, not public/).
+
+## Submission assets
+
+Entry for the B.E.L.L.E x Migoo AI Marketing Video Challenge (submitted Nov 25, 2026):
+
+- `design/migoo-video/two-sisters-tinctures.gif`: 11 s highlight GIF
+- `design/migoo-video/two-sisters-tinctures-migoo-slides.pdf`: submission slides
+- `docs/video/two-sisters-tinctures.mp4`: final 30 s video, served with `docs/video/index.html` and `docs/video/poster.jpg` via GitHub Pages
